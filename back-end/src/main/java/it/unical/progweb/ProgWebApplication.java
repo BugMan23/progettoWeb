@@ -1,4 +1,4 @@
-package org.example.progweb;
+package it.unical.progweb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
