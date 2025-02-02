@@ -1,0 +1,317 @@
+.search-bar {
+  margin-bottom: 20px;
+}
+
+header{
+  background: #634080;
+}
+
+@media screen and (max-width: 1070px) {
+  .logo {
+    display: none;
+  }
+
+  .search-container button {
+    display: none;
+  }
+}
+
+.dropdown-item{
+  cursor: pointer;
+}
+
+@media screen and (max-width: 650px){
+  .search-container button{
+    display: none;
+  }
+
+  .logo{
+    display: none;
+  }
+  #amici{
+    display: none;
+  }
+  #carr{
+    display: none;
+  }
+
+}
+
+
+
+.custom-navbar{
+  z-index: 999;
+}
+
+
+
+.custom-btns {
+  border-color: black;
+  background-color: #FF9C00;
+  color: #ffffff;
+}
+
+.custom-btns:hover,
+.custom-btns:focus{
+  border-color: black;
+  background-color: #a96c00 !important;
+  box-shadow: 0 0 3px 1px #000000 !important;
+}
+
+.custom-btns:active {
+  border-color: black;
+  background-color: #FF9C00 !important;
+  box-shadow: 0 0 3px 1px #000000 !important;
+}
+
+.bottonis{
+  display: flex;
+  gap:1vw;
+  justify-content: end;
+}
+
+
+.nav-item{
+  list-style: none;
+}
+#notiche{
+  margin-left: 3%;
+}
+.navbar {
+  max-height: 7vh;
+  background-color: #634080;
+}
+
+.navbar-nav {
+  display: flex;
+  list-style: none;
+}
+
+.nav-link {
+  white-space: nowrap;
+  text-decoration: none;
+  color: #fff;
+  padding: 10px;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #634080;
+  padding: 10px;
+}
+
+.dropdown-menu a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #FF9C00;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.bottonis{
+
+  position: relative;
+}
+
+.dropdown-menu{
+  display: none;
+  position: absolute;
+  background: #634080;
+  padding: 8px;
+}
+
+
+
+
+.dropdown-item{
+  display: block;
+  padding: 3px 5px;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-item:hover{
+  background-color: #634080;
+}
+
+#navbarSupportedContent{
+  background-color: #634080;
+
+
+}
+.navRidotto{
+  margin-left: 20%;
+
+}
+
+.search-container {
+  margin-left: 17%;
+}
+
+.search-container input[type=text] {
+  padding: 10px;
+  width: 40vw;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Aggiungi questo stile al tuo file CSS */
+.unread-notification {
+  background-color: #f9f9f9; /* Colore di sfondo per le notifiche non lette */
+  border-left: 15px solid #FF9C00; /* Barra laterale colorata per le notifiche non lette */
+}
+
+.notification-item {
+  padding: 10px;
+}
+
+.notification-item p {
+  margin: 0;
+}
+
+.notification-body {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.notifications-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-button {
+  border: solid 1px black;
+  position: relative;
+  background-color: #FF9C00;
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.badge {
+  background-color: red;
+  border-radius: 50%;
+  color: white;
+  padding: 2px 6px;
+  font-size: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.notification-menu {
+  display: none;
+  position: absolute;
+  border: solid 1px black;
+  background-color: white;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  width: 500px;
+  right: 0;
+  border-radius: 5px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-menu.show {
+  display: block;
+}
+
+.notification-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.notification-table th, .notification-table td {
+  padding: 10px;
+  border-bottom: 1px solid #000000;
+  text-align: left;
+}
+
+.notification-item td {
+  padding: 10px;
+  height: 7vh;
+}
+
+.notification-body {
+  padding: 10px;
+  background-color: #eaeaea;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #FF9C00;
+}
+
+.icon-button:hover {
+  text-decoration: underline;
+}
+
+.notification-menu.show {
+  display: block;
+}
+
+.notification-date {
+  display: block;
+  margin-top: 5px;
+}
+
+
+

@@ -4,10 +4,10 @@ import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-homepage',
-  templateUrl: '../Components/homepage.component.html',
+  templateUrl: 'homepage.component.html',
   standalone: true,
   imports: [CommonModule, MatProgressSpinnerModule],
-  styleUrl: '../Components/homepage.component.css'
+  styleUrl: 'homepage.component.css'
 })
 export class HomepageComponent {
   constructor() {

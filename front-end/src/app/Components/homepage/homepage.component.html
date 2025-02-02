@@ -3,11 +3,12 @@
   <mat-progress-spinner class="uSpinner" mode="indeterminate" color="primary"></mat-progress-spinner>
 
   <div class="card-list" id="offerte">
-    <button type="button" class="btnArrow">
-      <!-- TODO: IMMAGGINE DA INSERIRE <img class="arrow left" src="assets/images/left-arrow.png"> -->
+    <button type="button" class="btnArrow"> <!-- TODO: CLICK PER SCORRERE INDIETRO I PRODOTTI -->
+      <img class = "arrow left" src="assets/images/left-arrow.png">
     </button>
     <div class="container-fluid collection ml-5">
-      <div class="product">
+      <div class="product"> <!-- TODO: NGFOR SUI PRODOTTI(NOVITA) ALL'INTERNO DI QUESTO DIV-->
+        <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO NEL DIV SOTTO-->
         <div>
           <a class="product__image"> <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
           <div class="product__name">
@@ -27,16 +28,18 @@
         </div>
       </div>
     </div>
-    <button type="button" class="btnArrow">
-      <!-- TODO: IMMAGGINE DA INSERIRE <img class="arrow right" src="assets/images/right-arrow.png"> -->
+    <button type="button" class="btnArrow"> <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO SUCCESSIVO-->
+      <img class = "arrow right" src="assets/images/right-arrow.png">
     </button>
   </div>
 
   <div class="container text-center"><h1>OFFERTE</h1></div>
   <div class="card-list" id="novità">
-    <button type="button" class="btnArrow">  <!-- TODO: IMMAGGINE DA INSERIRE <img class="arrow left" src="assets/images/left-arrow.png"> --> </button>
+    <button type="button" class="btnArrow">  <!-- TODO: (CLICK) per visualizzare il prodotto precedente -->
+      <img class="arrow left" src="assets/images/left-arrow.png">
+    </button>
     <div class="container-fluid collection ml-5">
-      <div class="product">
+      <div class="product"> <!-- TODO: NGFOR PER SCORRERE I PRODOTTI + click per prendere i dati del prodotto nel DIV SOTTO -->
         <div>
           <a class="product__image">  <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
           <div class="product__name">
@@ -53,6 +56,8 @@
         </div>
       </div>
     </div>
-    <button type="button" class="btnArrow">  <!-- TODO: IMMAGGINE DA INSERIRE <img class="arrow right" src="assets/images/right-arrow.png"> --> </button>
+    <button type="button" class="btnArrow">  <!-- TODO: CLICK PER VISUALIZZARE PRODOTTO SUCCESSIVO -->
+      <img class="arrow right" src="assets/images/right-arrow.png">
+    </button>
   </div>
 </div>

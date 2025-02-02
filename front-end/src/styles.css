@@ -1,4 +1,72 @@
-/* You can add global styles to this file, and also import other style files */
+.title{
+  font-weight: bold;
+  font-size: 2rem;
+}
+.custom-btn {
+  border-color: black;
+  background-color: #FF9C00;
+  color: #ffffff;
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.custom-btn:hover,
+.custom-btn:focus{
+  border-color: black;
+  background-color: #a96c00 !important;
+  box-shadow: 0 0  #000000 !important;
+}
+.custom-btn:active {
+  border-color: black;
+  background-color: #FF9C00 !important;
+  box-shadow: 0 0 3px 1px #000000 !important;
+}
+
+.form-control:focus{
+  box-shadow: 0 0 3px 1px #000000;
+  border-color: black;
+}
+
+.cont{
+  width: 20%;
+}
+
+.custom-btb {
+  border-color: black;
+  background-color: #ffc875;
+  color: #ffffff;
+}
+.custom-btb:hover,
+.custom-btb:focus{
+  border-color: black;
+  background-color: #a96c00 !important;
+  box-shadow: 0 0  #000000 !important;
+}
+.custom-btb:active {
+  border-color: black;
+  background-color: #FF9C00 !important;
+  box-shadow: 0 0 3px 1px #000000 !important;
+}
+
+.custom-bln {
+  border-color: black;
+  background-color: #ffffff;
+  color: #000000;
+}
+.custom-bln:hover,
+.custom-bln:focus{
+  color: #000000;
+  border-color: black;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 5px 2px #000000 !important;
+}
+.custom-bln:active {
+  color: #000000;
+  border-color: black;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 5px 2px #000000 !important;
+}
+
+.aldos{
+  margin-top: -2%;
+}
+
+
