@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<!-- TODO: DA RIVEDERE -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Il tuo E-commerce</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<header>
+  <nav class="navbar navbar-expand-md navbar-light custom-navbar">
+    <h1 class="navbar-brand text-light logo" style="cursor: pointer">CAESARZON</h1> <!-- TODO: Add (click)="goHomepage()" functionality -->
+
+    <div class="search-container d-flex flex-row align-items-center">
+      <input type="text" placeholder="Cerca..."> <!-- TODO: Add [(ngModel)]="this.productService.ricerca" functionality -->
+      <button class="btn btn-dark custom-btn ml-1" type="submit">Cerca</button> <!-- TODO: Add (click)="productService.getProducts()" functionality -->
+    </div>
+
+    <ul class="navbar-nav ml-auto">
+      <div class="bottonis mt-2">
+        <li class="nav-item">
+          <div id="notiche"> <!-- TODO: Add *ngIf="keyCloak.getLoggedStatus()" functionality -->
+            <div class="notifications-container">
+              <button class="notification-button mr-1"> <!-- TODO: Add (click)="toggleMenus()" functionality -->
+                <img src="assets/images/icons/bell.png" alt="Icona notifiche" height="24" width="24">
+                <span class="badge">0</span> <!-- TODO: Add *ngIf="notifyCount > 0" functionality -->
+              </button>
+
+              <div class="notification-menu"> <!-- TODO: Add [class.show]="this.keyCloak.menuOpen" functionality -->
+                <!-- TODO: Implement notification system functionality -->
+                <p class="notification-item ml-5">Non hai nessuna notifica</p>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <div class="dropdown">
+            <button class="menu-item btn btn-dark custom-btn dropdown-toggle" type="button"> <!-- TODO: Add *ngIf="!keyCloak.getAdmin()" functionality -->
+              Profilo <!-- TODO: Add (click)="changePage($event,'personal-data')" functionality -->
+            </button>
+            <div class="dropdown-menu">
+              <!-- Placeholder links, replace with actual functionality -->
+              <a class="dropdown-item">Anagrafica</a>
+              <a class="dropdown-item">Indirizzi</a>
+              <a class="dropdown-item">Metodi di pagamento</a>
+              <a class="dropdown-item">Lista dei desideri</a>
+              <a class="dropdown-item">Ordini</a>
+              <a class="dropdown-item">Assistenza</a>
+              <a class="dropdown-item">Esci</a>
+            </div>
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <button class="menu-item btn btn-dark custom-btns">Carrello</button> <!-- TODO: Add (click)="changePage($event,'shopping-cart')" functionality -->
+        </li>
+
+        <li class="nav-item">
+          <button class="menu-item btn btn-dark custom-btns">Amici</button> <!-- TODO: Add (click)="friendFollow.takeFirst20User(false)" functionality -->
+        </li>
+      </div>
+    </ul>
+  </nav>
+
+  <nav id="secondNav" class="navbar navbar-expand-md navbar-light d-flex flex-column align-items-center">
+    <button class="navbar-toggler btn btn-dark custom-btn" type="button">
+      <span class="navbar-toggler-icon"></span> <!-- TODO: Add (click)="toggleMenu()" functionality -->
+    </button>
+  </nav>
+</header>
+</body>
+</html>
