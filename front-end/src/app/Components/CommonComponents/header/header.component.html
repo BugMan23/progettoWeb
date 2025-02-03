@@ -13,7 +13,7 @@
 <body>
 <header>
   <nav class="navbar navbar-expand-md navbar-light custom-navbar">
-    <h1 class="navbar-brand text-light logo" style="cursor: pointer">CAESARZON</h1> <!-- TODO: Add (click)="goHomepage()" functionality -->
+    <h1 class="navbar-brand text-light logo" style="cursor: pointer" (click)="goHomepage()">CAESARZON</h1>
 
     <div class="search-container d-flex flex-row align-items-center">
       <input type="text" placeholder="Cerca..."> <!-- TODO: Add [(ngModel)]="this.productService.ricerca" functionality -->
@@ -21,51 +21,65 @@
     </div>
 
     <ul class="navbar-nav ml-auto">
-      <div class="bottonis mt-2">
-        <li class="nav-item">
-          <div id="notiche"> <!-- TODO: Add *ngIf="keyCloak.getLoggedStatus()" functionality -->
-            <div class="notifications-container">
-              <button class="notification-button mr-1"> <!-- TODO: Add (click)="toggleMenus()" functionality -->
-                <img src="assets/images/icons/bell.png" alt="Icona notifiche" height="24" width="24">
-                <span class="badge">0</span> <!-- TODO: Add *ngIf="notifyCount > 0" functionality -->
-              </button>
-
-              <div class="notification-menu"> <!-- TODO: Add [class.show]="this.keyCloak.menuOpen" functionality -->
-                <!-- TODO: Implement notification system functionality -->
-                <p class="notification-item ml-5">Non hai nessuna notifica</p>
-              </div>
-            </div>
-          </div>
-        </li>
-
-        <li class="nav-item">
-          <div class="dropdown">
-            <button class="menu-item btn btn-dark custom-btn dropdown-toggle" type="button"> <!-- TODO: Add *ngIf="!keyCloak.getAdmin()" functionality -->
-              Profilo <!-- TODO: Add (click)="changePage($event,'personal-data')" functionality -->
+      <!-- Notifiche visibili solo se l'utente è loggato -->
+      <li class="nav-item" *ngIf="authService.isLoggedIn()">
+        <div id="notiche">
+          <div class="notifications-container">
+            <button class="notification-button mr-1">
+              <img src="assets/images/bell.png" alt="Icona notifiche" height="24" width="24">
+              <!-- Se hai un contatore notifiche in una proprietà notifyCount, mostrala qui -->
             </button>
-            <div class="dropdown-menu">
-              <!-- Placeholder links, replace with actual functionality -->
-              <a class="dropdown-item">Anagrafica</a>
-              <a class="dropdown-item">Indirizzi</a>
-              <a class="dropdown-item">Metodi di pagamento</a>
-              <a class="dropdown-item">Lista dei desideri</a>
-              <a class="dropdown-item">Ordini</a>
-              <a class="dropdown-item">Assistenza</a>
-              <a class="dropdown-item">Esci</a>
+            <div class="notification-menu">
+              <p class="notification-item ml-5">Non hai nessuna notifica</p>
             </div>
           </div>
-        </li>
+        </div>
+      </li>
 
-        <li class="nav-item">
-          <button class="menu-item btn btn-dark custom-btns">Carrello</button> <!-- TODO: Add (click)="changePage($event,'shopping-cart')" functionality -->
-        </li>
+      <!-- Utente NON loggato -->
+      <li class="nav-item" *ngIf="!authService.isLoggedIn()">
+        <button class="menu-item btn btn-dark custom-btn" (click)="openLoginPopup()">
+          Accedi
+        </button>
+      </li>
 
-        <li class="nav-item">
-          <button class="menu-item btn btn-dark custom-btns">Amici</button> <!-- TODO: Add (click)="friendFollow.takeFirst20User(false)" functionality -->
-        </li>
-      </div>
-    </ul>
-  </nav>
+      <!-- Utente loggato, NON admin -->
+      <li class="nav-item dropdown" *ngIf="authService.isLoggedIn() && !authService.isAdmin()">
+        <button
+          class="menu-item btn btn-dark custom-btn dropdown-toggle"
+          type="button"
+          data-toggle="dropdown">
+          Profilo
+        </button>
+          <div class="dropdown-menu">
+            <!-- Placeholder links, replace with actual functionality -->
+            <a class="dropdown-item">Anagrafica</a>
+            <a class="dropdown-item">Indirizzi</a>
+            <a class="dropdown-item">Metodi di pagamento</a>
+            <a class="dropdown-item">Lista dei desideri</a>
+            <a class="dropdown-item">Ordini</a>
+            <a class="dropdown-item">Assistenza</a>
+            <a class="dropdown-item">Esci</a>
+          </div>
+      </li>
+
+      <!-- Utente loggato, admin -->
+      <li class="nav-item dropdown" *ngIf="authService.isLoggedIn() && authService.isAdmin()">
+        <button
+          class="menu-item btn btn-dark custom-btn dropdown-toggle"
+          type="button"
+          data-toggle="dropdown">
+          Gestisci
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item">Gestione Prodotti</a>
+          <a class="dropdown-item">Gestione Utenti</a>
+          <a class="dropdown-item">Ordini</a>
+          <a class="dropdown-item" (click)="authService.logout()">Esci</a>
+        </div>
+      </li>
+  </ul>
+</nav>
 
   <nav id="secondNav" class="navbar navbar-expand-md navbar-light d-flex flex-column align-items-center">
     <button class="navbar-toggler btn btn-dark custom-btn" type="button">

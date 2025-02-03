@@ -6,9 +6,9 @@ public class Utente {
     public String cognome;
     public String email;
     public String password;
-    public String ruolo;
+    public Boolean ruolo;
 
-    public Utente(int id, String nome, String cognome, String email, String password, String ruolo) {
+    public Utente(int id, String nome, String cognome, String email, String password, Boolean ruolo) {
         this.id = id;
         this.nome = nome;
         this.cognome = cognome;
@@ -42,7 +42,7 @@ public class Utente {
     }
 
 
-    public String getRuolo() {
+    public Boolean getRuolo() {
         return ruolo;
     }
 
