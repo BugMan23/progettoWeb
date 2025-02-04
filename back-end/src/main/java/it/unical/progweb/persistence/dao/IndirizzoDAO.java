@@ -7,7 +7,7 @@ import java.util.List;
 public interface IndirizzoDAO {
     Indirizzo findById(int id);
     List<Indirizzo> findByUtenteId(int utenteId);
-    void save(Indirizzo indirizzo);
+    boolean save(Indirizzo indirizzo, int utenteId);
     void update(Indirizzo indirizzo);
     void delete(int id);
 }

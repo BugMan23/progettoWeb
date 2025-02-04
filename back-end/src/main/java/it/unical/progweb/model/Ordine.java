@@ -7,6 +7,14 @@ public class Ordine {
     public String stato;
     public String consegna;     // TODO MODIFICARE CAMPO NEL DATABASE
 
+    public Ordine(int idCarrello, int idProdotto, String data, String stato, String consegna) {
+        this.idCarrello = idCarrello;
+        this.idProdotto = idProdotto;
+        this.data = data;
+        this.stato = stato;
+        this.consegna = consegna;
+    }
+
     public int getIdCarrello() {
         return idCarrello;
     }

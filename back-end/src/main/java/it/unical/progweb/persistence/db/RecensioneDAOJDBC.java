@@ -81,6 +81,8 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         }
     }
 
+    // TODO : da rivedere se farle fare
+
     @Override
     public void update(Recensione recensione) {
 

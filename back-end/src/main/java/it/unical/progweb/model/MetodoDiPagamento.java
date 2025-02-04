@@ -10,6 +10,17 @@ public class MetodoDiPagamento {
     public String cvv;
     public int idUtente;
 
+    public MetodoDiPagamento(int id, String tipoPagamento, String titolare, String tipoCarta, String numeroCarta, String dataScadenza, String cvv, int idUtente) {
+        this.id = id;
+        this.tipoPagamento = tipoPagamento;
+        this.titolare = titolare;
+        this.tipoCarta = tipoCarta;
+        this.numeroCarta = numeroCarta;
+        this.dataScadenza = dataScadenza;
+        this.cvv = cvv;
+        this.idUtente = idUtente;
+    }
+
     public int getId() {
         return id;
     }

@@ -7,9 +7,19 @@ public class Prodotto {
     public String nome;
     public String marca;
     public String colore;
-    public DecimalFormat prezzo;
+    public int prezzo;
     public String descrizione;
     public Boolean scontato;
+
+    public Prodotto(int id, String nome, String marca, String colore, int prezzo, String descrizione, Boolean scontato) {
+        this.id = id;
+        this.nome = nome;
+        this.marca = marca;
+        this.colore = colore;
+        this.prezzo = prezzo;
+        this.descrizione = descrizione;
+        this.scontato = scontato;
+    }
 
     public int getId() {
         return id;
@@ -43,11 +53,11 @@ public class Prodotto {
         this.colore = colore;
     }
 
-    public DecimalFormat getPrezzo() {
+    public int getPrezzo() {
         return prezzo;
     }
 
-    public void setPrezzo(DecimalFormat prezzo) {
+    public void setPrezzo(int prezzo) {
         this.prezzo = prezzo;
     }
 

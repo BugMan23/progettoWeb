@@ -10,6 +10,17 @@ public class Indirizzo {
     public String regione;
     public int idUtente;
 
+    public Indirizzo(int id, String nomeVia, String civico, String citta, String cap, String provincia, String regione, int idUtente) {
+        this.id = id;
+        this.nomeVia = nomeVia;
+        this.civico = civico;
+        this.citta = citta;
+        this.cap = cap;
+        this.provincia = provincia;
+        this.regione = regione;
+        this.idUtente = idUtente;
+    }
+
     public int getId() {
         return id;
     }

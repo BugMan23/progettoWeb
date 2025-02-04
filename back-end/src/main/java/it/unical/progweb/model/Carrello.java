@@ -4,6 +4,11 @@ public class Carrello {
     public int id;
     public int idUtente;
 
+    public Carrello(int id, int idUtente) {
+        this.id = id;
+        this.idUtente = idUtente;
+    }
+
     public int getId() {
         return id;
     }

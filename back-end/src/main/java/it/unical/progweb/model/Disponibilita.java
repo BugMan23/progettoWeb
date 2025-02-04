@@ -6,6 +6,13 @@ public class Disponibilita {
     public String taglia;
     public int idProdotto;
 
+    public Disponibilita(int id, int quantita, String taglia, int idProdotto) {
+        this.id = id;
+        this.quantita = quantita;
+        this.taglia = taglia;
+        this.idProdotto = idProdotto;
+    }
+
     public int getId() {
         return id;
     }
