@@ -12,4 +12,5 @@ public interface UtenteDAO {
     void delete(int id);
     Utente findByEmail(String email);
     void changePassword(int id, String newPassword);
+    Utente validateUser(String email, String password);
 }

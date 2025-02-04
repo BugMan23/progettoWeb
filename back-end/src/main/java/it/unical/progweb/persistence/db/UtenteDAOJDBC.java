@@ -2,6 +2,7 @@ package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.UtenteDAO;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class UtenteDAOJDBC implements UtenteDAO {
                             rs.getString("cognome"),
                             rs.getString("email"),
                             rs.getString("password"),
-                            "utente"
+                            false
                     );
                 }
             }
@@ -54,7 +55,7 @@ public class UtenteDAOJDBC implements UtenteDAO {
                         rs.getString("cognome"),
                         rs.getString("email"),
                         rs.getString("password"),
-                        "utente")
+                        false)
                 );
             }
         } catch (SQLException e) {
@@ -79,6 +80,31 @@ public class UtenteDAOJDBC implements UtenteDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Utente validateUser(String email, String password){
+        String query = "SELECT * FROM utente WHERE email = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setString(1, email);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()){
+                    if(BCrypt.checkpw(password, rs.getString("password"))){
+                        return new Utente(
+                                rs.getInt("id"),
+                                rs.getString("nome"),
+                                rs.getString("cognome"),
+                                rs.getString("email"),
+                                rs.getString("password"),
+                                rs.getBoolean("isAdmin")
+                        );
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     @Override
