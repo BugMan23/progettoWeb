@@ -1,6 +1,7 @@
 package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Carrello;
+import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.CarrelloDAO;
 
@@ -8,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CarrelloDAOJDBC implements CarrelloDAO {
@@ -16,19 +18,40 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
     public CarrelloDAOJDBC(Connection connection) {
     }
 
-    @Override
-    public Carrello findById(int id) {
-        Carrello carrello = null;
+    public void addAlCarrello(int userId, int prodottoId, int quantita) {
+        // todo: da rivedere per gestire meglio la quantità
+        String query = "INSERT INTO carrello (idutente, idprodotto, quantita, isordinato) VALUES (?, ?, ?, ?) ON CONFLICT (userId, prodottoId) DO UPDATE SET quantita = carrello.quantita + EXCLUDED.quantita;";
 
-        String query = "SELECT * FROM Carrello WHERE id = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    carrello = new Carrello(
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, prodottoId);
+            ps.setInt(3, quantita);
+            ps.setString(4, "false");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Prodotto> getCarrello(int userId) {
+        List<Prodotto> carrello = new ArrayList<>();
+        String query = "SELECT p.* FROM Prodotti p JOIN carrello c ON p.id = c.idprodotto WHERE c.idutente = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    carrello.add(new Prodotto(
                             rs.getInt("id"),
-                            rs.getInt("idUtente")
-                    );
+                            rs.getString("nome"),
+                            rs.getString("marca"),
+                            rs.getString("colore"),
+                            rs.getInt("prezzo"),
+                            rs.getString("descrizione"),
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idcategoria")
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -37,53 +60,19 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
         return carrello;
     }
 
-    @Override
-    public Carrello findByUtenteId(int utenteId) {
-        Carrello carrello = null;
 
-        String query = "SELECT * FROM Carrello WHERE idUtente = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, utenteId);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    carrello = new Carrello(
-                            rs.getInt("id"),
-                            rs.getInt("idUtente")
-                    );
-                }
+    // todo: da rivedere
+    @Override
+    public void clear(int idUser) {
+        String updateQuery = "UPDATE CarrelloItems SET isOrdinato = TRUE WHERE idutente = ?";
+        try (PreparedStatement psUpdate = connection.prepareStatement(updateQuery)) {
+            psUpdate.setInt(1, idUser);
+            int updatedRows = psUpdate.executeUpdate();
+            if (updatedRows == 0) {
+                System.out.println("Nessun prodotto aggiornato, verificare l'ID dell'utente.");
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Errore durante l'impostazione di is_ordered: " + e.getMessage(), e);
         }
-        return carrello;
-    }
-
-
-    // todo: dA RIFARE
-    @Override
-    public void addProdotto(int carrelloId, int prodottoId, int quantità) {
-        String query = "INSERT INTO ordine (idPordotto, data, email, password, isAdmin) VALUES (?, ?, ?, ?, ?)";
-        /*try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setString(1, utente.getNome());
-            ps.setString(2, utente.getCognome());
-            ps.setString(3, utente.getEmail());
-            ps.setString(4, hashedPassword);
-            ps.setBoolean(5, false);
-            int rowsUpdated = ps.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }*/
-    }
-
-    // TODO  DA RIVEDERE
-    @Override
-    public void removeProdotto(int carrelloId, int prodottoId) {
-
-    }
-
-    @Override
-    public void clear(int carrelloId) {
-
     }
 }

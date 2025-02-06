@@ -2,6 +2,7 @@ package it.unical.progweb.persistence;
 
 import java.sql.*;
 
+import it.unical.progweb.model.DettagliOrdini;
 import it.unical.progweb.model.Ordine;
 import it.unical.progweb.persistence.dao.*;
 import it.unical.progweb.persistence.db.*;
@@ -15,6 +16,9 @@ public class DBManager {
     private RecensioneDAO reviewDAO = null;
     private IndirizzoDAO addressDAO = null;
     private MetodoDiPagamentoDAO paymentMethodDAO = null;
+    private DettagliOrdineDAO dettagliOrdiniDAO;
+    private DisponibilitaDAO disponibilitaDAO;
+    private CategoriaDAO categoriaDAO;
 
     private static final String URL = "jdbc:postgresql://localhost:5432/eCommerce";
     private static final String USER = "postgres";
@@ -82,10 +86,31 @@ public class DBManager {
         return addressDAO;
     }
 
+    public DettagliOrdineDAO getDettagliOrdiniDAO(){
+        if (dettagliOrdiniDAO == null) {
+            dettagliOrdiniDAO = new DettagliOrdineDAOJDBC(getConnection());
+        }
+        return dettagliOrdiniDAO;
+    }
     public MetodoDiPagamentoDAO getPaymentMethodDAO() {
         if (paymentMethodDAO == null) {
             paymentMethodDAO = new MetodoDiPagamentoDAOJDBC(getConnection());
         }
         return paymentMethodDAO;
     }
+
+    public DisponibilitaDAO getDisponibilitaDAO(){
+        if(disponibilitaDAO == null){
+            disponibilitaDAO = new DisponibilitaDAOJDBC(getConnection());
+        }
+        return disponibilitaDAO;
+    }
+
+    public CategoriaDAO getCategoriaDAO(){
+        if(categoriaDAO == null){
+            categoriaDAO = new CategoriaDAOJDBC(getConnection());
+        }
+        return categoriaDAO;
+    }
+
 }

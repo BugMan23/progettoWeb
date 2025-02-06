@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrdineDAOJDBC implements OrdineDAO {
@@ -17,47 +18,42 @@ public class OrdineDAOJDBC implements OrdineDAO {
         this.connection = connection;
     }
 
-    // TODO: da sistemare per vedere come recuperare la chiave composta
     @Override
-    public Ordine findById(int id) {
-        Ordine ordine= null;
+    public int creaOrdine(Ordine ordine) {
+        String query = "INSERT INTO ordine (idutente, dataoridne, stato, totaledapagare, idmetodopagamento)";
 
-        String query = "SELECT * FROM carrProd WHERE id = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setInt(1, ordine.getIdUtente());
+            ps.setString(2, ordine.getData());
+            ps.setString(3, ordine.getStato());
+            ps.setInt(4, ordine.getTotalePagare());
+            ps.setInt(5, ordine.getIdMetodoPagamento());
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
-                    ordine = new Ordine(
-                            rs.getInt("idUtente"),
-                            rs.getInt("idProdotto"),
-                            rs.getString("data"),
-                            rs.getString("stato"),
-                            rs.getString("consegna")
-                    );
+                    return rs.getInt("id");
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return ordine;
+        return -1;
     }
 
-
     @Override
-    public List<Ordine> findByCarrelloId(int carrelloID) {
-        List<Ordine> ordini = null;
-
-        String query = "SELECT * FROM carrProd WHERE idCarrello = ? ";
+    public List<Ordine> getOrdiniByIdUtente(int userId) {
+        List<Ordine> ordini = new ArrayList<>();
+        String query = "SELECT * FROM ordine WHERE idutente = ? ";
         try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, carrelloID);
+            ps.setInt(1, userId);
             try(ResultSet rs = ps.executeQuery()) {
                 if(rs.next()){
-                    ordini.add(new Ordine(
-                            rs.getInt("idUtente"),
-                            rs.getInt("idProdotto"),
-                            rs.getString("data"),
+                     ordini.add( new Ordine(
+                            rs.getInt("id"),
+                            rs.getInt("idutente"),
+                            rs.getString("dataoridne"),
                             rs.getString("stato"),
-                            rs.getString("consegna")
+                            rs.getInt("totaledapagare"),
+                            rs.getInt("idmetodopagamento")
                     ));
                 }
             }
@@ -67,21 +63,50 @@ public class OrdineDAOJDBC implements OrdineDAO {
         return ordini;
     }
 
-
-    // TODO: DA RIVEDERE
-
     @Override
-    public void save(Ordine ordine) {
-
+    public Ordine findById(int id){
+        String query = "SELECT * FROM ordine WHERE id = ? ";
+        try(PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()){
+                    return new Ordine(
+                            rs.getInt("id"),
+                            rs.getInt("idutente"),
+                            rs.getString("dataoridne"),
+                            rs.getString("stato"),
+                            rs.getInt("totaledapagare"),
+                            rs.getInt("idmetodopagamento")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
-    @Override
-    public void update(Ordine ordine) {
-
+    public List<Ordine> findByUserId(int userid){
+        List<Ordine> ordini = new ArrayList<>();
+        String query = "SELECT * FROM ordine WHERE idutente = ? ";
+        try(PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userid);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()){
+                    ordini.add(new Ordine(
+                            rs.getInt("id"),
+                            rs.getInt("idutente"),
+                            rs.getString("dataoridne"),
+                            rs.getString("stato"),
+                            rs.getInt("totaledapagare"),
+                            rs.getInt("idmetodopagamento")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return ordini;
     }
 
-    @Override
-    public void delete(int id) {
-
-    }
 }
