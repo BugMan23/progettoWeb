@@ -5,16 +5,17 @@ import it.unical.progweb.model.Prodotto;
 import java.util.List;
 
 public interface ProdottoDAO {
+    // admin
+    void addProdotto(Prodotto prodotto);
+    void deleteProdotto(int id);
+
+    List<Prodotto> findProdottiByCategoria(String categoria);
     Prodotto findById(int id);
     List<Prodotto> findAll();
-    void save(Prodotto prodotto);
-    void update(Prodotto prodotto);
-    void delete(int id);
-    List<Prodotto> searchByNome(String nome);
-    List<Prodotto> searchByColore(String colore);
-    List<Prodotto> searchByDescrizione(String descrizione);
-    List<Prodotto> searchByPrezzo(int prezzo);
-    List<Prodotto> searchByPrezzo(int min, int max);
+    List<Prodotto> findByNome(String nome);
+    List<Prodotto> findByColore(String colore);
+    List<Prodotto> findByPrezzo(int prezzo);
+    List<Prodotto> findByPrezzoMinEMax(int min, int max);
 
 }
 

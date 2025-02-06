@@ -10,8 +10,10 @@ public class Prodotto {
     public int prezzo;
     public String descrizione;
     public Boolean scontato;
+    public String urlImage;
+    public int idCategoria;
 
-    public Prodotto(int id, String nome, String marca, String colore, int prezzo, String descrizione, Boolean scontato) {
+    public Prodotto(int id, String nome, String marca, String colore, int prezzo, String descrizione, Boolean scontato, String urlImage, int idCategoria) {
         this.id = id;
         this.nome = nome;
         this.marca = marca;
@@ -19,61 +21,43 @@ public class Prodotto {
         this.prezzo = prezzo;
         this.descrizione = descrizione;
         this.scontato = scontato;
+        this.urlImage = urlImage;
+        this.idCategoria = idCategoria;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getNome() {
         return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
     }
 
     public String getMarca() {
         return marca;
     }
 
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
     public String getColore() {
         return colore;
-    }
-
-    public void setColore(String colore) {
-        this.colore = colore;
     }
 
     public int getPrezzo() {
         return prezzo;
     }
 
-    public void setPrezzo(int prezzo) {
-        this.prezzo = prezzo;
-    }
-
     public String getDescrizione() {
         return descrizione;
-    }
-
-    public void setDescrizione(String descrizione) {
-        this.descrizione = descrizione;
     }
 
     public Boolean getScontato() {
         return scontato;
     }
 
-    public void setScontato(Boolean scontato) {
-        this.scontato = scontato;
+    public String getUrlImage() {
+        return urlImage;
+    }
+
+    public int getIdCategoria() {
+        return idCategoria;
     }
 }

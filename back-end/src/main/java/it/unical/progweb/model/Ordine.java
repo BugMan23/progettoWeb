@@ -1,57 +1,47 @@
 package it.unical.progweb.model;
 
 public class Ordine {
-    public int idCarrello;
-    public int idProdotto;
+    public int id;
+    public int idUtente;
     public String data;
     public String stato;
-    public String consegna;     // TODO MODIFICARE CAMPO NEL DATABASE
+    public int totalePagare;
+    public int idMetodoPagamento;     // TODO MODIFICARE CAMPO NEL DATABASE
 
-    public Ordine(int idCarrello, int idProdotto, String data, String stato, String consegna) {
-        this.idCarrello = idCarrello;
-        this.idProdotto = idProdotto;
+    public Ordine(int id, int idUtente, String data, String stato, int totalePagare, int idMetodoPagamento) {
+        this.id = id;
+        this.idUtente = idUtente;
         this.data = data;
         this.stato = stato;
-        this.consegna = consegna;
+        this.totalePagare = totalePagare;
+        this.idMetodoPagamento = idMetodoPagamento;
     }
 
-    public int getIdCarrello() {
-        return idCarrello;
+    public int getId() {
+        return id;
     }
 
-    public void setIdCarrello(int idCarrello) {
-        this.idCarrello = idCarrello;
-    }
-
-    public int getIdProdotto() {
-        return idProdotto;
-    }
-
-    public void setIdProdotto(int idProdotto) {
-        this.idProdotto = idProdotto;
+    public int getIdUtente() {
+        return idUtente;
     }
 
     public String getData() {
         return data;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
     public String getStato() {
         return stato;
     }
 
-    public void setStato(String stato) {
-        this.stato = stato;
+    public int getIdMetodoPagamento() {
+        return idMetodoPagamento;
     }
 
-    public String getConsegna() {
-        return consegna;
+    public int getTotalePagare() {
+        return totalePagare;
     }
 
-    public void setConsegna(String consegna) {
-        this.consegna = consegna;
+    public void setId(int ordineId) {
+        this.id = ordineId;
     }
 }

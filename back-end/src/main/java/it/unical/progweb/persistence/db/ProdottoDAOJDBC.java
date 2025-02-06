@@ -7,6 +7,7 @@ import it.unical.progweb.persistence.dao.ProdottoDAO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ProdottoDAOJDBC implements ProdottoDAO {
     private Connection connection;
@@ -16,81 +17,119 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     }
 
     @Override
-    public Prodotto findById(int id) {
-        Prodotto prodotto = null;
+    public void addProdotto(Prodotto prodotto) {
+        String query = "INSERT INTO prodotto (nome, marca, colore, prezzo, descrizione, scontato, image, idcategoria)";
 
-        String query = "SELECT * FROM prodotto WHERE id = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setString(1, prodotto.getNome());
+            ps.setString(2, prodotto.getMarca());
+            ps.setString(3, prodotto.getColore());
+            ps.setInt(4, prodotto.getPrezzo());
+            ps.setString(5, prodotto.getDescrizione());
+            ps.setBoolean(6, prodotto.getScontato());
+            ps.setString(7, prodotto.getUrlImage());
+            ps.setInt(8, prodotto.getIdCategoria());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public void deleteProdotto(int id) {
+        // todo: aggiungere un campo nella tab prodotto
+    }
+
+    @Override
+    public List<Prodotto> findProdottiByCategoria(String categoria) {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto WHERE categoria = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setString(1, categoria);
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
-                    prodotto = new Prodotto(
+                    prodotti.add(new Prodotto(
                             rs.getInt("id"),
                             rs.getString("nome"),
                             rs.getString("marca"),
                             rs.getString("colore"),
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    );
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
                 }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return prodotto;
+        return prodotti;
+    }
+
+    @Override
+    public Prodotto findById(int id) {
+        String query = " SELECT * FROM prodotto WHERE id = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setInt(1, id);
+            try(ResultSet rs = ps.executeQuery()){
+                if(rs.next()){
+                    return new Prodotto(
+                            rs.getInt("id"),
+                            rs.getString("nome"),
+                            rs.getString("marca"),
+                            rs.getString("colore"),
+                            rs.getInt("prezzo"),
+                            rs.getString("descrizione"),
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     @Override
     public List<Prodotto> findAll() {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti";
-        try(Statement ps = connection.createStatement()) {
-            ResultSet rs = ps.executeQuery(query);
-
-            while(rs.next()){
-                prodotti.add(new Prodotto(
-                                rs.getInt("id"),
-                                rs.getString("nome"),
-                                rs.getString("marca"),
-                                rs.getString("colore"),
-                                rs.getInt("prezzo"),
-                                rs.getString("descrizione"),
-                                rs.getBoolean("scontato")
-                        )
-                );
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto ";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            try(ResultSet rs = ps.executeQuery()){
+                if(rs.next()){
+                    prodotti.add(new Prodotto(
+                            rs.getInt("id"),
+                            rs.getString("nome"),
+                            rs.getString("marca"),
+                            rs.getString("colore"),
+                            rs.getInt("prezzo"),
+                            rs.getString("descrizione"),
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return prodotti;
     }
 
-    // TODO : da rivedere se lasciarle o meno
-
     @Override
-    public void save(Prodotto prodotto) {
-
-    }
-    @Override
-    public void update(Prodotto prodotto) {
-
-    }
-
-    @Override
-    public void delete(int id) {
-
-    }
-
-    @Override
-    public List<Prodotto> searchByNome(String nome) {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti WHERE nome = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+    public List<Prodotto> findByNome(String nome) {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto WHERE nome = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
             ps.setString(1, nome);
-            try(ResultSet rs = ps.executeQuery()) {
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     prodotti.add(new Prodotto(
                             rs.getInt("id"),
@@ -99,10 +138,13 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                             rs.getString("colore"),
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    ));
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
                 }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -110,13 +152,12 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     }
 
     @Override
-    public List<Prodotto> searchByColore(String colore) {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti WHERE colore = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+    public List<Prodotto> findByColore(String colore) {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto WHERE colore = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
             ps.setString(1, colore);
-            try(ResultSet rs = ps.executeQuery()) {
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     prodotti.add(new Prodotto(
                             rs.getInt("id"),
@@ -125,10 +166,13 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                             rs.getString("colore"),
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    ));
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
                 }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -136,39 +180,12 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     }
 
     @Override
-    public List<Prodotto> searchByDescrizione(String descrizione) {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti WHERE descrizione = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setString(1, descrizione);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    prodotti.add(new Prodotto(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("marca"),
-                            rs.getString("colore"),
-                            rs.getInt("prezzo"),
-                            rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return prodotti;
-    }
-
-    @Override
-    public List<Prodotto> searchByPrezzo(int prezzo) {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti WHERE prezzo = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+    public List<Prodotto> findByPrezzo(int prezzo) {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto WHERE prezzo = ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
             ps.setInt(1, prezzo);
-            try(ResultSet rs = ps.executeQuery()) {
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     prodotti.add(new Prodotto(
                             rs.getInt("id"),
@@ -177,10 +194,13 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                             rs.getString("colore"),
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    ));
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
                 }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -188,14 +208,13 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     }
 
     @Override
-    public List<Prodotto> searchByPrezzo(int prezzoMin, int prezzoMax) {
-        List<Prodotto> prodotti = new ArrayList<Prodotto>();
-
-        String query = "SELECT * FROM prodotti WHERE prezzo >= ? AND prezzo <= ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, prezzoMin);
-            ps.setInt(2, prezzoMax);
-            try(ResultSet rs = ps.executeQuery()) {
+    public List<Prodotto> findByPrezzoMinEMax(int min, int max) {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String query = " SELECT * FROM prodotto WHERE prezzo >= ? AND prezzo <= ?";
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setInt(1, min);
+            ps.setInt(2, max);
+            try(ResultSet rs = ps.executeQuery()){
                 if(rs.next()){
                     prodotti.add(new Prodotto(
                             rs.getInt("id"),
@@ -204,10 +223,13 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                             rs.getString("colore"),
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
-                            rs.getBoolean("scontato")
-                    ));
+                            rs.getBoolean("scontato"),
+                            rs.getString("image"),
+                            rs.getInt("idCategoria")
+                    )) ;
                 }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

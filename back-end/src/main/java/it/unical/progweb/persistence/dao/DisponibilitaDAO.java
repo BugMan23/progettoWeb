@@ -5,9 +5,10 @@ import it.unical.progweb.model.Disponibilita;
 import java.util.List;
 
 public interface DisponibilitaDAO {
-    Disponibilita findById(int id);
+
+    void updateDisponibilita(int idProdotto, int quantita, String taglia);
+
     List<Disponibilita> findByProdottoId(int prodottoId);
-    void save(Disponibilita disponibilita);
-    void update(Disponibilita disponibilita);
-    void delete(int id);
+
+    void decrementaQuantita(int prodotto, int quantita, String taglia);
 }

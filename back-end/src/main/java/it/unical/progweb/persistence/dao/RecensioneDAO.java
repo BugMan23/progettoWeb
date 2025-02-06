@@ -5,9 +5,14 @@ import it.unical.progweb.model.Recensione;
 import java.util.List;
 
 public interface RecensioneDAO {
-    Recensione findById(int id);
+    void addRecensione(Recensione recensione);
+
+    //admin
+    void deleteRecensione(int recensioneId);
+
+
     List<Recensione> findByProdottoId(int prodottoId);
-    boolean save(Recensione recensione);
-    void update(Recensione recensione);
-    void delete(int id);
+
+    //void update(Recensione recensione);
+
 }
