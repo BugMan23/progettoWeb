@@ -13,7 +13,7 @@ public class MetodoDiPagamentoService {
 
     public void salvaMetodoDiPagamento(MetodoDiPagamento metodoPagamento, int userId) {
         validaMetodoPagamento(metodoPagamento);
-        if (!DBManager.getInstance().getPaymentMethodDAO().save(metodoPagamento, userId)) {
+        if ( !DBManager.getInstance().getPaymentMethodDAO().addMetodoDiPagamento(metodoPagamento, userId)) {
             throw new RuntimeException("Errore nel salvataggio del metodo di pagamento");
         }
     }

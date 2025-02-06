@@ -16,32 +16,6 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
         this.connection = connection;
     }
 
-    @Override
-    public MetodoDiPagamento findById(int id) {
-        MetodoDiPagamento metodoDiPagamento = null;
-
-        String query = "SELECT * FROM metodoDiPagamento WHERE id = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    metodoDiPagamento = new MetodoDiPagamento(
-                            rs.getInt("id"),
-                            rs.getString("tipoPagamento"),
-                            rs.getString("titolare"),
-                            rs.getString("tipoCarta"),
-                            rs.getString("numeroCarta"),
-                            rs.getString("dataScadenza"),
-                            rs.getString("cvv"),
-                            rs.getInt("idUtente")
-                    );
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return metodoDiPagamento;
-    }
 
     @Override
     public List<MetodoDiPagamento> findByUtenteId(int utenteId)  {
@@ -71,9 +45,8 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
     }
 
 
-    // todo : da rivedere
     @Override
-    public boolean save(MetodoDiPagamento metodoDiPagamento, int utenteId) {
+    public boolean addMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento, int utenteId) {
         String query = "INSERT INTO MetodoDiPagamento (tipoPagamento, titolare, tipoCarta, numeroCarta, dataScadenza, cvv, idUtente) VALUES (?, ?, ?, ?, ?, ? , ? )";
         try(PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, metodoDiPagamento.getTipoPagamento());
@@ -91,12 +64,30 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
     }
 
     @Override
-    public void update(MetodoDiPagamento metodoDiPagamento) {
+    public MetodoDiPagamento findById(int id) {
+        MetodoDiPagamento metodoDiPagamento = null;
 
+        String query = "SELECT * FROM metodoDiPagamento WHERE id = ? ";
+        try(PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()){
+                    metodoDiPagamento = new MetodoDiPagamento(
+                            rs.getInt("id"),
+                            rs.getString("tipoPagamento"),
+                            rs.getString("titolare"),
+                            rs.getString("tipoCarta"),
+                            rs.getString("numeroCarta"),
+                            rs.getString("dataScadenza"),
+                            rs.getString("cvv"),
+                            rs.getInt("idUtente")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return metodoDiPagamento;
     }
 
-    @Override
-    public void delete(int id) {
-
-    }
 }

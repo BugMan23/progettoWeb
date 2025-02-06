@@ -2,6 +2,7 @@ package it.unical.progweb.service;
 
 import it.unical.progweb.eccezioni.AuthenticationException;
 import it.unical.progweb.eccezioni.NotFoundException;
+import it.unical.progweb.model.Indirizzo;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.DBManager;
 import it.unical.progweb.persistence.dao.UtenteDAO;
@@ -57,6 +58,18 @@ public class UserService {
 
     public List<Utente> getAllUtenti() {
         return DBManager.getInstance().getUserDAO().findAll();
+    }
+
+    public void aggiungiIndirizzoSpedizione(int utenteId, Indirizzo indirizzo) {
+        DBManager.getInstance().getAddressDAO().addIndirizzo(indirizzo, utenteId);
+    }
+
+
+    public void changePassword(int userId, String currentPassword, String newPassword) {
+        if(currentPassword.equals(newPassword)){
+            throw new IllegalArgumentException("Le password sono uguali");
+        }
+        DBManager.getInstance().getUserDAO().updatePassword(userId, newPassword);
     }
 }
 

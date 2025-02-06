@@ -62,4 +62,8 @@ public class OrdineService {
         return totale;
     }
 
+    public List<DettagliOrdini> getOrderDetails(int orderId) {
+        return DBManager.getInstance().getDettagliOrdiniDAO().findByOrderId(orderId);
+    }
+
 }

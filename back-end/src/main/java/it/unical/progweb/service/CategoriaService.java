@@ -1,5 +1,6 @@
 package it.unical.progweb.service;
 
+import it.unical.progweb.eccezioni.NotFoundException;
 import it.unical.progweb.model.Categoria;
 import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.persistence.DBManager;
@@ -36,5 +37,13 @@ public class CategoriaService {
         if (!products.isEmpty()) {
             throw new IllegalStateException("Impossibile eliminare categoria con prodotti associati");
         }
+    }
+
+    public Categoria getCategoriaById(int id) {
+        Categoria categoria = DBManager.getInstance().getCategoriaDAO().findById(id);
+        if (categoria == null) {
+            throw new NotFoundException("Categoria non trovata");
+        }
+        return categoria;
     }
 }

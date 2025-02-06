@@ -57,4 +57,8 @@ public class Utente {
     public Boolean getRuolo() {
         return ruolo;
     }
+
+    public void setRuolo(boolean b) {
+        this.ruolo = b;
+    }
 }

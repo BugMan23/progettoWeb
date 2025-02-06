@@ -26,9 +26,9 @@ public class UtenteDAOJDBC implements UtenteDAO {
             ps.setString(3, utente.getEmail());
             ps.setString(4, utente.getTelefono());
             ps.setString(5, utente.getUsername());
+            String hashedPassword = BCrypt.hashpw(utente.getPassword(), BCrypt.gensalt());
 
-            // TODO: CRIPTARE LA PASSWORD
-            ps.setString(6, utente.getPassword());
+            ps.setString(6, hashedPassword);
             ps.setBoolean(7, false);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -59,6 +59,7 @@ public class UtenteDAOJDBC implements UtenteDAO {
         }
         return null;
     }
+
 
     @Override
     public Utente findById(int id) {
