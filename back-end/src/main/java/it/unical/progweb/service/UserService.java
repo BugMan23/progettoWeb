@@ -65,12 +65,12 @@ public class UserService {
     }
 
 
-    public void changePassword(int userId, String currentPassword, String newPassword) {
+    /*public void changePassword(int userId, String currentPassword, String newPassword) {
         if(currentPassword.equals(newPassword)){
             throw new IllegalArgumentException("Le password sono uguali");
         }
         DBManager.getInstance().getUserDAO().updatePassword(userId, newPassword);
-    }
+    }*/
 }
 
 

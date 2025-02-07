@@ -15,18 +15,18 @@ public class AuthService {
         this.utenteDAO = utenteDAO;
     }
 
-    public String login(String email, String password) {
+    /*public String login(String email, String password) {
         Utente utente = utenteDAO.validateUser(email, password);
         if (utente != null) {
             return generateToken(utente);
         }
         return null; // Login fallito
-    }
+    }*/
 
-    public boolean register(Utente utente) {
+    /*public boolean register(Utente utente) {
         return utenteDAO.save(utente);
     }
-
+*/
     private String generateToken(Utente utente) {
         return Jwts.builder()
                 .setSubject(utente.getEmail())

@@ -9,23 +9,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
-    private final AuthService authService;
+    //private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    /*public AuthController(AuthService authService) {
         this.authService = authService;
     }
-
-    @PostMapping("/register")
+*/
+    /*@PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Utente utente) {
         boolean success = authService.register(utente);
         return success ? ResponseEntity.ok("Registrazione completata") :
                 ResponseEntity.badRequest().body("Errore nella registrazione");
-    }
+    }*/
 
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Utente utente) {
         String token = authService.login(utente.getEmail(), utente.getPassword());
         return token != null ? ResponseEntity.ok(token) :
                 ResponseEntity.status(401).body("Credenziali errate");
-    }
+    }*/
 }

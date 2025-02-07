@@ -62,7 +62,7 @@ public class ProdottoController {
 
 
 
-    @GetMapping("/prezzo")
+    @GetMapping("/prezzoRange")
     public ResponseEntity<List<Prodotto>> getProductsByPriceRange(
             @RequestParam int min,
             @RequestParam int max
