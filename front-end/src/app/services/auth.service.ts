@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { User } from '../models/user';
+import { User } from '../Models/user';
 import {jwtDecode} from 'jwt-decode'
 
 @Injectable({

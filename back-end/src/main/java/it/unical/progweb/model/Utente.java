@@ -22,6 +22,10 @@ public class Utente {
         this.ruolo = ruolo;
     }
 
+    public Utente() {
+
+    }
+
     public int getId() {
         return id;
     }
@@ -60,5 +64,13 @@ public class Utente {
 
     public void setRuolo(boolean b) {
         this.ruolo = b;
+    }
+
+    public void setEmail(String mail) {
+        this.email = mail;
+    }
+
+    public void setId(int id){
+        this.id = id;
     }
 }
