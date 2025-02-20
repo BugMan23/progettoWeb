@@ -1,63 +1,70 @@
-<div class="container">
-  <div class="container text-center"><h1>NOVITÀ</h1></div>
-  <mat-progress-spinner class="uSpinner" mode="indeterminate" color="primary"></mat-progress-spinner>
+<!-- homepage.component.html -->
+<div class="container mt-4">
+  <!-- Loading Spinner -->
+  <div class="text-center" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
 
-  <div class="card-list" id="offerte">
-    <button type="button" class="btnArrow"> <!-- TODO: CLICK PER SCORRERE INDIETRO I PRODOTTI -->
-      <img class = "arrow left" src="assets/images/left-arrow.png">
-    </button>
-    <div class="container-fluid collection ml-5">
-      <div class="product"> <!-- TODO: NGFOR SUI PRODOTTI(NOVITA) ALL'INTERNO DI QUESTO DIV-->
-        <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO NEL DIV SOTTO-->
-        <div>
-          <a class="product__image"> <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
-          <div class="product__name">
-            <p>
-              <a>Nome Prodotto</a>
-              <span style="color: #0000ff"> NEW</span>
-            </p>
-          </div>
-          <div class="product__price">
-            <p>Prezzo: 99.99€</p>
-            <p>Sconto: 10%</p>
-            <div>
-              <h4>Numero recensioni: 5</h4>
-              <h4>Media recensioni: 4.5</h4>
-            </div>
+  <!-- Error Message -->
+  <div class="alert alert-danger" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <!-- Categorie -->
+  <section class="categories-section mb-5" *ngIf="categorie.length > 0">
+    <h2 class="section-title">Categorie</h2>
+    <div class="row g-4">
+      <div class="col-md-4" *ngFor="let categoria of categorie">
+        <div class="category-card" [routerLink]="['/catalogo', categoria.id]">
+          <div class="category-content">
+            <h3>{{ categoria.nome }}</h3>
+            <p>{{ categoria.descrizione }}</p>
           </div>
         </div>
       </div>
     </div>
-    <button type="button" class="btnArrow"> <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO SUCCESSIVO-->
-      <img class = "arrow right" src="assets/images/right-arrow.png">
-    </button>
-  </div>
+  </section>
 
-  <div class="container text-center"><h1>OFFERTE</h1></div>
-  <div class="card-list" id="novità">
-    <button type="button" class="btnArrow">  <!-- TODO: (CLICK) per visualizzare il prodotto precedente -->
-      <img class="arrow left" src="assets/images/left-arrow.png">
-    </button>
-    <div class="container-fluid collection ml-5">
-      <div class="product"> <!-- TODO: NGFOR PER SCORRERE I PRODOTTI + click per prendere i dati del prodotto nel DIV SOTTO -->
-        <div>
-          <a class="product__image">  <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
-          <div class="product__name">
-            <p><a>Nome Prodotto</a></p>
-          </div>
-          <div class="product__price">
-            <p>Prezzo: 79.99€</p>
-            <p>Sconto: 15% <span style="color: red"> HOT</span></p>
-            <div>
-              <h4>Numero recensioni: 8</h4>
-              <h4>Media recensioni: 4.2</h4>
-            </div>
+  <!-- Prodotti Scontati -->
+  <section class="featured-products mb-5" *ngIf="prodottiScontati.length > 0">
+    <h2 class="section-title">Prodotti in Offerta</h2>
+    <div class="row g-4">
+      <div class="col-md-3" *ngFor="let prodotto of prodottiScontati">
+        <div class="product-card">
+          <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
+          <img [src]="prodotto.urlImage" [alt]="prodotto.nome" class="product-image">
+          <div class="product-details">
+            <h3>{{ prodotto.nome }}</h3>
+            <p class="brand">{{ prodotto.marca }}</p>
+            <div class="price">€{{ prodotto.prezzo }}</div>
+            <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary w-100">
+              Vedi Dettagli
+            </a>
           </div>
         </div>
       </div>
     </div>
-    <button type="button" class="btnArrow">  <!-- TODO: CLICK PER VISUALIZZARE PRODOTTO SUCCESSIVO -->
-      <img class="arrow right" src="assets/images/right-arrow.png">
-    </button>
-  </div>
+  </section>
+
+  <!-- Tutti i Prodotti -->
+  <section class="all-products mb-5" *ngIf="prodotti.length > 0">
+    <h2 class="section-title">I Nostri Prodotti</h2>
+    <div class="row g-4">
+      <div class="col-md-3" *ngFor="let prodotto of prodotti">
+        <div class="product-card">
+          <img [src]="prodotto.urlImage" [alt]="prodotto.nome" class="product-image">
+          <div class="product-details">
+            <h3>{{ prodotto.nome }}</h3>
+            <p class="brand">{{ prodotto.marca }}</p>
+            <div class="price">€{{ prodotto.prezzo }}</div>
+            <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-outline-primary w-100">
+              Vedi Dettagli
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>

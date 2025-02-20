@@ -11,3 +11,10 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(RouterModule.forRoot(routes))
   ]
 });
+
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient()
+  ]
+}).catch(err => console.error(err));

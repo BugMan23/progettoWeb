@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
 import { Prodotto } from '../Models/prodotto';
 
 @Injectable({
@@ -25,5 +25,18 @@ export class ProdottoService {
 
   getProductsByPriceRange(min: number, max: number): Observable<Prodotto[]> {
     return this.http.get<Prodotto[]>(`${this.apiUrl}/prezzoRange?min=${min}&max=${max}`);
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Si è verificato un errore';
+    if (error.error instanceof ErrorEvent) {
+      // Errore client-side
+      errorMessage = error.error.message;
+    } else {
+      // Errore backend
+      errorMessage = `Errore: ${error.status}, ${error.error}`;
+    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

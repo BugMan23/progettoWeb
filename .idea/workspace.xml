@@ -4,30 +4,35 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/eccezioni/ResourceNotFoundException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/back-end/src/test/java/it/unical/progweb/ProdottoControllerTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/back-end/src/test/java/it/unical/progweb/UtenteControllerTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/carrello.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/categoria.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/disponibilita.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/indirizzo.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/ordine.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/prodotto.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/front-end/src/app/models/recensione.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/model/Utente.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/model/Utente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/model/Utente.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/model/Utente.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/register/register.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/register/register.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/app/services/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/services/auth.service.ts" afterDir="false" />
+    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="aggiunti componenti">
+      <change afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/model/AuthResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/model/LoginRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/model/LoginResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/config/WebSecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/angular.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/CommonComponents/header/header.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/services/prodotto.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/services/prodotto.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -52,20 +57,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "sofia",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;sofia&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb/back-end&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Sofia\\Desktop\\EsempioProgAngular\\progettoWeb\\front-end\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ProgWEB" />
@@ -76,6 +85,14 @@
     <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
       <module name="ProgWEB" />
       <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProgWebApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="ProgWEB" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="it.unical.progweb.ProgWebApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -98,11 +115,26 @@
       <option name="presentableId" value="Default" />
       <updated>1740062900616</updated>
       <workItem from="1740062901786" duration="14000" />
-      <workItem from="1740063536761" duration="664000" />
+      <workItem from="1740063536761" duration="1671000" />
+      <workItem from="1740065246114" duration="957000" />
+      <workItem from="1740066461973" duration="2174000" />
     </task>
+    <task id="LOCAL-00001" summary="aggiunti componenti">
+      <option name="closed" value="true" />
+      <created>1740064288868</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1740064288868</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="aggiunti componenti" />
+    <option name="LAST_COMMIT_MESSAGE" value="aggiunti componenti" />
   </component>
 </project>
