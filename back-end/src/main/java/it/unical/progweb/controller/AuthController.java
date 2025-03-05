@@ -2,6 +2,7 @@ package it.unical.progweb.controller;
 
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.services.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
+    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }

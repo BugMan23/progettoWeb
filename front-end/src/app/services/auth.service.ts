@@ -10,9 +10,6 @@ import {jwtDecode} from 'jwt-decode'
 export class AuthService {
   private apiUrl = 'http://localhost:8080/auth'; // URL del tuo backend
 
-  // Proprietà per tenere traccia del ruolo
-  private isUserAdmin = false;
-
   constructor(private http: HttpClient) {}
 
   // Registrazione di un nuovo utente
@@ -26,13 +23,7 @@ export class AuthService {
       .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
       .pipe(
         map((token: string) => {
-          // Salvo il token in localStorage
-          localStorage.setItem('token', token);
-          // Decodifica il token con decodeJwt
-          const decoded: any = jwtDecode(token);
-          // Assumiamo che 'role' sia un boolean nel token
-          this.isUserAdmin = decoded.role === true;
-
+          sessionStorage.setItem('token', token);
           return token;
         })
       );
@@ -40,17 +31,31 @@ export class AuthService {
 
   // Controlla se l'utente è autenticato
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
+    if(!token) return false;
+
+    const decoded: any = jwtDecode(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp > currentTime;
+  }
+
+  //Ottiene il ruolo dell'utente dal token
+  getUserRole(): boolean {
+    const token = sessionStorage.getItem('token');
+    if(token){
+      const decoded: any = jwtDecode(token);
+      return decoded.role === 'admin';
+    }
+    return false;
   }
 
   // Controlla se l'utente è admin
   isAdmin(): boolean {
-    return this.isUserAdmin;
+    return this.getUserRole();
   }
 
   // Logout dell'utente
   logout(): void {
-    localStorage.removeItem('token');
-    this.isUserAdmin = false;
+    sessionStorage.removeItem('token');
   }
 }

@@ -42,50 +42,17 @@
           Accedi
         </button>
       </li>
-
-      <!-- Utente loggato, NON admin -->
-      <li class="nav-item dropdown" *ngIf="authService.isLoggedIn() && !authService.isAdmin()">
-        <button
-          class="menu-item btn btn-dark custom-btn dropdown-toggle"
-          type="button"
-          data-toggle="dropdown">
-          Profilo
-        </button>
-          <div class="dropdown-menu">
-            <!-- Placeholder links, replace with actual functionality -->
-            <a class="dropdown-item">Anagrafica</a>
-            <a class="dropdown-item">Indirizzi</a>
-            <a class="dropdown-item">Metodi di pagamento</a>
-            <a class="dropdown-item">Lista dei desideri</a>
-            <a class="dropdown-item">Ordini</a>
-            <a class="dropdown-item">Assistenza</a>
-            <a class="dropdown-item">Esci</a>
-          </div>
-      </li>
-
-      <!-- Utente loggato, admin -->
-      <li class="nav-item dropdown" *ngIf="authService.isLoggedIn() && authService.isAdmin()">
-        <button
-          class="menu-item btn btn-dark custom-btn dropdown-toggle"
-          type="button"
-          data-toggle="dropdown">
-          Gestisci
-        </button>
-        <div class="dropdown-menu">
-          <a class="dropdown-item">Gestione Prodotti</a>
-          <a class="dropdown-item">Gestione Utenti</a>
-          <a class="dropdown-item">Ordini</a>
-          <a class="dropdown-item" (click)="authService.logout()">Esci</a>
-        </div>
-      </li>
-  </ul>
-</nav>
+    </ul>
+  </nav>
 
   <nav id="secondNav" class="navbar navbar-expand-md navbar-light d-flex flex-column align-items-center">
     <button class="navbar-toggler btn btn-dark custom-btn" type="button">
       <span class="navbar-toggler-icon"></span> <!-- TODO: Add (click)="toggleMenu()" functionality -->
     </button>
   </nav>
+
+  <!-- Mostra il popup solo se attivato -->
+  <app-login *ngIf="showPopup" (close)="closeLoginPopup()"></app-login>
 </header>
 </body>
 </html>
