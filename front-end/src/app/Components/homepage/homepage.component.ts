@@ -30,6 +30,13 @@ export class HomepageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+
+    console.log('Chiamata API in corso...');
+    this.prodottoService.getAllProducts().subscribe({
+      next: (data) => console.log('Dati ricevuti:', data),
+      error: (err) => console.error('Errore API:', err)
+    });
+
     // Carica tutti i prodotti
     this.prodottoService.getAllProducts().subscribe({
       next: (data) => {
@@ -54,4 +61,5 @@ export class HomepageComponent implements OnInit {
       }
     });
   }
+
 }

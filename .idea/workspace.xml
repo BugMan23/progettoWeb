@@ -6,13 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="fatto header e homepage component">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/config/WebSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/ProdottoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/src/main/java/it/unical/progweb/controller/ProdottoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/app/app.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/app.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/app.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/config/WebSecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/config/WebSecurityConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/AuthController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/GlobalExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/GlobalExceptionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/ProdottoController$ProductDetailResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/ProdottoController$ProductDetailResponse.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/ProdottoController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/ProdottoController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/UtenteController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/controller/UtenteController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/DBManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/DBManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/CarrelloDAOJDBC.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/CarrelloDAOJDBC.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/DisponibilitaDAOJDBC.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/DisponibilitaDAOJDBC.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/UtenteDAOJDBC.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/persistence/db/UtenteDAOJDBC.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/service/DisponibilitaService.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/target/classes/it/unical/progweb/service/DisponibilitaService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/angular.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/homepage/homepage.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/app.component.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,43 +56,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Spring Boot.ProgWebApplication.executor": "Run",
-    "git-widget-placeholder": "sofia",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb/back-end",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "ts.external.directory.path": "C:\\Users\\Sofia\\Desktop\\EsempioProgAngular\\progettoWeb\\front-end\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ProgWebApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;sofia&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb/back-end&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Sofia\\Desktop\\EsempioProgAngular\\progettoWeb\\front-end\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="ProgWEB" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="ProgWEB" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="ProgWebApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="ProgWEB" />
@@ -114,7 +108,8 @@
       <workItem from="1740062901786" duration="14000" />
       <workItem from="1740063536761" duration="1671000" />
       <workItem from="1740065246114" duration="957000" />
-      <workItem from="1740066461973" duration="4867000" />
+      <workItem from="1740066461973" duration="5271000" />
+      <workItem from="1741360161527" duration="1149000" />
     </task>
     <task id="LOCAL-00001" summary="aggiunti componenti">
       <option name="closed" value="true" />
@@ -132,7 +127,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740070098028</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fatto header e homepage component">
+      <option name="closed" value="true" />
+      <created>1741359828915</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1741359828915</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

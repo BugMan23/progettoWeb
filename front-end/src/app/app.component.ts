@@ -14,4 +14,5 @@ import {FooterComponent} from './Components/CommonComponents/footer/footer.compo
 export class AppComponent {
   title = 'front-end';
 
+
 }
