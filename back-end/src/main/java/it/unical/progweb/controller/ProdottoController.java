@@ -25,7 +25,13 @@ public class ProdottoController {
     // Endpoint per tutti i prodotti
     @GetMapping
     public ResponseEntity<List<Prodotto>> getAllProducts() {
-        return ResponseEntity.ok(prodottoService.getAllProducts());
+        try {
+            List<Prodotto> prodotti = prodottoService.getAllProducts();
+            return ResponseEntity.ok(prodotti);
+        } catch (Exception e) {
+            e.printStackTrace(); // Per debug
+            throw new RuntimeException("Errore nel recupero dei prodotti");
+        }
     }
 
     @GetMapping("/{id}")

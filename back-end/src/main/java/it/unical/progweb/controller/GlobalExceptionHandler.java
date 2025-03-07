@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Object> handleUnauthorized(AuthenticationException e) {
@@ -35,9 +33,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    // Rimuovi uno dei due gestori generici e mantieni solo questo
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericError(Exception e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Errore non gestito", e);
+        return new ResponseEntity<>("Errore interno del server", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -57,11 +57,5 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<?> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGenericException(Exception ex) {
-        log.error("Errore non gestito", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno");
     }
 }
