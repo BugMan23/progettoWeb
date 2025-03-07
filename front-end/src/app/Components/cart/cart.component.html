@@ -1,1 +1,145 @@
-<p>cart works!</p>
+<div class="container mt-4 mb-5">
+  <h1 class="mb-4">Il tuo carrello</h1>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Errore -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Carrello vuoto -->
+  <div *ngIf="!loading && !error && prodottiCarrello.length === 0" class="text-center py-5">
+    <div class="mb-4">
+      <i class="bi bi-cart-x fs-1"></i>
+    </div>
+    <h3>Il tuo carrello è vuoto</h3>
+    <p class="text-muted">Aggiungi prodotti al carrello per procedere all'acquisto</p>
+    <button class="btn btn-primary mt-3" (click)="continuaShopping()">
+      Continua lo Shopping
+    </button>
+  </div>
+
+  <!-- Carrello con prodotti -->
+  <div *ngIf="!loading && !error && prodottiCarrello.length > 0" class="row">
+    <!-- Prodotti carrello -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Prodotti nel carrello</h5>
+            <button class="btn btn-sm btn-outline-danger" (click)="svuotaCarrello()">
+              <i class="bi bi-trash me-1"></i> Svuota
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="cart-items">
+            <div class="cart-item" *ngFor="let prodotto of prodottiCarrello">
+              <div class="row align-items-center">
+                <!-- Immagine -->
+                <div class="col-md-2">
+                  <img [src]="prodotto.urlImage || '/assets/images/placeholder.png'"
+                       [alt]="prodotto.nome"
+                       class="img-fluid rounded">
+                </div>
+
+                <!-- Info prodotto -->
+                <div class="col-md-5">
+                  <h5 class="product-title">{{ prodotto.nome }}</h5>
+                  <p class="product-brand mb-1">{{ prodotto.marca }}</p>
+                  <p class="mb-0">
+                    <span class="text-muted">Colore:</span> {{ prodotto.colore }}
+                  </p>
+                  <p class="mb-0">
+                    <span class="text-muted">Taglia:</span> M <!-- Questo è un placeholder, andrebbe preso dal modello Carrello -->
+                  </p>
+                </div>
+
+                <!-- Prezzo e quantità -->
+                <div class="col-md-3 text-center">
+                  <div class="quantity-selector mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">-</button>
+                    <span class="quantity-value">1</span> <!-- Questo è un placeholder, andrebbe preso dal modello Carrello -->
+                    <button type="button" class="btn btn-sm btn-outline-secondary">+</button>
+                  </div>
+                  <p class="fw-bold">€{{ prodotto.prezzo.toFixed(2) }}</p>
+                </div>
+
+                <!-- Azioni -->
+                <div class="col-md-2 text-end">
+                  <button class="btn btn-sm btn-outline-danger" (click)="rimuoviProdotto(prodotto.id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Continua shopping -->
+      <div class="mb-4">
+        <button class="btn btn-outline-primary" (click)="continuaShopping()">
+          <i class="bi bi-arrow-left me-2"></i> Continua lo Shopping
+        </button>
+      </div>
+    </div>
+
+    <!-- Riepilogo ordine -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Riepilogo ordine</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotale</span>
+            <span>€{{ totale.toFixed(2) }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Spedizione</span>
+            <span>Gratuita</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold">Totale</span>
+            <span class="fw-bold">€{{ totale.toFixed(2) }}</span>
+          </div>
+
+          <!-- Checkout button -->
+          <div class="d-grid">
+            <button
+              class="btn btn-primary"
+              [disabled]="processingCheckout"
+              (click)="procediCheckout()">
+              <span *ngIf="processingCheckout" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Procedi al checkout
+            </button>
+          </div>
+
+          <!-- Informazioni sicurezza -->
+          <div class="payment-info mt-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-shield-check me-2"></i>
+              <span>Pagamento sicuro</span>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-truck me-2"></i>
+              <span>Spedizione gratuita sopra €50</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-arrow-return-left me-2"></i>
+              <span>Reso gratuito entro 30 giorni</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
