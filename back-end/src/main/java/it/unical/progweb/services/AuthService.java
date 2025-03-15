@@ -14,13 +14,15 @@ import java.util.Date;
 public class AuthService {
 
     private final UtenteProxy utenteProxy;
-    private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key secretKey;
+
     public AuthService(UtenteProxy utenteProxy) {
         this.utenteProxy = utenteProxy;
-        int keySizeBits = KEY.getEncoded().length * 8;
+        // Genera la chiave al momento della creazione del servizio
+        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        int keySizeBits = secretKey.getEncoded().length * 8;
         System.out.println("✅ AuthService creato con successo! Key size = " + keySizeBits + " bits");
     }
-
 
     public String login(String email, String password) {
         Utente utente = utenteProxy.validateUser(email, password);
@@ -40,7 +42,7 @@ public class AuthService {
                 .claim("role", utente.getRuolo() ? "admin" : "user")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 ora di validità
-                .signWith(KEY)
+                .signWith(secretKey)
                 .compact();
     }
 }

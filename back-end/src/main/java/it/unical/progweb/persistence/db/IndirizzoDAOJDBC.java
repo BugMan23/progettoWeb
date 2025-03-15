@@ -4,28 +4,31 @@ import it.unical.progweb.model.Indirizzo;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.IndirizzoDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class IndirizzoDAOJDBC implements IndirizzoDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public IndirizzoDAOJDBC(Connection connection) {
-        this.connection = connection;
+    public IndirizzoDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
-    public List<Indirizzo> findByUtenteId(int utenteId)  {
-        List<Indirizzo> indirizzi = null;
+    public List<Indirizzo> findByUtenteId(int utenteId) {
+        List<Indirizzo> indirizzi = new ArrayList<>();
+        String query = "SELECT * FROM indirizzo WHERE idUtente = ?";
 
-        String query = "SELECT * FROM indirizzo WHERE idUtente = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, utenteId);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     indirizzi.add(new Indirizzo(
                             rs.getInt("id"),
                             rs.getString("nomeVia"),
@@ -48,7 +51,8 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
     public void addIndirizzo(Indirizzo indirizzo, int idutente) {
         String query = "INSERT INTO indirizzo (nomeVia, civico, citta, cap, provincia, regione, idUtente) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, indirizzo.getNomeVia());
             ps.setString(2, indirizzo.getCivico());
             ps.setString(3, indirizzo.getCitta());

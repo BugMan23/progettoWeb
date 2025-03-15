@@ -1,4 +1,4 @@
-package it.unical.progweb.persistence;
+/*package it.unical.progweb.persistence;
 
 import java.sql.*;
 
@@ -8,7 +8,7 @@ import it.unical.progweb.persistence.dao.*;
 import it.unical.progweb.persistence.db.*;
 
 /* TODO: MODIFICARE IL DB MANAGER COME HA FATTO BIF CON DATASOURCE  */
-
+/*
 public class DBManager {
     private static DBManager instance = null;
     private UtenteDAO userDAO = null;
@@ -52,8 +52,7 @@ public class DBManager {
         }
         return userDAO;
     }
-*/
-    public ProdottoDAO getProductDAO() {
+public ProdottoDAO getProductDAO() {
         if (productDAO == null) {
             productDAO = new ProdottoDAOJDBC(getConnection());
         }
@@ -115,4 +114,4 @@ public class DBManager {
         return categoriaDAO;
     }
 
-}
+}*/

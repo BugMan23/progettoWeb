@@ -4,6 +4,7 @@ import it.unical.progweb.model.Recensione;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.RecensioneDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,18 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecensioneDAOJDBC implements RecensioneDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public RecensioneDAOJDBC(Connection connection) {
-        this.connection = connection;
+    public RecensioneDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
-
 
     @Override
     public void addRecensione(Recensione recensione) {
-        String query = "INSERT INTO recensione (idProdotto, idUtente, valutazione, testo, data)";
+        String query = "INSERT INTO recensione (idProdotto, idUtente, valutazione, testo, data) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, recensione.getIdProdotto());
             ps.setInt(2, recensione.getIdUtente());
             ps.setInt(3, recensione.getValutazione());
@@ -35,22 +36,32 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         }
     }
 
-
     // todo: da rivedere
     @Override
     public void deleteRecensione(int recensioneId) {
+        String query = "DELETE FROM recensione WHERE id = ?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, recensioneId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Recensione> findByProdottoId(int prodottoId) {
         List<Recensione> recensioni = new ArrayList<>();
-        String query = "SELECT * FROM recensioni WHERE idProdotto = ? ";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        String query = "SELECT * FROM recensioni WHERE idProdotto = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, prodottoId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    recensioni.add(new Recensione(rs.getInt("id"),
+                while (rs.next()) {
+                    recensioni.add(new Recensione(
+                            rs.getInt("id"),
                             rs.getInt("idprodotto"),
                             rs.getInt("idutente"),
                             rs.getInt("valutazione"),

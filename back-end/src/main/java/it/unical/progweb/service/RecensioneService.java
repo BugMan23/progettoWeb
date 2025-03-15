@@ -3,7 +3,10 @@ package it.unical.progweb.service;
 import it.unical.progweb.model.DettagliOrdini;
 import it.unical.progweb.model.Ordine;
 import it.unical.progweb.model.Recensione;
-import it.unical.progweb.persistence.DBManager;
+import it.unical.progweb.persistence.dao.DettagliOrdineDAO;
+import it.unical.progweb.persistence.dao.OrdineDAO;
+import it.unical.progweb.persistence.dao.RecensioneDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,17 +15,28 @@ import java.util.List;
 @Service
 public class RecensioneService {
 
+    private final RecensioneDAO recensioneDAO;
+    private final OrdineDAO ordineDAO;
+    private final DettagliOrdineDAO dettagliOrdineDAO;
+
+    @Autowired
+    public RecensioneService(RecensioneDAO recensioneDAO, OrdineDAO ordineDAO, DettagliOrdineDAO dettagliOrdineDAO) {
+        this.recensioneDAO = recensioneDAO;
+        this.ordineDAO = ordineDAO;
+        this.dettagliOrdineDAO = dettagliOrdineDAO;
+    }
+
     // Aggiunge una recensione dopo verifica
     public void addReview(Recensione recensione) {
         validateReview(recensione);
         checkUserPurchasedProduct(recensione.getIdUtente(), recensione.getIdProdotto());
         recensione.setData(LocalDate.now().toString());
-        DBManager.getInstance().getReviewDAO().addRecensione(recensione);
+        recensioneDAO.addRecensione(recensione);
     }
 
     // Ottiene le recensioni di un prodotto
     public List<Recensione> getProductReviews(int productId) {
-        return DBManager.getInstance().getReviewDAO().findByProdottoId(productId);
+        return recensioneDAO.findByProdottoId(productId);
     }
 
     private void validateReview(Recensione recensione) {
@@ -37,13 +51,13 @@ public class RecensioneService {
 
     private void checkUserPurchasedProduct(int userId, int productId) {
         // Ottieni tutti gli ordini dell'utente
-        List<Ordine> ordini = DBManager.getInstance().getOrderDAO().findByUserId(userId);
+        List<Ordine> ordini = ordineDAO.findByUserId(userId);
 
         boolean hasPurchased = false;
 
         // Per ogni ordine, verifica i dettagli ordine per il prodotto
         for (Ordine ordine : ordini) {
-            List<DettagliOrdini> dettagliOrdini = DBManager.getInstance().getDettagliOrdiniDAO().findByOrderId(ordine.getId());
+            List<DettagliOrdini> dettagliOrdini = dettagliOrdineDAO.findByOrderId(ordine.getId());
             for (DettagliOrdini dettaglio : dettagliOrdini) {
                 if (dettaglio.getIdProdotto() == productId) {
                     hasPurchased = true;
@@ -59,5 +73,4 @@ public class RecensioneService {
             throw new IllegalStateException("Puoi recensire solo prodotti che hai acquistato");
         }
     }
-
 }

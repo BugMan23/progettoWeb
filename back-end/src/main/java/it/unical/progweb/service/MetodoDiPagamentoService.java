@@ -2,7 +2,8 @@ package it.unical.progweb.service;
 
 import it.unical.progweb.eccezioni.NotFoundException;
 import it.unical.progweb.model.MetodoDiPagamento;
-import it.unical.progweb.persistence.DBManager;
+import it.unical.progweb.persistence.dao.MetodoDiPagamentoDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,20 +11,26 @@ import java.util.List;
 @Service
 public class MetodoDiPagamentoService {
 
+    private final MetodoDiPagamentoDAO metodoDiPagamentoDAO;
+
+    @Autowired
+    public MetodoDiPagamentoService(MetodoDiPagamentoDAO metodoDiPagamentoDAO) {
+        this.metodoDiPagamentoDAO = metodoDiPagamentoDAO;
+    }
 
     public void salvaMetodoDiPagamento(MetodoDiPagamento metodoPagamento, int userId) {
         validaMetodoPagamento(metodoPagamento);
-        if ( !DBManager.getInstance().getPaymentMethodDAO().addMetodoDiPagamento(metodoPagamento, userId)) {
+        if (!metodoDiPagamentoDAO.addMetodoDiPagamento(metodoPagamento, userId)) {
             throw new RuntimeException("Errore nel salvataggio del metodo di pagamento");
         }
     }
 
     public List<MetodoDiPagamento> getMetodiPagamentoUtente(int userId) {
-        return DBManager.getInstance().getPaymentMethodDAO().findByUtenteId(userId);
+        return metodoDiPagamentoDAO.findByUtenteId(userId);
     }
 
     public MetodoDiPagamento getMetodoDiPagamentoByID(int id) {
-        MetodoDiPagamento method = DBManager.getInstance().getPaymentMethodDAO().findById(id);
+        MetodoDiPagamento method = metodoDiPagamentoDAO.findById(id);
         if (method == null) {
             throw new NotFoundException("Metodo di pagamento non trovato");
         }

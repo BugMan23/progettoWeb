@@ -1,7 +1,7 @@
 package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Utente;
-import it.unical.progweb.persistence.DBConn;
+import it.unical.progweb.persistence.DbConn;
 import it.unical.progweb.persistence.dao.UtenteDAO;
 import org.mindrot.jbcrypt.BCrypt;
 

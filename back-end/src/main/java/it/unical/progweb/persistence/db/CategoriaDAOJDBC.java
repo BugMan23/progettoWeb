@@ -3,6 +3,7 @@ package it.unical.progweb.persistence.db;
 import it.unical.progweb.model.Categoria;
 import it.unical.progweb.persistence.dao.CategoriaDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,16 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoriaDAOJDBC implements CategoriaDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public CategoriaDAOJDBC(Connection connection) {
-        this.connection = connection;
+    public CategoriaDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void addCategory(Categoria categoria) {
         String query = "INSERT INTO categoria (name, description) VALUES (?, ?)";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, categoria.getNome());
             ps.setString(2, categoria.getDescrizione());
             ps.executeUpdate();
@@ -33,15 +36,16 @@ public class CategoriaDAOJDBC implements CategoriaDAO {
     public List<Categoria> findAll() {
         List<Categoria> categorie = new ArrayList<>();
         String query = "SELECT * FROM categoria";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
-            try(ResultSet rs = ps.executeQuery()) {
-                while(rs.next()) {
-                    categorie.add(new Categoria(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("description")
-                    ));
-                }
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while(rs.next()) {
+                categorie.add(new Categoria(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description")
+                ));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -52,7 +56,9 @@ public class CategoriaDAOJDBC implements CategoriaDAO {
     @Override
     public void deleteCategoria(int id) {
         String query = "DELETE FROM categoria WHERE id = ?";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -63,9 +69,11 @@ public class CategoriaDAOJDBC implements CategoriaDAO {
     @Override
     public Categoria findById(int id) {
         String query = "SELECT * FROM categoria WHERE id = ?";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
                     return new Categoria(
                             rs.getInt("id"),

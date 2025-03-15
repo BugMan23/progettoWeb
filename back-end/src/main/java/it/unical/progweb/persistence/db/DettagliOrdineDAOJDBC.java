@@ -3,6 +3,7 @@ package it.unical.progweb.persistence.db;
 import it.unical.progweb.model.DettagliOrdini;
 import it.unical.progweb.persistence.dao.DettagliOrdineDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,17 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DettagliOrdineDAOJDBC implements DettagliOrdineDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public DettagliOrdineDAOJDBC(Connection connection) {
-        this.connection = connection;
+    public DettagliOrdineDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void addArticoliOrdine(int idOrdine, int idProdotto, int quantita) {
         String query = "INSERT INTO dettagliordini (idOrdine, idProdotto, quantita) VALUES (?, ?, ?)";
 
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, idOrdine);
             ps.setInt(2, idProdotto);
             ps.setInt(3, quantita);
@@ -36,9 +38,10 @@ public class DettagliOrdineDAOJDBC implements DettagliOrdineDAO {
         List<DettagliOrdini> dettagli = new ArrayList<>();
         String query = "SELECT * FROM dettagli_ordine WHERE idOrdine = ?";
 
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, ordineId);
-            try(ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 while(rs.next()) {
                     dettagli.add(new DettagliOrdini(
                             rs.getInt("id"),

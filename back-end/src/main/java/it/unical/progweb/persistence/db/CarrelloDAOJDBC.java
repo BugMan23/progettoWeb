@@ -5,6 +5,7 @@ import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.CarrelloDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,16 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CarrelloDAOJDBC implements CarrelloDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public CarrelloDAOJDBC(Connection connection) {
+    public CarrelloDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void addAlCarrello(int userId, int prodottoId, int quantita) {
         // todo: da rivedere per gestire meglio la quantità
         String query = "INSERT INTO carrello (idutente, idprodotto, quantita, isordinato) VALUES (?, ?, ?, ?) ON CONFLICT (userId, prodottoId) DO UPDATE SET quantita = carrello.quantita + EXCLUDED.quantita;";
 
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             ps.setInt(2, prodottoId);
             ps.setInt(3, quantita);
@@ -37,7 +40,9 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
     public List<Prodotto> getCarrello(int userId) {
         List<Prodotto> carrello = new ArrayList<>();
         String query = "SELECT p.* FROM Prodotti p JOIN carrello c ON p.id = c.idprodotto WHERE c.idutente = ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -60,12 +65,13 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
         return carrello;
     }
 
-
     // todo: da rivedere
     @Override
     public void clear(int idUser) {
         String updateQuery = "UPDATE CarrelloItems SET isOrdinato = TRUE WHERE idutente = ?";
-        try (PreparedStatement psUpdate = connection.prepareStatement(updateQuery)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement psUpdate = connection.prepareStatement(updateQuery)) {
             psUpdate.setInt(1, idUser);
             int updatedRows = psUpdate.executeUpdate();
             if (updatedRows == 0) {
