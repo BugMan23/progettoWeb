@@ -3,29 +3,31 @@ package it.unical.progweb.persistence.db;
 import it.unical.progweb.model.MetodoDiPagamento;
 import it.unical.progweb.persistence.dao.MetodoDiPagamentoDAO;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
-    private Connection connection;
+    private final DataSource dataSource;
 
-    public MetodoDiPagamentoDAOJDBC(Connection connection) {
-        this.connection = connection;
+    public MetodoDiPagamentoDAOJDBC(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
-
     @Override
-    public List<MetodoDiPagamento> findByUtenteId(int utenteId)  {
-        List<MetodoDiPagamento> metodiDiPagamento = null;
+    public List<MetodoDiPagamento> findByUtenteId(int utenteId) {
+        List<MetodoDiPagamento> metodiDiPagamento = new ArrayList<>();
+        String query = "SELECT * FROM metodoDiPagamento WHERE idUtente = ?";
 
-        String query = "SELECT * FROM metodoDiPagamento WHERE idUtente = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, utenteId);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
                     metodiDiPagamento.add(new MetodoDiPagamento(
                             rs.getInt("id"),
                             rs.getString("tipoPagamento"),
@@ -44,11 +46,12 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
         return metodiDiPagamento;
     }
 
-
     @Override
     public boolean addMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento, int utenteId) {
         String query = "INSERT INTO MetodoDiPagamento (tipoPagamento, titolare, tipoCarta, numeroCarta, dataScadenza, cvv, idUtente) VALUES (?, ?, ?, ?, ?, ? , ? )";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, metodoDiPagamento.getTipoPagamento());
             ps.setString(2, metodoDiPagamento.getTitolare());
             ps.setString(3, metodoDiPagamento.getTipoCarta());
@@ -66,12 +69,13 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
     @Override
     public MetodoDiPagamento findById(int id) {
         MetodoDiPagamento metodoDiPagamento = null;
+        String query = "SELECT * FROM metodoDiPagamento WHERE id = ?";
 
-        String query = "SELECT * FROM metodoDiPagamento WHERE id = ? ";
-        try(PreparedStatement ps = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
+            try (ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) {
                     metodoDiPagamento = new MetodoDiPagamento(
                             rs.getInt("id"),
                             rs.getString("tipoPagamento"),
@@ -89,5 +93,4 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
         }
         return metodoDiPagamento;
     }
-
 }

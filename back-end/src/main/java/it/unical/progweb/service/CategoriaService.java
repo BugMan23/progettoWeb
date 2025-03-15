@@ -3,7 +3,9 @@ package it.unical.progweb.service;
 import it.unical.progweb.eccezioni.NotFoundException;
 import it.unical.progweb.model.Categoria;
 import it.unical.progweb.model.Prodotto;
-import it.unical.progweb.persistence.DBManager;
+import it.unical.progweb.persistence.dao.CategoriaDAO;
+import it.unical.progweb.persistence.dao.ProdottoDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,18 +13,27 @@ import java.util.List;
 @Service
 public class CategoriaService {
 
+    private final CategoriaDAO categoriaDAO;
+    private final ProdottoDAO prodottoDAO;
+
+    @Autowired
+    public CategoriaService(CategoriaDAO categoriaDAO, ProdottoDAO prodottoDAO) {
+        this.categoriaDAO = categoriaDAO;
+        this.prodottoDAO = prodottoDAO;
+    }
+
     public void addCategory(Categoria categoria) {
         validateCategory(categoria);
-        DBManager.getInstance().getCategoriaDAO().addCategory(categoria);
+        categoriaDAO.addCategory(categoria);
     }
 
     public List<Categoria> getAllCategories() {
-        return DBManager.getInstance().getCategoriaDAO().findAll();
+        return categoriaDAO.findAll();
     }
 
     /*public void deleteCategory(int id) {
         validateCategoryHasNoProducts(categoria);
-        DBManager.getInstance().getCategoriaDAO().deleteCategoria(id);
+        categoriaDAO.deleteCategoria(id);
     }*/
 
     private void validateCategory(Categoria categoria) {
@@ -32,15 +43,14 @@ public class CategoriaService {
     }
 
     private void validateCategoryHasNoProducts(String categoria) {
-        List<Prodotto> products = DBManager.getInstance().getProductDAO()
-                .findProdottiByCategoria(categoria);
+        List<Prodotto> products = prodottoDAO.findProdottiByCategoria(categoria);
         if (!products.isEmpty()) {
             throw new IllegalStateException("Impossibile eliminare categoria con prodotti associati");
         }
     }
 
     public Categoria getCategoriaById(int id) {
-        Categoria categoria = DBManager.getInstance().getCategoriaDAO().findById(id);
+        Categoria categoria = categoriaDAO.findById(id);
         if (categoria == null) {
             throw new NotFoundException("Categoria non trovata");
         }

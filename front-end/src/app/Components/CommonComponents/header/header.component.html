@@ -1,75 +1,36 @@
-<!-- header.component.html -->
 <header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
       <!-- Logo -->
-      <a class="navbar-brand" routerLink="/">
-        <img src="assets/logo.png" alt="Logo" height="40">
-      </a>
+      <a class="navbar-brand text-light" routerLink="/" (click)="goHomepage()">CAESARZON</a>
 
-      <!-- Toggler per mobile -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <!-- Barra di ricerca -->
+      <div class="search-container">
+        <input type="text" placeholder="Cerca..." class="form-control search-input">
+        <button class="btn search-btn">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
 
-      <!-- Contenuto navbar -->
-      <div class="collapse navbar-collapse" id="navbarContent">
-        <!-- Menu principale -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/catalogo" routerLinkActive="active">Catalogo</a>
-          </li>
-          <li class="nav-item dropdown" *ngIf="categorie.length > 0">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Categorie
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li *ngFor="let categoria of categorie">
-                <a class="dropdown-item" [routerLink]="['/categoria', categoria.id]">{{ categoria.nome }}</a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" routerLink="/categorie">Tutte le categorie</a></li>
-            </ul>
-          </li>
-          <li class="nav-item" *ngIf="isAdmin">
-            <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin Panel</a>
-          </li>
-        </ul>
+      <!-- Navigazione -->
+      <div class="nav-links d-none d-md-flex">
+        <a routerLink="/" class="nav-item">Home</a>
+        <a routerLink="/catalogo" class="nav-item">Catalogo</a>
+        <a *ngIf="isAdmin" routerLink="/admin" class="nav-item">Admin</a>
+      </div>
 
-        <!-- Sezione utente -->
-        <div class="d-flex align-items-center">
-          <!-- Carrello -->
-          <a class="nav-link position-relative me-3" routerLink="/carrello" *ngIf="isLoggedIn">
-            <i class="bi bi-cart3 fs-5"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  *ngIf="cartItemCount > 0">
-              {{ cartItemCount }}
-            </span>
-          </a>
-
-          <!-- Menu utente -->
-          <div class="dropdown" *ngIf="isLoggedIn">
-            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-              {{ userName }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" routerLink="/profilo">Profilo</a></li>
-              <li><a class="dropdown-item" routerLink="/ordini">I miei ordini</a></li>
-              <li *ngIf="isAdmin"><a class="dropdown-item" routerLink="/admin">Dashboard Admin</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
-            </ul>
-          </div>
-
-          <!-- Login/Register buttons -->
-          <div *ngIf="!isLoggedIn">
-            <a class="btn btn-outline-primary me-2" routerLink="/login">Accedi</a>
-            <a class="btn btn-primary" routerLink="/registrazione">Registrati</a>
-          </div>
+      <!-- Icone utente -->
+      <div class="user-actions">
+        <a *ngIf="isLoggedIn" routerLink="/carrello" class="icon-link">
+          <i class="bi bi-cart3"></i>
+          <span *ngIf="cartItemCount > 0" class="cart-badge">{{cartItemCount}}</span>
+        </a>
+        <button *ngIf="!isLoggedIn" class="btn login-btn" (click)="openLoginPopup()">
+          Accedi
+        </button>
+        <div *ngIf="isLoggedIn" class="user-menu">
+          <span class="user-name">{{userName}}</span>
+          <button class="btn logout-btn" (click)="logout()">Esci</button>
         </div>
       </div>
     </div>
