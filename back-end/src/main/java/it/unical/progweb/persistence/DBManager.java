@@ -7,6 +7,8 @@ import it.unical.progweb.model.Ordine;
 import it.unical.progweb.persistence.dao.*;
 import it.unical.progweb.persistence.db.*;
 
+/* TODO: MODIFICARE IL DB MANAGER COME HA FATTO BIF CON DATASOURCE  */
+
 public class DBManager {
     private static DBManager instance = null;
     private UtenteDAO userDAO = null;
@@ -44,13 +46,13 @@ public class DBManager {
         return instance;
     }
 
-    public UtenteDAO getUserDAO(){
+    /*public UtenteDAO getUserDAO(){
         if (userDAO == null) {
             userDAO = new UtenteDAOJDBC(getConnection());
         }
         return userDAO;
     }
-
+*/
     public ProdottoDAO getProductDAO() {
         if (productDAO == null) {
             productDAO = new ProdottoDAOJDBC(getConnection());
