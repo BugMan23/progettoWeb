@@ -23,4 +23,8 @@ export class CategoriaService {
   addCategory(categoria: Categoria): Observable<any> {
     return this.http.post(`${this.apiUrl}/admin`, categoria);
   }
+
+  getCategoryById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
 }

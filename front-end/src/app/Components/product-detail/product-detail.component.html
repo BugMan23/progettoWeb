@@ -72,54 +72,63 @@
             </div>
           </div>
 
-          <!-- Form acquisto -->
-          <form class="purchase-form mb-4">
-            <!-- Taglia -->
-            <div class="mb-3">
-              <label class="form-label">Taglia</label>
-              <div class="size-buttons">
+          <!-- Form acquisto solo per utenti loggati -->
+          <div *ngIf="isLoggedIn; else loginMessage">
+            <form class="purchase-form mb-4">
+              <!-- Taglia -->
+              <div class="mb-3">
+                <label class="form-label">Taglia</label>
+                <div class="size-buttons">
+                  <button
+                    *ngFor="let disp of disponibilita"
+                    type="button"
+                    class="btn"
+                    [class.btn-outline-dark]="selectedTaglia !== disp.taglia"
+                    [class.btn-dark]="selectedTaglia === disp.taglia"
+                    [class.disabled]="disp.quantita === 0"
+                    (click)="selectedTaglia = disp.taglia">
+                    {{ disp.taglia }}
+                  </button>
+                </div>
+                <small *ngIf="!selectedTaglia" class="text-danger">Seleziona una taglia</small>
+              </div>
+
+              <!-- Quantità -->
+              <div class="mb-3">
+                <label class="form-label">Quantità</label>
+                <div class="quantity-selector">
+                  <button type="button" class="btn btn-outline-dark" (click)="selectedQuantita = selectedQuantita > 1 ? selectedQuantita - 1 : 1">-</button>
+                  <span class="quantity-value">{{ selectedQuantita }}</span>
+                  <button type="button" class="btn btn-outline-dark" (click)="selectedQuantita = selectedQuantita + 1">+</button>
+                </div>
+              </div>
+
+              <!-- Pulsante acquisto -->
+              <div class="d-grid gap-2">
                 <button
-                  *ngFor="let disp of disponibilita"
                   type="button"
-                  class="btn"
-                  [class.btn-outline-dark]="selectedTaglia !== disp.taglia"
-                  [class.btn-dark]="selectedTaglia === disp.taglia"
-                  [class.disabled]="disp.quantita === 0"
-                  (click)="selectedTaglia = disp.taglia">
-                  {{ disp.taglia }}
+                  class="btn btn-primary"
+                  [disabled]="!selectedTaglia || addingToCart || !isTagliaDisponibile(selectedTaglia)"
+                  (click)="addToCart()">
+                  <span *ngIf="addingToCart" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Aggiungi al carrello
                 </button>
+                <div *ngIf="cartSuccess" class="alert alert-success mt-2">
+                  Prodotto aggiunto al carrello!
+                </div>
+                <div *ngIf="cartError" class="alert alert-danger mt-2">
+                  Errore nell'aggiunta al carrello. Riprova.
+                </div>
               </div>
-              <small *ngIf="!selectedTaglia" class="text-danger">Seleziona una taglia</small>
-            </div>
+            </form>
+          </div>
 
-            <!-- Quantità -->
-            <div class="mb-3">
-              <label class="form-label">Quantità</label>
-              <div class="quantity-selector">
-                <button type="button" class="btn btn-outline-dark" (click)="selectedQuantita = selectedQuantita > 1 ? selectedQuantita - 1 : 1">-</button>
-                <span class="quantity-value">{{ selectedQuantita }}</span>
-                <button type="button" class="btn btn-outline-dark" (click)="selectedQuantita = selectedQuantita + 1">+</button>
-              </div>
+          <!-- Messaggio per utenti non loggati -->
+          <ng-template #loginMessage>
+            <div class="alert alert-info mb-4">
+              <p class="mb-0">Per acquistare questo prodotto, è necessario <a routerLink="/login" [queryParams]="{returnUrl: router.url}" class="alert-link">accedere</a> o <a routerLink="/registrazione" class="alert-link">registrarsi</a>.</p>
             </div>
-
-            <!-- Pulsante acquisto -->
-            <div class="d-grid gap-2">
-              <button
-                type="button"
-                class="btn btn-primary"
-                [disabled]="!selectedTaglia || addingToCart || !isTagliaDisponibile(selectedTaglia)"
-                (click)="addToCart()">
-                <span *ngIf="addingToCart" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Aggiungi al carrello
-              </button>
-              <div *ngIf="cartSuccess" class="alert alert-success mt-2">
-                Prodotto aggiunto al carrello!
-              </div>
-              <div *ngIf="cartError" class="alert alert-danger mt-2">
-                Errore nell'aggiunta al carrello. Riprova.
-              </div>
-            </div>
-          </form>
+          </ng-template>
         </div>
       </div>
     </div>

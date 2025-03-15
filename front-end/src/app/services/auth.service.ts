@@ -1,56 +1,91 @@
+// auth.service.ts (crea questo file in src/app/services)
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { User } from '../Models/user';
-import {jwtDecode} from 'jwt-decode'
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth'; // URL del tuo backend
+  private baseUrl = 'http://localhost:8080/api/utenti';
+  private isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
+  private userRole = new BehaviorSubject<boolean>(this.isAdmin());
+  private userName = new BehaviorSubject<string>(localStorage.getItem('userName') || '');
 
-  // Proprietà per tenere traccia del ruolo
-  private isUserAdmin = false;
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) { }
 
-  constructor(private http: HttpClient) {}
-
-  // Registrazione di un nuovo utente
-  register(user: User): Observable<string> {
-    return this.http.post(`${this.apiUrl}/register`, user, { responseType: 'text' });
-  }
-
-  // Login utente e ricezione del token
-  login(email: string, password: string): Observable<string> {
-    return this.http
-      .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/login`, { email, password })
       .pipe(
-        map((token: string) => {
-          // Salvo il token in localStorage
-          localStorage.setItem('token', token);
-          // Decodifica il token con decodeJwt
-          const decoded: any = jwtDecode(token);
-          // Assumiamo che 'role' sia un boolean nel token
-          this.isUserAdmin = decoded.role === true;
+        tap((response: any) => {
+          // Salviamo i dati dell'utente nel localStorage
+          localStorage.setItem('userId', response.id.toString());
+          localStorage.setItem('userName', response.nome);
+          localStorage.setItem('isAdmin', response.isAdmin.toString());
 
-          return token;
+          // Non c'è un token vero e proprio nel tuo backend, ma possiamo creare un flag di autenticazione
+          localStorage.setItem('authenticated', 'true');
+
+          // Aggiorniamo lo stato di autenticazione
+          this.isAuthenticated.next(true);
+          this.userRole.next(response.isAdmin);
+          this.userName.next(response.nome);
         })
       );
   }
 
-  // Controlla se l'utente è autenticato
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+  register(user: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/registrazione`, user);
   }
 
-  // Controlla se l'utente è admin
-  isAdmin(): boolean {
-    return this.isUserAdmin;
-  }
-
-  // Logout dell'utente
   logout(): void {
-    localStorage.removeItem('token');
-    this.isUserAdmin = false;
+    // Rimuoviamo tutti i dati dal localStorage
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('authenticated');
+
+    // Aggiorniamo lo stato di autenticazione
+    this.isAuthenticated.next(false);
+    this.userRole.next(false);
+    this.userName.next('');
+
+    // Reindirizziamo l'utente alla pagina di login
+    this.router.navigate(['/login']);
+  }
+
+  // Getter per lo stato di autenticazione
+  isAuthenticatedUser(): Observable<boolean> {
+    return this.isAuthenticated.asObservable();
+  }
+
+  // Getter per il ruolo dell'utente
+  isAdminUser(): Observable<boolean> {
+    return this.userRole.asObservable();
+  }
+
+  // Getter per il nome dell'utente
+  getUserName(): Observable<string> {
+    return this.userName.asObservable();
+  }
+
+  // Controllo se esiste un token/flag di autenticazione
+  private hasToken(): boolean {
+    return localStorage.getItem('authenticated') === 'true';
+  }
+
+  // Controllo se l'utente è admin
+  private isAdmin(): boolean {
+    return localStorage.getItem('isAdmin') === 'true';
+  }
+
+  // Metodo per ottenere l'ID dell'utente attuale
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
   }
 }

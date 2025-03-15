@@ -22,6 +22,18 @@
           <li class="nav-item">
             <a class="nav-link" routerLink="/catalogo" routerLinkActive="active">Catalogo</a>
           </li>
+          <li class="nav-item dropdown" *ngIf="categorie.length > 0">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Categorie
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li *ngFor="let categoria of categorie">
+                <a class="dropdown-item" [routerLink]="['/categoria', categoria.id]">{{ categoria.nome }}</a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/categorie">Tutte le categorie</a></li>
+            </ul>
+          </li>
           <li class="nav-item" *ngIf="isAdmin">
             <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin Panel</a>
           </li>
@@ -30,11 +42,11 @@
         <!-- Sezione utente -->
         <div class="d-flex align-items-center">
           <!-- Carrello -->
-          <a class="nav-link position-relative me-3" routerLink="/cart" *ngIf="isLoggedIn">
+          <a class="nav-link position-relative me-3" routerLink="/carrello" *ngIf="isLoggedIn">
             <i class="bi bi-cart3 fs-5"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  *ngIf="numeroArticoli > 0">
-              {{ numeroArticoli }}
+                  *ngIf="cartItemCount > 0">
+              {{ cartItemCount }}
             </span>
           </a>
 
@@ -45,8 +57,9 @@
               {{ userName }}
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" routerLink="/profile">Profilo</a></li>
-              <li><a class="dropdown-item" routerLink="/orders">I miei ordini</a></li>
+              <li><a class="dropdown-item" routerLink="/profilo">Profilo</a></li>
+              <li><a class="dropdown-item" routerLink="/ordini">I miei ordini</a></li>
+              <li *ngIf="isAdmin"><a class="dropdown-item" routerLink="/admin">Dashboard Admin</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
             </ul>
@@ -55,7 +68,7 @@
           <!-- Login/Register buttons -->
           <div *ngIf="!isLoggedIn">
             <a class="btn btn-outline-primary me-2" routerLink="/login">Accedi</a>
-            <a class="btn btn-primary" routerLink="/register">Registrati</a>
+            <a class="btn btn-primary" routerLink="/registrazione">Registrati</a>
           </div>
         </div>
       </div>

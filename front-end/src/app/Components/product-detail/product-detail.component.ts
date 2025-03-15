@@ -26,6 +26,7 @@ export class DettaglioProdottoComponent implements OnInit {
   addingToCart = false;
   cartSuccess = false;
   cartError = false;
+  isLoggedIn = false;
 
   // Form aggiungi al carrello
   selectedTaglia: string = '';
@@ -33,7 +34,7 @@ export class DettaglioProdottoComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router, // Cambiato a public per consentirne l'uso nel template
     private prodottoService: ProdottoService,
     private recensioneService: RecensioneService,
     private carrelloService: CarrelloService,
@@ -41,6 +42,9 @@ export class DettaglioProdottoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Verifica se l'utente è loggato
+    this.checkAuthState();
+
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -50,6 +54,12 @@ export class DettaglioProdottoComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // Verifica lo stato di autenticazione
+  checkAuthState(): void {
+    const userId = localStorage.getItem('userId');
+    this.isLoggedIn = !!userId;
   }
 
   loadProdotto(id: number): void {
@@ -102,6 +112,7 @@ export class DettaglioProdottoComponent implements OnInit {
   addToCart(): void {
     if (!this.prodotto) return;
 
+    // Verifica se l'utente è autenticato
     const userId = localStorage.getItem('userId');
     if (!userId) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
@@ -121,6 +132,8 @@ export class DettaglioProdottoComponent implements OnInit {
       next: () => {
         this.addingToCart = false;
         this.cartSuccess = true;
+        // Notifica allo header di aggiornare il conteggio del carrello
+        this.carrelloService.cartChanged.next();
         setTimeout(() => this.cartSuccess = false, 3000);
       },
       error: (err) => {
@@ -141,6 +154,6 @@ export class DettaglioProdottoComponent implements OnInit {
 
   // Stella piena o vuota
   isStellaAttiva(index: number, valutazione: number): boolean {
-    return index < valutazione;
+    return index <= valutazione;
   }
 }

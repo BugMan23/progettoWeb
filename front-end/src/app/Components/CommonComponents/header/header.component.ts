@@ -1,65 +1,83 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { CategoriaService } from '../../../services/categoria.service';
 import { CarrelloService } from '../../../services/carrello.service';
 
 @Component({
   selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule
-  ]
+  imports: [CommonModule, RouterModule], // Aggiungi CommonModule e RouterModule
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
-  userName: string | null = null;
   isAdmin: boolean = false;
-  numeroArticoli: number = 0;
+  userName: string = '';
+  cartItemCount: number = 0;
+  categorie: any[] = [];
+
+  private cartSub!: Subscription;
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private carrelloService: CarrelloService
+    private categoriaService: CategoriaService,
+    private cartService: CarrelloService
   ) { }
 
-  ngOnInit() {
-    this.checkLoginStatus();
+  ngOnInit(): void {
+    this.checkAuthState();
+    this.loadCategories();
+
+    // Iscriviti agli aggiornamenti del carrello
+    this.cartSub = this.cartService.cartChanged.subscribe(() => {
+      if (this.isLoggedIn) {
+        this.loadCartCount();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.cartSub) this.cartSub.unsubscribe();
+  }
+
+  checkAuthState(): void {
+    const userId = localStorage.getItem('userId');
+    this.isLoggedIn = !!userId;
+    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+    this.userName = localStorage.getItem('userName') || '';
+
     if (this.isLoggedIn) {
-      this.updateCarrello();
+      this.loadCartCount();
     }
   }
 
-  private checkLoginStatus() {
-    const userId = localStorage.getItem('userId');
-    this.userName = localStorage.getItem('userName');
-    this.isAdmin = localStorage.getItem('userRole') === 'admin';
-    this.isLoggedIn = !!userId;
-  }
-
-  private updateCarrello() {
+  loadCartCount(): void {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.carrelloService.getUserCart(Number(userId)).subscribe({
-        next: (prodotti) => {
-          this.numeroArticoli = prodotti.length;
-        },
-        error: (error) => {
-          console.error('Errore nel recupero del carrello:', error);
-        }
+      this.cartService.getUserCart(Number(userId)).subscribe({
+        next: (items) => this.cartItemCount = items.length,
+        error: (err) => console.error('Errore nel caricamento del carrello', err)
       });
     }
   }
 
-  logout() {
-    localStorage.clear();
+  loadCategories(): void {
+    this.categoriaService.getAllCategories().subscribe({
+      next: (data) => this.categorie = data,
+      error: (err) => console.error('Errore nel caricamento delle categorie', err)
+    });
+  }
+
+  logout(): void {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('isAdmin');
+
     this.isLoggedIn = false;
-    this.userName = null;
     this.isAdmin = false;
-    this.router.navigate(['/login']);
+    this.userName = '';
+    this.cartItemCount = 0;
   }
 }
