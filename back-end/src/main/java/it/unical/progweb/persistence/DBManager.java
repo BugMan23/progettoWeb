@@ -20,7 +20,7 @@ public class DBManager {
     private DisponibilitaDAO disponibilitaDAO;
     private CategoriaDAO categoriaDAO;
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/eCommerce";
+    private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
     private static final String USER = "postgres";
     private static final String PASSWORD = "sofia";
 

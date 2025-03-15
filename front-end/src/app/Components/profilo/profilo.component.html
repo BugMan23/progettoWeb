@@ -1,0 +1,181 @@
+<!-- profile.component.html -->
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="list-group">
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'profile'"
+                (click)="setActiveTab('profile')">
+          Profilo
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'orders'"
+                (click)="setActiveTab('orders')">
+          I miei ordini
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'addresses'"
+                (click)="setActiveTab('addresses')">
+          Indirizzi
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'payment'"
+                (click)="setActiveTab('payment')">
+          Metodi di pagamento
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <!-- Sezione Profilo -->
+      <div *ngIf="activeTab === 'profile'" class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4>Dati Personali</h4>
+          <button class="btn btn-sm" [class.btn-primary]="!editMode" [class.btn-danger]="editMode"
+                  (click)="toggleEditMode()">
+            {{ editMode ? 'Annulla' : 'Modifica' }}
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="!editMode">
+            <p><strong>Nome:</strong> {{ user?.nome }}</p>
+            <p><strong>Cognome:</strong> {{ user?.cognome }}</p>
+            <p><strong>Email:</strong> {{ user?.email }}</p>
+            <p><strong>Telefono:</strong> {{ user?.telefono }}</p>
+            <p><strong>Username:</strong> {{ user?.username }}</p>
+          </div>
+          <div *ngIf="editMode">
+            <form (ngSubmit)="saveUserChanges()">
+              <div class="form-group mb-3">
+                <label for="nome">Nome</label>
+                <input type="text" class="form-control" id="nome" [(ngModel)]="editableUser.nome" name="nome">
+              </div>
+              <div class="form-group mb-3">
+                <label for="cognome">Cognome</label>
+                <input type="text" class="form-control" id="cognome" [(ngModel)]="editableUser.cognome" name="cognome">
+              </div>
+              <div class="form-group mb-3">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" [(ngModel)]="editableUser.email" name="email">
+              </div>
+              <div class="form-group mb-3">
+                <label for="telefono">Telefono</label>
+                <input type="tel" class="form-control" id="telefono" [(ngModel)]="editableUser.telefono" name="telefono">
+              </div>
+              <button type="submit" class="btn btn-success">Salva modifiche</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sezione Ordini -->
+      <div *ngIf="activeTab === 'orders'" class="card">
+        <div class="card-header">
+          <h4>I miei ordini</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="orders.length === 0" class="alert alert-info">
+            Non hai ancora effettuato ordini.
+          </div>
+          <div *ngFor="let order of orders" class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5>Ordine #{{ order.id }}</h5>
+                  <p>Data: {{ order.data }}</p>
+                  <p>Stato: {{ order.stato }}</p>
+                  <p>Totale: €{{ order.totalePagare / 100 }}</p>
+                </div>
+                <div>
+                  <button class="btn btn-outline-primary" (click)="viewOrderDetails(order.id)">
+                    Dettagli
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sezione Indirizzi -->
+      <div *ngIf="activeTab === 'addresses'" class="card">
+        <div class="card-header">
+          <h4>I miei indirizzi</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="addresses.length === 0" class="alert alert-info">
+            Non hai ancora indirizzi salvati.
+          </div>
+          <div *ngFor="let address of addresses" class="card mb-3">
+            <div class="card-body">
+              <h5>{{ address.nomeVia }}, {{ address.civico }}</h5>
+              <p>{{ address.citta }}, {{ address.cap }}</p>
+              <p>{{ address.provincia }}, {{ address.regione }}</p>
+            </div>
+          </div>
+
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Aggiungi nuovo indirizzo</h5>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="addNewAddress()">
+                <div class="row">
+                  <div class="col-md-8 mb-3">
+                    <label for="nomeVia">Via</label>
+                    <input type="text" class="form-control" id="nomeVia" [(ngModel)]="newAddress.nomeVia" name="nomeVia" required>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="civico">Civico</label>
+                    <input type="text" class="form-control" id="civico" [(ngModel)]="newAddress.civico" name="civico" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="citta">Città</label>
+                    <input type="text" class="form-control" id="citta" [(ngModel)]="newAddress.citta" name="citta" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="cap">CAP</label>
+                    <input type="text" class="form-control" id="cap" [(ngModel)]="newAddress.cap" name="cap" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="provincia">Provincia</label>
+                    <input type="text" class="form-control" id="provincia" [(ngModel)]="newAddress.provincia" name="provincia" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="regione">Regione</label>
+                    <input type="text" class="form-control" id="regione" [(ngModel)]="newAddress.regione" name="regione" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Aggiungi indirizzo</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sezione Metodi di Pagamento -->
+      <div *ngIf="activeTab === 'payment'" class="card">
+        <div class="card-header">
+          <h4>Metodi di pagamento</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="paymentMethods.length === 0" class="alert alert-info">
+            Non hai ancora metodi di pagamento salvati.
+          </div>
+          <div *ngFor="let method of paymentMethods" class="card mb-3">
+            <div class="card-body">
+              <h5>{{ method.tipoCarta }} - **** **** **** {{ method.numeroCarta.substring(12) }}</h5>
+              <p>Titolare: {{ method.titolare }}</p>
+              <p>Scadenza: {{ method.dataScadenza }}</p>
+            </div>
+          </div>
+          <!-- Form per aggiungere un nuovo metodo di pagamento, puoi implementarlo in seguito -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

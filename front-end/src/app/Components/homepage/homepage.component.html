@@ -1,63 +1,159 @@
-<div class="container">
-  <div class="container text-center"><h1>NOVITÀ</h1></div>
-  <mat-progress-spinner class="uSpinner" mode="indeterminate" color="primary"></mat-progress-spinner>
-
-  <div class="card-list" id="offerte">
-    <button type="button" class="btnArrow"> <!-- TODO: CLICK PER SCORRERE INDIETRO I PRODOTTI -->
-      <img class = "arrow left" src="assets/images/left-arrow.png">
-    </button>
-    <div class="container-fluid collection ml-5">
-      <div class="product"> <!-- TODO: NGFOR SUI PRODOTTI(NOVITA) ALL'INTERNO DI QUESTO DIV-->
-        <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO NEL DIV SOTTO-->
-        <div>
-          <a class="product__image"> <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
-          <div class="product__name">
-            <p>
-              <a>Nome Prodotto</a>
-              <span style="color: #0000ff"> NEW</span>
-            </p>
-          </div>
-          <div class="product__price">
-            <p>Prezzo: 99.99€</p>
-            <p>Sconto: 10%</p>
-            <div>
-              <h4>Numero recensioni: 5</h4>
-              <h4>Media recensioni: 4.5</h4>
-            </div>
+<!-- Homepage template integrato con il database -->
+<div class="homepage-container">
+  <!-- Carosello principale -->
+  <section class="hero-slider mb-5">
+    <div class="carousel-container">
+      <div class="carousel-slides">
+        <div *ngFor="let slide of slides; let i = index"
+             class="carousel-slide"
+             [class.active]="i === currentSlideIndex"
+             [style.background-image]="'url(' + slide.immagine + ')'">
+          <div class="slide-content container">
+            <h1>{{ slide.titolo }}</h1>
+            <p>{{ slide.sottotitolo }}</p>
+            <a [routerLink]="slide.link" class="btn btn-primary btn-lg">Scopri di più</a>
           </div>
         </div>
       </div>
-    </div>
-    <button type="button" class="btnArrow"> <!-- TODO: (CLICK) PER VISUALIZZARE IL PRODOTTO SUCCESSIVO-->
-      <img class = "arrow right" src="assets/images/right-arrow.png">
-    </button>
-  </div>
 
-  <div class="container text-center"><h1>OFFERTE</h1></div>
-  <div class="card-list" id="novità">
-    <button type="button" class="btnArrow">  <!-- TODO: (CLICK) per visualizzare il prodotto precedente -->
-      <img class="arrow left" src="assets/images/left-arrow.png">
-    </button>
-    <div class="container-fluid collection ml-5">
-      <div class="product"> <!-- TODO: NGFOR PER SCORRERE I PRODOTTI + click per prendere i dati del prodotto nel DIV SOTTO -->
-        <div>
-          <a class="product__image">  <!-- TODO: IMMAGGINE DA INSERIRE <img class="preview" src="assets/images/example-product.jpg" alt="Prodotto"> --> </a>
-          <div class="product__name">
-            <p><a>Nome Prodotto</a></p>
-          </div>
-          <div class="product__price">
-            <p>Prezzo: 79.99€</p>
-            <p>Sconto: 15% <span style="color: red"> HOT</span></p>
-            <div>
-              <h4>Numero recensioni: 8</h4>
-              <h4>Media recensioni: 4.2</h4>
+      <!-- Controlli carosello -->
+      <button class="carousel-control prev" (click)="prevSlide()">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button class="carousel-control next" (click)="nextSlide()">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+
+      <!-- Indicatori -->
+      <div class="carousel-indicators">
+        <button *ngFor="let slide of slides; let i = index"
+                class="indicator"
+                [class.active]="i === currentSlideIndex"
+                (click)="setSlide(i)"></button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <!-- Messaggio di caricamento -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+      <p class="mt-2">Caricamento prodotti in corso...</p>
+    </div>
+
+    <!-- Messaggio di errore -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+
+    <!-- Contenuto principale (visibile solo se i dati sono caricati) -->
+    <div *ngIf="!loading && !error">
+      <!-- Categorie -->
+      <section class="categories-section mb-5" *ngIf="categorie.length > 0">
+        <h2 class="section-title">Esplora le Categorie</h2>
+        <div class="row g-4">
+          <div class="col-md-4" *ngFor="let categoria of categorie">
+            <div class="category-card" [routerLink]="['/catalogo']" [queryParams]="{categoria: categoria.id}">
+              <div class="category-content">
+                <h3>{{ categoria.nome }}</h3>
+                <p>{{ categoria.descrizione }}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <!-- Prodotti in offerta -->
+      <section class="featured-products mb-5" *ngIf="prodottiScontati.length > 0">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="section-title mb-0">Offerte Speciali</h2>
+          <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="btn btn-outline-primary">Vedi tutte</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+          <div class="col" *ngFor="let prodotto of prodottiScontati">
+            <div class="product-card">
+              <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
+              <div class="product-image">
+                <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'"
+                     [alt]="prodotto.nome"
+                     class="img-fluid">
+              </div>
+              <div class="product-info">
+                <h3 class="product-name">{{ prodotto.nome }}</h3>
+                <p class="product-brand">{{ prodotto.marca }}</p>
+                <div class="price-container">
+                  <span class="current-price">€{{ getPrezzoScontato(prodotto.prezzo) }}</span>
+                  <span class="original-price">€{{ prodotto.prezzo }}</span>
+                </div>
+                <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary w-100">Scopri</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Banner promozionali -->
+      <section class="promo-section mb-5">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="promo-card">
+              <div class="promo-content">
+                <h3>Spedizione Gratuita</h3>
+                <p>Per ordini superiori a 50€</p>
+              </div>
+              <div class="promo-icon">
+                <i class="bi bi-truck fs-1"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="promo-card">
+              <div class="promo-content">
+                <h3>Reso Facile</h3>
+                <p>30 giorni per cambiare idea</p>
+              </div>
+              <div class="promo-icon">
+                <i class="bi bi-arrow-counterclockwise fs-1"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Nuovi arrivi -->
+      <section class="new-arrivals mb-5" *ngIf="nuoviArrivi.length > 0">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="section-title mb-0">Nuovi Arrivi</h2>
+          <a [routerLink]="['/catalogo']" class="btn btn-outline-primary">Vedi tutti</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+          <div class="col" *ngFor="let prodotto of nuoviArrivi">
+            <div class="product-card">
+              <div *ngIf="prodotto.scontato" class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
+              <div class="product-image">
+                <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'"
+                     [alt]="prodotto.nome"
+                     class="img-fluid">
+              </div>
+              <div class="product-info">
+                <h3 class="product-name">{{ prodotto.nome }}</h3>
+                <p class="product-brand">{{ prodotto.marca }}</p>
+                <div class="price-container">
+                  <span class="current-price">
+                    €{{ prodotto.scontato ? getPrezzoScontato(prodotto.prezzo) : prodotto.prezzo }}
+                  </span>
+                  <span class="original-price" *ngIf="prodotto.scontato">€{{ prodotto.prezzo }}</span>
+                </div>
+                <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-outline-primary w-100">Scopri</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-    <button type="button" class="btnArrow">  <!-- TODO: CLICK PER VISUALIZZARE PRODOTTO SUCCESSIVO -->
-      <img class="arrow right" src="assets/images/right-arrow.png">
-    </button>
   </div>
 </div>
