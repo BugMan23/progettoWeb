@@ -1,1 +1,380 @@
-<p>checkout works!</p>
+<div class="container py-5">
+  <!-- Progress steps -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="checkout-progress">
+        <div class="steps d-flex justify-content-between">
+          <div class="step" [ngClass]="{'active': currentStep >= 1, 'completed': currentStep > 1}">
+            <div class="step-icon">1</div>
+            <div class="step-text">Riepilogo ordine</div>
+          </div>
+          <div class="step" [ngClass]="{'active': currentStep >= 2, 'completed': currentStep > 2}">
+            <div class="step-icon">2</div>
+            <div class="step-text">Indirizzo</div>
+          </div>
+          <div class="step" [ngClass]="{'active': currentStep >= 3, 'completed': currentStep > 3}">
+            <div class="step-icon">3</div>
+            <div class="step-text">Pagamento</div>
+          </div>
+        </div>
+        <div class="progress mt-3">
+          <div class="progress-bar bg-primary" [style.width]="((currentStep - 1) / (maxStep - 1) * 100) + '%'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Caricamento...</span>
+    </div>
+    <p class="mt-3">Caricamento in corso...</p>
+  </div>
+
+  <!-- Alert messages -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
+  </div>
+
+  <!-- Order completed -->
+  <div *ngIf="ordineCompletato" class="text-center py-5">
+    <div class="mb-4">
+      <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+    </div>
+    <h2 class="mb-3">Ordine completato con successo!</h2>
+    <p class="mb-4">Grazie per il tuo acquisto. Il tuo ordine è stato ricevuto e sarà elaborato il prima possibile.</p>
+    <p *ngIf="ordineId" class="mb-4">Il numero del tuo ordine è: <strong>#{{ ordineId }}</strong></p>
+
+    <div class="d-flex justify-content-center gap-3">
+      <button class="btn btn-outline-primary" (click)="goToOrderDetails()">
+        Visualizza Ordine
+      </button>
+      <button class="btn btn-primary" (click)="backToShopping()">
+        Continua lo Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- Main content (if not completed and not loading) -->
+  <div *ngIf="!loading && !ordineCompletato" class="row">
+    <!-- Left column: Step content -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <!-- Step 1: Order summary -->
+        <div *ngIf="currentStep === 1" class="card-body">
+          <h3 class="card-title mb-4">Riepilogo del tuo ordine</h3>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+              <tr>
+                <th>Prodotto</th>
+                <th>Prezzo</th>
+                <th>Taglia</th>
+                <th>Quantità</th>
+                <th>Totale</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let prodotto of prodottiCarrello">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'" alt="{{ prodotto.nome }}"
+                         class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div>
+                      <div>{{ prodotto.nome }}</div>
+                      <small class="text-muted">{{ prodotto.marca }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>€{{ prodotto.prezzo.toFixed(2) }}</td>
+                <td>{{ getTaglia(prodotto) }}</td>
+                <td>{{ getQuantita(prodotto) }}</td>
+                <td>€{{ calcolaSubtotale(prodotto).toFixed(2) }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 2: Shipping address -->
+        <div *ngIf="currentStep === 2" class="card-body">
+          <h3 class="card-title mb-4">Indirizzo di spedizione</h3>
+
+          <div *ngIf="indirizzi.length === 0 && !showNewAddressForm" class="text-center py-4">
+            <p>Non hai ancora salvato nessun indirizzo.</p>
+            <button type="button" class="btn btn-primary" (click)="toggleNewAddressForm()">
+              Aggiungi un nuovo indirizzo
+            </button>
+          </div>
+
+          <!-- Address list -->
+          <div *ngIf="indirizzi.length > 0" class="mb-4">
+            <div class="row g-3">
+              <div *ngFor="let indirizzo of indirizzi" class="col-md-6">
+                <div class="card h-100" [ngClass]="{'border-primary': selectedIndirizzoId === indirizzo.id}">
+                  <div class="card-body">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" [name]="'indirizzo'"
+                             [id]="'indirizzo-' + indirizzo.id"
+                             [value]="indirizzo.id"
+                             [checked]="selectedIndirizzoId === indirizzo.id"
+                             (change)="selectedIndirizzoId = indirizzo.id">
+                      <label class="form-check-label" [for]="'indirizzo-' + indirizzo.id">
+                        <strong>{{ indirizzo.nomeVia }}, {{ indirizzo.civico }}</strong><br>
+                        {{ indirizzo.citta }}, {{ indirizzo.cap }}<br>
+                        {{ indirizzo.provincia }}, {{ indirizzo.regione }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button type="button" class="btn btn-outline-primary" (click)="toggleNewAddressForm()">
+                {{ showNewAddressForm ? 'Annulla' : 'Aggiungi un nuovo indirizzo' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- New address form -->
+          <div *ngIf="showNewAddressForm" class="mt-4">
+            <h5 class="mb-3">Nuovo indirizzo</h5>
+            <form (ngSubmit)="saveNewAddress()">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label for="nomeVia" class="form-label">Via *</label>
+                  <input type="text" class="form-control" id="nomeVia" [(ngModel)]="nuovoIndirizzo.nomeVia" name="nomeVia" required>
+                </div>
+                <div class="col-md-4">
+                  <label for="civico" class="form-label">Civico *</label>
+                  <input type="text" class="form-control" id="civico" [(ngModel)]="nuovoIndirizzo.civico" name="civico" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="citta" class="form-label">Città *</label>
+                  <input type="text" class="form-control" id="citta" [(ngModel)]="nuovoIndirizzo.citta" name="citta" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="cap" class="form-label">CAP *</label>
+                  <input type="text" class="form-control" id="cap" [(ngModel)]="nuovoIndirizzo.cap" name="cap" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="provincia" class="form-label">Provincia *</label>
+                  <input type="text" class="form-control" id="provincia" [(ngModel)]="nuovoIndirizzo.provincia" name="provincia" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="regione" class="form-label">Regione *</label>
+                  <input type="text" class="form-control" id="regione" [(ngModel)]="nuovoIndirizzo.regione" name="regione" required>
+                </div>
+                <div class="col-12 mt-3">
+                  <button type="submit" class="btn btn-primary me-2">Salva indirizzo</button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="toggleNewAddressForm()">Annulla</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Step 3: Payment method -->
+        <div *ngIf="currentStep === 3" class="card-body">
+          <h3 class="card-title mb-4">Metodo di pagamento</h3>
+
+          <div *ngIf="metodiPagamento.length === 0 && !showNewPaymentForm" class="text-center py-4">
+            <p>Non hai ancora salvato nessun metodo di pagamento.</p>
+            <button type="button" class="btn btn-primary" (click)="toggleNewPaymentForm()">
+              Aggiungi un nuovo metodo di pagamento
+            </button>
+          </div>
+
+          <!-- Payment methods list -->
+          <div *ngIf="metodiPagamento.length > 0" class="mb-4">
+            <div class="row g-3">
+              <div *ngFor="let metodo of metodiPagamento" class="col-md-6">
+                <div class="card h-100" [ngClass]="{'border-primary': selectedMetodoPagamentoId === metodo.id}">
+                  <div class="card-body">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" [name]="'metodoPagamento'"
+                             [id]="'metodoPagamento-' + metodo.id"
+                             [value]="metodo.id"
+                             [checked]="selectedMetodoPagamentoId === metodo.id"
+                             (change)="selectedMetodoPagamentoId = metodo.id">
+                      <label class="form-check-label" [for]="'metodoPagamento-' + metodo.id">
+                        <div class="d-flex align-items-center">
+                          <span class="me-2">
+                            <i class="bi" [ngClass]="{
+                              'bi-credit-card': metodo.tipoCarta === 'VISA' || metodo.tipoCarta === 'MASTERCARD',
+                              'bi-credit-card-2-front': metodo.tipoCarta === 'AMEX'
+                            }"></i>
+                          </span>
+                          <div>
+                            <strong>{{ metodo.tipoCarta }}</strong> **** {{ metodo.numeroCarta.slice(-4) }}<br>
+                            <small>{{ metodo.titolare }}</small><br>
+                            <small>Scadenza: {{ metodo.dataScadenza }}</small>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button type="button" class="btn btn-outline-primary" (click)="toggleNewPaymentForm()">
+                {{ showNewPaymentForm ? 'Annulla' : 'Aggiungi un nuovo metodo di pagamento' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- New payment method form -->
+          <div *ngIf="showNewPaymentForm" class="mt-4">
+            <h5 class="mb-3">Nuovo metodo di pagamento</h5>
+            <form (ngSubmit)="saveNewPayment()">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="titolare" class="form-label">Titolare carta *</label>
+                  <input type="text" class="form-control" id="titolare" [(ngModel)]="nuovoMetodoPagamento.titolare" name="titolare" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="tipoCarta" class="form-label">Tipo carta *</label>
+                  <select class="form-select" id="tipoCarta" [(ngModel)]="nuovoMetodoPagamento.tipoCarta" name="tipoCarta" required>
+                    <option value="VISA">VISA</option>
+                    <option value="MASTERCARD">MASTERCARD</option>
+                    <option value="AMEX">American Express</option>
+                  </select>
+                </div>
+                <div class="col-md-8">
+                  <label for="numeroCarta" class="form-label">Numero carta *</label>
+                  <input type="text" class="form-control" id="numeroCarta" [(ngModel)]="nuovoMetodoPagamento.numeroCarta" name="numeroCarta" placeholder="XXXX XXXX XXXX XXXX" required>
+                </div>
+                <div class="col-md-2">
+                  <label for="dataScadenza" class="form-label">Scadenza *</label>
+                  <input type="text" class="form-control" id="dataScadenza" [(ngModel)]="nuovoMetodoPagamento.dataScadenza" name="dataScadenza" placeholder="MM/AA" required>
+                </div>
+                <div class="col-md-2">
+                  <label for="cvv" class="form-label">CVV *</label>
+                  <input type="text" class="form-control" id="cvv" [(ngModel)]="nuovoMetodoPagamento.cvv" name="cvv" placeholder="123" required>
+                </div>
+                <div class="col-12 mt-3">
+                  <button type="submit" class="btn btn-primary me-2">Salva metodo di pagamento</button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="toggleNewPaymentForm()">Annulla</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="card-footer bg-white py-3">
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-secondary" (click)="prevStep()" *ngIf="currentStep > 1">
+              <i class="bi bi-arrow-left me-2"></i>Indietro
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="backToCart()" *ngIf="currentStep === 1">
+              <i class="bi bi-arrow-left me-2"></i>Torna al carrello
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()" *ngIf="currentStep < maxStep">
+              Continua<i class="bi bi-arrow-right ms-2"></i>
+            </button>
+            <button type="button" class="btn btn-success" (click)="completeOrder()" *ngIf="currentStep === maxStep"
+                    [disabled]="processingOrder">
+              <span *ngIf="processingOrder" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Conferma ordine
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: Order summary -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-4 sticky-top" style="top: 20px;">
+        <div class="card-header bg-white py-3">
+          <h5 class="card-title mb-0">Riepilogo ordine</h5>
+        </div>
+        <div class="card-body">
+          <!-- Order details -->
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Subtotale</span>
+              <span>€{{ subtotale.toFixed(2) }}</span>
+            </li>
+            <li *ngIf="scontoApplicato > 0" class="list-group-item d-flex justify-content-between px-0 text-success">
+              <span>Sconto</span>
+              <span>-€{{ scontoApplicato.toFixed(2) }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Spedizione</span>
+              <span *ngIf="costoSpedizione > 0">€{{ costoSpedizione.toFixed(2) }}</span>
+              <span *ngIf="costoSpedizione === 0" class="text-success">Gratuita</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0 fw-bold">
+              <span>Totale</span>
+              <span>€{{ totale.toFixed(2) }}</span>
+            </li>
+          </ul>
+
+          <!-- Products summary -->
+          <div class="mb-3">
+            <h6>Prodotti ({{ prodottiCarrello.length }})</h6>
+            <div class="small">
+              <div *ngFor="let prodotto of prodottiCarrello" class="d-flex justify-content-between mb-2">
+                <span class="text-truncate" style="max-width: 200px;">
+                  {{ prodotto.nome }} x{{ getQuantita(prodotto) }}
+                </span>
+                <span>€{{ calcolaSubtotale(prodotto).toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping address summary (step 2 and 3) -->
+          <div *ngIf="currentStep >= 2 && selectedIndirizzoId" class="mb-3">
+            <h6>Indirizzo di spedizione</h6>
+            <div class="small" *ngFor="let indirizzo of indirizzi">
+              <div *ngIf="indirizzo.id === selectedIndirizzoId">
+                <p class="mb-0">{{ indirizzo.nomeVia }}, {{ indirizzo.civico }}</p>
+                <p class="mb-0">{{ indirizzo.citta }}, {{ indirizzo.cap }}</p>
+                <p class="mb-0">{{ indirizzo.provincia }}, {{ indirizzo.regione }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment method summary (step 3) -->
+          <div *ngIf="currentStep >= 3 && selectedMetodoPagamentoId" class="mb-3">
+            <h6>Metodo di pagamento</h6>
+            <div class="small" *ngFor="let metodo of metodiPagamento">
+              <div *ngIf="metodo.id === selectedMetodoPagamentoId">
+                <p class="mb-0">{{ metodo.tipoCarta }} **** {{ metodo.numeroCarta.slice(-4) }}</p>
+                <p class="mb-0">{{ metodo.titolare }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional info -->
+          <div class="mt-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-shield-check text-success me-2"></i>
+              <small>Pagamento sicuro garantito</small>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-truck text-success me-2"></i>
+              <small>Spedizione in 2-5 giorni lavorativi</small>
+            </div>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-arrow-counterclockwise text-success me-2"></i>
+              <small>Reso gratuito entro 30 giorni</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

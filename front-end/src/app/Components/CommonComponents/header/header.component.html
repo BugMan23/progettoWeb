@@ -1,3 +1,4 @@
+<!-- header.component.html -->
 <header>
   <nav class="navbar navbar-expand-lg">
     <div class="container-fluid px-4">
@@ -35,4 +36,12 @@
       </div>
     </div>
   </nav>
+
+  <!-- Popup di login -->
+  <div *ngIf="showPopup" class="login-popup-overlay">
+    <div class="login-popup">
+      <button class="close-btn" (click)="closeLoginPopup()">×</button>
+      <app-login (loginSuccess)="onLoginSuccess()"></app-login>
+    </div>
+  </div>
 </header>

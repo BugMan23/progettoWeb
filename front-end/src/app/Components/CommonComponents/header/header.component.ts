@@ -7,23 +7,25 @@ import { CarrelloService } from '../../../services/carrello.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
 
+// TODO: AGGIUNGERE LA POSSIBILITA DI FAR REGISTRARE L'UTENTE, SISTEMARE LA GRAFICA
+
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, LoginComponent, RouterModule],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css', '../../../../styles.css']
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  // Proprietà originali di Sofia
+  // Proprietà
   isLoggedIn: boolean = false;
   isAdmin: boolean = false;
   userName: string = '';
   cartItemCount: number = 0;
   categorie: any[] = [];
 
-  // Proprietà di Alberto
-  showPopup = false;
+  // Popup login
+  showPopup: boolean = false;
   userRole: string | null = null;
 
   private cartSub!: Subscription;
@@ -33,11 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     protected authService: AuthService,
     private categoriaService: CategoriaService,
     private cartService: CarrelloService
-  ) {
-    // Inizializzazione di Alberto
-    this.userRole = this.authService.getUserRole() ? 'admin' : 'user';
-    console.log('HeaderComponent Initialized - showPopup:', this.showPopup);
-  }
+  ) { }
 
   ngOnInit(): void {
     this.checkAuthState();
@@ -55,7 +53,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.cartSub) this.cartSub.unsubscribe();
   }
 
-  // Metodi originali di Sofia
   checkAuthState(): void {
     const userId = localStorage.getItem('userId');
     this.isLoggedIn = !!userId;
@@ -93,29 +90,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isAdmin = false;
     this.userName = '';
     this.cartItemCount = 0;
+
+    // Redirect alla homepage
+    this.router.navigate(['/']);
   }
 
-  // Metodi di Alberto
   goHomepage() {
     console.log('Navigating to homepage');
     this.router.navigate(['']);
   }
 
   openLoginPopup(): void {
+    console.log('Opening login popup');
     this.showPopup = true;
-    console.log('Popup Opened - showPopup:', this.showPopup);
   }
 
   closeLoginPopup(): void {
+    console.log('Closing login popup');
     this.showPopup = false;
-    console.log('Popup Closed - showPopup:', this.showPopup);
   }
 
-  isAdminUser(): boolean {
-    return this.userRole === 'admin';
-  }
-
-  isRegularUser(): boolean {
-    return this.userRole === 'user';
+  // Questo metodo può essere chiamato dal componente login quando l'autenticazione ha successo
+  onLoginSuccess(): void {
+    this.showPopup = false;
+    this.checkAuthState();
   }
 }
