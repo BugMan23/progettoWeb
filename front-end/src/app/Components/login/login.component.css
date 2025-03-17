@@ -1,0 +1,163 @@
+/* Contenitore principale */
+.container-fluidos.regLog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  max-width: 45%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  padding: 30px;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Pulsante di chiusura in alto a destra */
+.ics {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 50%;
+  border: none;
+  background-color: #FF9C00;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+.ics:hover {
+  background-color: #d88000;
+  transform: scale(1.1);
+}
+.ics:focus, .ics:active {
+  border-color: black;
+  background-color: #FF9C00;
+  box-shadow: 0 0 3px 1px #000000;
+}
+
+/* Animazione di apertura */
+@keyframes fadeIn {
+  from {
+    transform: translate(-50%, -45%) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Struttura per le due colonne */
+.form-row-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;  /* i campi allineati in alto */
+  gap: 30px;
+  flex-wrap: wrap;         /* su schermi piccoli le colonne andranno in verticale */
+}
+
+/* Le due colonne */
+.first-column,
+.second-column {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* allineati a sinistra */
+}
+
+/* Spaziatura dei form-group */
+.formoss {
+  width: 100%;          /* la larghezza si adatta alla colonna */
+  margin-bottom: 15px;  /* spazio verticale tra un campo e l’altro */
+}
+
+/* Input generali */
+.inputRA {
+  width: 100%;          /* riempie la colonna */
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Label chiare */
+.form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Contenitore password (posizione relativa) */
+.password-input-container .input-position-relative {
+  position: relative;
+  width: 100%;
+}
+
+/* L'occhio (toggle password) assoluto sul campo */
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  transition: all 0.2s ease-in-out;
+}
+.toggle-password:hover {
+  color: #333;
+}
+
+/* Bottoni personalizzati */
+.custom-btn {
+  border: 2px solid black;
+  background-color: #FF9C00;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 25px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+.custom-btn:hover,
+.custom-btn:focus {
+  background-color: #a96c00 !important;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+.custom-btn:active {
+  background-color: #FF9C00 !important;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+  transform: scale(0.98);
+}
+
+/* Margine in alto sul bottone */
+.tasti {
+  margin-top: 3vh;
+}
+
+/* Responsivo: se lo schermo è sotto i 768px le colonne vanno in verticale */
+@media (max-width: 768px) {
+  .form-row-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .first-column, .second-column {
+    width: 100%;
+  }
+}
