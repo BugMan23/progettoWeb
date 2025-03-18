@@ -80,9 +80,8 @@ export class LoginComponent {
         next: (token) => {
           console.log('LOGIN OK, token:', token);
           localStorage.setItem('token', token);
-          this.showLoginPopup = false;
+          this.closePopup();
           this.router.navigate(['/']);
-          //this.closePopup();
         },
         error: (err) => {
           console.error('LOGIN ERROR:', err);
@@ -118,5 +117,6 @@ export class LoginComponent {
 
   closePopup() {
     this.showLoginPopup = false;
+    this.close.emit();
   }
 }

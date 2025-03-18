@@ -48,6 +48,9 @@ export class AuthService {
 
   // Implementazione login di Alberto usando JWT (alternativa)
   loginWithJWT(email: string, password: string): Observable<string> {
+    console.log('Attempting login with:', { email, password });
+    console.log('Request URL:', `${this.apiUrl}/login`);
+
     return this.http
       .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
       .pipe(

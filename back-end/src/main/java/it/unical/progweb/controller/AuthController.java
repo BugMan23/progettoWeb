@@ -26,8 +26,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Utente utente) {
-        String token = authService.login(utente.getEmail(), utente.getPassword());
-        return token != null ? ResponseEntity.ok(token) :
-                ResponseEntity.status(401).body("Credenziali errate");
-    }
+        System.out.println("Login attempt received for email: " + utente.getEmail());
+        try {
+            String token = authService.login(utente.getEmail(), utente.getPassword());
+            System.out.println("Login successful, generated token for user: " + utente.getEmail());
+            return token != null ? ResponseEntity.ok(token) :
+                    ResponseEntity.status(401).body("Credenziali errate");
+        } catch (Exception e) {
+            System.out.println("Login failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(401).body("Errore durante il login: " + e.getMessage());
+        }}
 }
