@@ -127,7 +127,7 @@ export class CheckoutComponent implements OnInit {
         this.prodottiCarrello = prodotti;
 
         // Carica quantità e taglie per ogni prodotto
-        this.carrelloService.getCartDetails(this.userId).subscribe({
+        this.carrelloService.getCartDetails(this.userId as number).subscribe({
           next: (dettagli) => {
             dettagli.forEach(item => {
               this.prodottiQuantita.set(item.idProdotto, parseInt(item.quantita));

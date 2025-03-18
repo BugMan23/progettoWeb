@@ -1,6 +1,7 @@
 package it.unical.progweb.service;
 
 import it.unical.progweb.eccezioni.NotFoundException;
+import it.unical.progweb.model.Carrello;
 import it.unical.progweb.model.Disponibilita;
 import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.persistence.dao.CarrelloDAO;
@@ -45,6 +46,10 @@ public class CarrelloService {
         return carrelloDAO.getCarrello(userId);
     }
 
+    public List<Carrello> getCartDetails(int userId) {
+        return carrelloDAO.getCartDetails(userId);
+    }
+
     public void clearCart(int userId) {
         carrelloDAO.clear(userId);
     }
@@ -56,5 +61,45 @@ public class CarrelloService {
             total += prodotto.getPrezzo();
         }
         return total;
+    }
+
+    public int getCartCount(int userId) {
+        List<Prodotto> carrello = carrelloDAO.getCarrello(userId);
+        return carrello.size();
+    }
+
+    public void removeFromCart(int userId, int productId) {
+        carrelloDAO.removeFromCart(userId, productId);
+    }
+
+    public void updateCartItem(int userId, int productId, int quantity, String taglia) {
+        // Verifica disponibilità
+        List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
+        boolean disponibile = false;
+        for (Disponibilita d : disponibilita) {
+            if (d.getTaglia().equals(taglia) && d.getQuantita() >= quantity) {
+                disponibile = true;
+                break;
+            }
+        }
+
+        if (!disponibile) {
+            throw new NotFoundException("Quantità non disponibile");
+        }
+
+        carrelloDAO.updateCartItem(userId, productId, quantity, taglia);
+    }
+
+    public void updateCartItemTaglia(int userId, int productId, String taglia) {
+        // Verifica disponibilità
+        List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
+        boolean tagliaDisponibile = disponibilita.stream()
+                .anyMatch(d -> d.getTaglia().equals(taglia) && d.getQuantita() > 0);
+
+        if (!tagliaDisponibile) {
+            throw new NotFoundException("Taglia non disponibile");
+        }
+
+        carrelloDAO.updateCartItemTaglia(userId, productId, taglia);
     }
 }

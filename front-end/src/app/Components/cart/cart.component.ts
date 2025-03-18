@@ -66,7 +66,7 @@ export class CartComponent implements OnInit {
 
         // Carica la quantità per ogni prodotto dal server
         // Nota: questo dipende da come è strutturata la tua API
-        this.carrelloService.getCartDetails(this.userId).subscribe({
+        this.carrelloService.getCartDetails(this.userId as number).subscribe({
           next: (dettagli) => {
             dettagli.forEach(item => {
               this.itemsQuantita.set(item.idProdotto, parseInt(item.quantita));

@@ -110,8 +110,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToCart(): void {
-    this.showCartPreview = false;
-    this.router.navigate(['/carrello']);
+    if (this.isLoggedIn) {
+      this.showCartPreview = false;
+      this.router.navigate(['/carrello']);
+    }
   }
 
   logout(): void {

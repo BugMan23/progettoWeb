@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -41,11 +42,25 @@ public class CarrelloController {
         return ResponseEntity.ok(carrello);
     }
 
+    // Recupero dettagli prodotti nel carrello (quantità, taglia)
+    @GetMapping("/details/{userId}")
+    public ResponseEntity<List<Carrello>> getCartDetails(@PathVariable int userId) {
+        List<Carrello> dettagli = carrelloService.getCartDetails(userId);
+        return ResponseEntity.ok(dettagli);
+    }
+
     // Calcolo totale carrello
     @GetMapping("/{userId}/total")
     public ResponseEntity<Integer> getCartTotal(@PathVariable int userId) {
         int total = carrelloService.getCartTotal(userId);
         return ResponseEntity.ok(total);
+    }
+
+    // Conteggio elementi nel carrello
+    @GetMapping("/{userId}/count")
+    public ResponseEntity<Integer> getCartCount(@PathVariable int userId) {
+        int count = carrelloService.getCartCount(userId);
+        return ResponseEntity.ok(count);
     }
 
     // Svuota carrello
@@ -55,4 +70,41 @@ public class CarrelloController {
         return ResponseEntity.ok("Carrello svuotato");
     }
 
+    // Rimuovi prodotto dal carrello
+    @DeleteMapping("/{userId}/product/{productId}")
+    public ResponseEntity<?> removeFromCart(@PathVariable int userId, @PathVariable int productId) {
+        carrelloService.removeFromCart(userId, productId);
+        return ResponseEntity.ok("Prodotto rimosso dal carrello");
+    }
+
+    // Aggiorna quantità e taglia
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCartItem(@RequestBody Map<String, Object> request) {
+        try {
+            int userId = (Integer) request.get("userId");
+            int productId = (Integer) request.get("productId");
+            int quantity = (Integer) request.get("quantity");
+            String taglia = (String) request.get("taglia");
+
+            carrelloService.updateCartItem(userId, productId, quantity, taglia);
+            return ResponseEntity.ok("Articolo aggiornato");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Aggiorna solo la taglia
+    @PutMapping("/update-taglia")
+    public ResponseEntity<?> updateCartItemTaglia(@RequestBody Map<String, Object> request) {
+        try {
+            int userId = (Integer) request.get("userId");
+            int productId = (Integer) request.get("productId");
+            String taglia = (String) request.get("taglia");
+
+            carrelloService.updateCartItemTaglia(userId, productId, taglia);
+            return ResponseEntity.ok("Taglia aggiornata");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

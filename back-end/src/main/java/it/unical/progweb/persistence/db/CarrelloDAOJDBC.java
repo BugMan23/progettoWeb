@@ -2,7 +2,6 @@ package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Carrello;
 import it.unical.progweb.model.Prodotto;
-import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.CarrelloDAO;
 
 import javax.sql.DataSource;
@@ -21,16 +20,39 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
     }
 
     public void addAlCarrello(int userId, int prodottoId, int quantita) {
-        // todo: da rivedere per gestire meglio la quantità
-        String query = "INSERT INTO carrello (idutente, idprodotto, quantita, isordinato) VALUES (?, ?, ?, ?) ON CONFLICT (userId, prodottoId) DO UPDATE SET quantita = carrello.quantita + EXCLUDED.quantita;";
+        // Controlla se il prodotto è già nel carrello
+        String checkQuery = "SELECT quantita FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
+        String insertQuery = "INSERT INTO carrello (idutente, idprodotto, quantita, taglia, isordinato) VALUES (?, ?, ?, ?, false)";
+        String updateQuery = "UPDATE carrello SET quantita = ? WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, prodottoId);
-            ps.setInt(3, quantita);
-            ps.setString(4, "false");
-            ps.executeUpdate();
+             PreparedStatement checkPs = connection.prepareStatement(checkQuery)) {
+            checkPs.setInt(1, userId);
+            checkPs.setInt(2, prodottoId);
+
+            try (ResultSet rs = checkPs.executeQuery()) {
+                if (rs.next()) {
+                    // Prodotto già nel carrello, aggiorna quantità
+                    int currentQuantity = rs.getInt("quantita");
+                    int newQuantity = currentQuantity + quantita;
+
+                    try (PreparedStatement updatePs = connection.prepareStatement(updateQuery)) {
+                        updatePs.setInt(1, newQuantity);
+                        updatePs.setInt(2, userId);
+                        updatePs.setInt(3, prodottoId);
+                        updatePs.executeUpdate();
+                    }
+                } else {
+                    // Prodotto non nel carrello, inserisci nuovo
+                    try (PreparedStatement insertPs = connection.prepareStatement(insertQuery)) {
+                        insertPs.setInt(1, userId);
+                        insertPs.setInt(2, prodottoId);
+                        insertPs.setInt(3, quantita);
+                        insertPs.setString(4, "M"); // Default taglia
+                        insertPs.executeUpdate();
+                    }
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -39,7 +61,7 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
     @Override
     public List<Prodotto> getCarrello(int userId) {
         List<Prodotto> carrello = new ArrayList<>();
-        String query = "SELECT p.* FROM Prodotti p JOIN carrello c ON p.id = c.idprodotto WHERE c.idutente = ?";
+        String query = "SELECT p.* FROM prodotto p JOIN carrello c ON p.id = c.idprodotto WHERE c.idutente = ? AND c.isordinato = false";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -54,7 +76,7 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
                             rs.getBoolean("scontato"),
-                            rs.getString("image"),
+                            rs.getString("urlimage"),
                             rs.getInt("idcategoria")
                     ));
                 }
@@ -65,20 +87,86 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
         return carrello;
     }
 
-    // todo: da rivedere
     @Override
-    public void clear(int idUser) {
-        String updateQuery = "UPDATE CarrelloItems SET isOrdinato = TRUE WHERE idutente = ?";
+    public List<Carrello> getCartDetails(int userId) {
+        List<Carrello> dettagli = new ArrayList<>();
+        String query = "SELECT * FROM carrello WHERE idutente = ? AND isordinato = false";
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement psUpdate = connection.prepareStatement(updateQuery)) {
-            psUpdate.setInt(1, idUser);
-            int updatedRows = psUpdate.executeUpdate();
-            if (updatedRows == 0) {
-                System.out.println("Nessun prodotto aggiornato, verificare l'ID dell'utente.");
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    dettagli.add(new Carrello(
+                            rs.getInt("id"),
+                            rs.getInt("idutente"),
+                            rs.getInt("idprodotto"),
+                            rs.getString("quantita"),
+                            rs.getBoolean("isordinato")
+                    ));
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante l'impostazione di is_ordered: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        return dettagli;
+    }
+
+    @Override
+    public void clear(int userId) {
+        String deleteQuery = "DELETE FROM carrello WHERE idutente = ? AND isordinato = false";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeFromCart(int userId, int productId) {
+        String query = "DELETE FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateCartItem(int userId, int productId, int quantity, String taglia) {
+        String query = "UPDATE carrello SET quantita = ?, taglia = ? WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, quantity);
+            ps.setString(2, taglia);
+            ps.setInt(3, userId);
+            ps.setInt(4, productId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateCartItemTaglia(int userId, int productId, String taglia) {
+        String query = "UPDATE carrello SET taglia = ? WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, taglia);
+            ps.setInt(2, userId);
+            ps.setInt(3, productId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
