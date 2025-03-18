@@ -60,6 +60,7 @@ export class AuthService {
           // Aggiorniamo anche gli stati
           this.isAuthenticated.next(true);
           this.userRole.next(decoded.role === 'admin');
+          this.userName.next(decoded.sub); // Imposta il nome utente dal token
 
           return token;
         })
@@ -67,9 +68,12 @@ export class AuthService {
   }
 
   // Registrazione utente comune a entrambe le implementazioni
-  register(user: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/registrazione`, user);
+  register(user: User): Observable<string> {
+    return this.http.post(`${this.baseUrl}/registrazione`, user, {
+      responseType: 'text' // Specifica che ti aspetti una risposta di testo
+    });
   }
+
 
   // Registrazione alternativa di Alberto
   registerWithJWT(user: User): Observable<string> {

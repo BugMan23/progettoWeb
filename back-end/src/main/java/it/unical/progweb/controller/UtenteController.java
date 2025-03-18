@@ -22,16 +22,17 @@ public class UtenteController {
     private UserService userService;
 
     @PostMapping("/registrazione")
-    public ResponseEntity<?> registerUser(@RequestBody Utente utente) {
+    public ResponseEntity<String> registerUser(@RequestBody Utente utente) {
         try {
-            utente.setRuolo(false);
+            utente.setRuolo(false); // Imposta ruolo di default
             userService.registraUtente(utente);
             return ResponseEntity.status(HttpStatus.CREATED).body("Utente registrato con successo");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la registrazione");
         }
     }
-
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         try {

@@ -7,7 +7,6 @@ import { CarrelloService } from '../../../services/carrello.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
 
-// TODO: AGGIUNGERE LA POSSIBILITA DI FAR REGISTRARE L'UTENTE, SISTEMARE LA GRAFICA
 
 @Component({
   selector: 'app-header',
@@ -38,6 +37,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // Sottoscrivi agli stati di autenticazione
+    this.authService.isAuthenticatedUser().subscribe(
+      isAuthenticated => this.isLoggedIn = isAuthenticated
+    );
+
+    this.authService.getUserName().subscribe(
+      userName => this.userName = userName
+    );
+
     this.checkAuthState();
     this.loadCategories();
 
@@ -92,7 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cartItemCount = 0;
 
     // Redirect alla homepage
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   goHomepage() {

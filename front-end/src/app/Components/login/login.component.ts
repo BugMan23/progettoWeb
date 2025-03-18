@@ -21,6 +21,8 @@ export class LoginComponent {
 
   authForm!: FormGroup;
   isLoginMode = true;
+  showLoginPopup: boolean = true;
+
 
   constructor(
     private authService: AuthService,
@@ -74,12 +76,13 @@ export class LoginComponent {
     }
 
     if (this.isLoginMode) {
-      this.authService.login(email, password).subscribe({
+      this.authService.loginWithJWT(email, password).subscribe({
         next: (token) => {
           console.log('LOGIN OK, token:', token);
           localStorage.setItem('token', token);
-          this.router.navigate(['']);
-          this.closePopup();
+          this.showLoginPopup = false;
+          this.router.navigate(['/']);
+          //this.closePopup();
         },
         error: (err) => {
           console.error('LOGIN ERROR:', err);
@@ -114,6 +117,6 @@ export class LoginComponent {
   }
 
   closePopup() {
-    this.close.emit();
+    this.showLoginPopup = false;
   }
 }
