@@ -22,10 +22,61 @@
 
       <!-- Icone utente -->
       <div class="user-actions">
-        <a *ngIf="isLoggedIn" routerLink="/carrello" class="icon-link">
-          <i class="bi bi-cart3"></i>
-          <span *ngIf="cartItemCount > 0" class="cart-badge">{{cartItemCount}}</span>
-        </a>
+        <!-- Carrello con dropdown -->
+        <div *ngIf="isLoggedIn" class="cart-dropdown"
+             (mouseenter)="showCartPreview = true"
+             (mouseleave)="showCartPreview = false">
+          <a routerLink="/carrello" class="icon-link" (click)="navigateToCart()">
+            <i class="bi bi-cart3"></i>
+            <span *ngIf="cartItemCount > 0" class="cart-badge">{{cartItemCount}}</span>
+          </a>
+
+          <!-- Anteprima del carrello (visibile solo al passaggio del mouse) -->
+          <div *ngIf="showCartPreview && cartItems.length > 0" class="cart-preview">
+            <div class="cart-preview-header">
+              <h6 class="mb-0">Il tuo carrello</h6>
+              <small>{{ cartItems.length }} articoli</small>
+            </div>
+
+            <div class="cart-preview-body">
+              <!-- Mostra solo i primi 2 articoli -->
+              <div *ngFor="let item of cartItems.slice(0, 2)" class="cart-preview-item">
+                <div class="item-image">
+                  <img [src]="item.urlImage || 'assets/images/placeholder.jpg'" [alt]="item.nome">
+                </div>
+                <div class="item-details">
+                  <div class="item-name">{{ item.nome }}</div>
+                  <div class="item-price">€{{ item.prezzo.toFixed(2) }}</div>
+                </div>
+              </div>
+
+              <!-- Indicatore per più articoli se ce ne sono più di 2 -->
+              <div *ngIf="cartItems.length > 2" class="more-items">
+                + {{ cartItems.length - 2 }} altri articoli
+              </div>
+            </div>
+
+            <div class="cart-preview-footer">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Totale:</span>
+                <span class="fw-bold">€{{ cartTotal.toFixed(2) }}</span>
+              </div>
+              <button class="btn btn-primary btn-sm w-100" (click)="navigateToCart()">
+                Vai al carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Messaggio carrello vuoto -->
+          <div *ngIf="showCartPreview && cartItems.length === 0" class="cart-preview">
+            <div class="cart-empty">
+              <i class="bi bi-cart-x"></i>
+              <p>Il tuo carrello è vuoto</p>
+              <a routerLink="/catalogo" class="btn btn-outline-primary btn-sm">Inizia lo shopping</a>
+            </div>
+          </div>
+        </div>
+
         <button *ngIf="!isLoggedIn" class="btn login-btn" (click)="openLoginPopup()">
           Accedi
         </button>

@@ -35,7 +35,7 @@ export class CarrelloService {
   /**
    * Ottiene i dettagli (quantità, taglia) per ogni prodotto nel carrello
    */
-  getCartDetails(userId: number | null): Observable<Carrello[]> {
+  getCartDetails(userId: number): Observable<Carrello[]> {
     return this.http.get<Carrello[]>(`${this.apiUrl}/details/${userId}`);
   }
 

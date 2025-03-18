@@ -6,7 +6,7 @@ import { CategoriaService } from '../../../services/categoria.service';
 import { CarrelloService } from '../../../services/carrello.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
-
+import { Prodotto } from '../../../Models/prodotto';
 
 @Component({
   selector: 'app-header',
@@ -16,18 +16,27 @@ import { LoginComponent } from '../../login/login.component';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  // Proprietà
+  // Proprietà di autenticazione
   isLoggedIn: boolean = false;
   isAdmin: boolean = false;
   userName: string = '';
+
+  // Proprietà carrello
   cartItemCount: number = 0;
+  cartItems: Prodotto[] = [];
+  cartTotal: number = 0;
+  showCartPreview: boolean = false;
+
+  // Categorie
   categorie: any[] = [];
 
   // Popup login
   showPopup: boolean = false;
   userRole: string | null = null;
 
+  // Subscriptions
   private cartSub!: Subscription;
+  private cartItemsSub!: Subscription;
 
   constructor(
     private router: Router,
@@ -52,13 +61,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Iscriviti agli aggiornamenti del carrello
     this.cartSub = this.cartService.cartChanged.subscribe(() => {
       if (this.isLoggedIn) {
-        this.loadCartCount();
+        this.loadCartData();
       }
     });
   }
 
   ngOnDestroy(): void {
     if (this.cartSub) this.cartSub.unsubscribe();
+    if (this.cartItemsSub) this.cartItemsSub.unsubscribe();
   }
 
   checkAuthState(): void {
@@ -68,18 +78,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userName = localStorage.getItem('userName') || '';
 
     if (this.isLoggedIn) {
-      this.loadCartCount();
+      this.loadCartData();
     }
   }
 
-  loadCartCount(): void {
+  loadCartData(): void {
     const userId = localStorage.getItem('userId');
-    if (userId) {
-      this.cartService.getUserCart(Number(userId)).subscribe({
-        next: (items) => this.cartItemCount = items.length,
-        error: (err) => console.error('Errore nel caricamento del carrello', err)
-      });
-    }
+    if (!userId) return;
+
+    // Carica il conteggio e i prodotti nel carrello
+    this.cartService.getUserCart(parseInt(userId)).subscribe({
+      next: (items) => {
+        this.cartItems = items;
+        this.cartItemCount = items.length;
+        this.calculateCartTotal();
+      },
+      error: (err) => console.error('Errore nel caricamento del carrello', err)
+    });
+  }
+
+  calculateCartTotal(): void {
+    // Semplice calcolo del totale - in un caso reale dovresti tenere conto delle quantità
+    this.cartTotal = this.cartItems.reduce((total, item) => total + item.prezzo, 0);
   }
 
   loadCategories(): void {
@@ -87,6 +107,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (data) => this.categorie = data,
       error: (err) => console.error('Errore nel caricamento delle categorie', err)
     });
+  }
+
+  navigateToCart(): void {
+    this.showCartPreview = false;
+    this.router.navigate(['/carrello']);
   }
 
   logout(): void {
@@ -98,6 +123,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isAdmin = false;
     this.userName = '';
     this.cartItemCount = 0;
+    this.cartItems = [];
+    this.cartTotal = 0;
 
     // Redirect alla homepage
     this.router.navigate(['/login']);
