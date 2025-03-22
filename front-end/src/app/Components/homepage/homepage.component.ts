@@ -25,6 +25,9 @@ export class HomepageComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
 
+  // Numero massimo di prodotti da mostrare nella preview
+  readonly previewCount = 4;
+
   // Carosello
   currentSlideIndex = 0;
   slides = [
@@ -53,12 +56,6 @@ export class HomepageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadData();
     this.startSlideshow();
-    console.log('Chiamata API in corso...');
-    this.prodottoService.getAllProducts().subscribe({
-      next: (data) => console.log('Dati ricevuti:', data),
-      error: (err) => console.error('Errore API:', err)
-    });
-
   }
 
   ngOnDestroy(): void {
@@ -74,11 +71,11 @@ export class HomepageComponent implements OnInit, OnDestroy {
         this.prodotti = data;
 
         // Filtra prodotti scontati
-        this.prodottiScontati = data.filter(p => p.scontato).slice(0, 4);
+        this.prodottiScontati = data.filter(p => p.scontato).slice(0, this.previewCount);
 
         // Prendi gli ultimi prodotti come "nuovi arrivi"
         // In un'app reale dovresti ordinarli per data di inserimento
-        this.nuoviArrivi = [...data].sort(() => 0.5 - Math.random()).slice(0, 4);
+        this.nuoviArrivi = [...data].sort(() => 0.5 - Math.random()).slice(0, this.previewCount);
 
         this.loading = false;
       },
@@ -123,6 +120,9 @@ export class HomepageComponent implements OnInit, OnDestroy {
   getPrezzoScontato(prezzo: number): number {
     return Math.round(prezzo * 0.8);
   }
+
+  // Naviga alla pagina del catalogo con filtro per categoria
+  navigateToCategory(categoriaId: number): void {
+    // La navigazione viene gestita tramite l'attributo [routerLink] nel template
+  }
 }
-
-
