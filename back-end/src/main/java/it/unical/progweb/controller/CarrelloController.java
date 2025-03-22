@@ -104,9 +104,20 @@ public class CarrelloController {
             String taglia = (String) request.get("taglia");
 
             carrelloService.updateCartItem(userId, productId, quantity, taglia);
-            return ResponseEntity.ok("Articolo aggiornato");
+
+            // Ritorna una risposta JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Articolo aggiornato");
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Ritorna un errore in formato JSON
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
@@ -119,14 +130,22 @@ public class CarrelloController {
             String taglia = (String) request.get("taglia");
 
             carrelloService.updateCartItemTaglia(userId, productId, taglia);
-            return ResponseEntity.ok("Taglia aggiornata");
+
+            // Ritorna una risposta JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Taglia aggiornata");
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Ritorna un errore in formato JSON
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
-
-    // in back-end/src/main/java/it/unical/progweb/controller/CarrelloController.java
-
     @PostMapping("/initialize/{userId}")
     public ResponseEntity<?> initializeCart(@PathVariable int userId) {
         try {
