@@ -37,6 +37,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Subscriptions
   private cartSub!: Subscription;
   private cartItemsSub!: Subscription;
+  private authStateSub!: Subscription;
+  private userNameSub!: Subscription;
+  private userRoleSub!: Subscription;
 
   constructor(
     private router: Router,
@@ -47,14 +50,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Sottoscrivi agli stati di autenticazione
-    this.authService.isAuthenticatedUser().subscribe(
-      isAuthenticated => this.isLoggedIn = isAuthenticated
+    this.authStateSub = this.authService.isAuthenticatedUser().subscribe(
+      isAuthenticated => {
+        console.log('Auth state changed:', isAuthenticated);
+        this.isLoggedIn = isAuthenticated;
+        if (isAuthenticated) {
+          this.loadCartData();
+        }
+      }
     );
 
-    this.authService.getUserName().subscribe(
+    this.userNameSub = this.authService.getUserName().subscribe(
       userName => this.userName = userName
     );
 
+    this.userRoleSub = this.authService.isAdminUser().subscribe(
+      isAdmin => this.isAdmin = isAdmin
+    );
+
+    // Carica stato iniziale
     this.checkAuthState();
     this.loadCategories();
 
@@ -67,13 +81,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // AGGIUNTA: Codice completo per pulire le sottoscrizioni
     if (this.cartSub) this.cartSub.unsubscribe();
     if (this.cartItemsSub) this.cartItemsSub.unsubscribe();
+    if (this.authStateSub) this.authStateSub.unsubscribe();
+    if (this.userNameSub) this.userNameSub.unsubscribe();
+    if (this.userRoleSub) this.userRoleSub.unsubscribe();
   }
 
   checkAuthState(): void {
     const userId = localStorage.getItem('userId');
-    this.isLoggedIn = !!userId;
+    const isLoggedIn = !!userId;
+    // AGGIUNTA: Log di debug
+    console.log('Checking auth state: userId =', userId, 'isLoggedIn =', isLoggedIn);
+    this.isLoggedIn = isLoggedIn;
     this.isAdmin = localStorage.getItem('isAdmin') === 'true';
     this.userName = localStorage.getItem('userName') || '';
 
@@ -110,9 +131,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToCart(): void {
+    // AGGIUNTA: Verifica che l'utente sia già loggato
     if (this.isLoggedIn) {
+      // Nascondi il popup del carrello
       this.showCartPreview = false;
+      // Naviga direttamente alla pagina del carrello
       this.router.navigate(['/carrello']);
+    } else {
+      // Se non è loggato, apri il popup di login
+      this.openLoginPopup();
     }
   }
 
@@ -149,7 +176,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Questo metodo può essere chiamato dal componente login quando l'autenticazione ha successo
   onLoginSuccess(): void {
+    console.log('Login success received in header component');
     this.showPopup = false;
-    this.checkAuthState();
+
+    // AGGIUNTA: Forza l'aggiornamento dello stato
+    this.isLoggedIn = true;
+    this.userName = localStorage.getItem('userName') || '';
+    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+    // Carica i dati del carrello
+    this.loadCartData();
   }
 }

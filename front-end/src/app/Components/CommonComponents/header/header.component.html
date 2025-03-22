@@ -92,7 +92,7 @@
   <div *ngIf="showPopup" class="login-popup-overlay">
     <div class="login-popup">
       <button class="close-btn" (click)="closeLoginPopup()">×</button>
-      <app-login (loginSuccess)="onLoginSuccess()"></app-login>
+      <app-login (loginSuccess)="onLoginSuccess()" (close)="closeLoginPopup()"></app-login>
     </div>
   </div>
 </header>

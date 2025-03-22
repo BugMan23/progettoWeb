@@ -18,6 +18,7 @@ import { User } from '../../Models/user';
 })
 export class LoginComponent {
   @Output() close = new EventEmitter<void>();
+  @Output() loginSuccess = new EventEmitter<void>();
 
   authForm!: FormGroup;
   isLoginMode = true;
@@ -79,9 +80,18 @@ export class LoginComponent {
       this.authService.loginWithJWT(email, password).subscribe({
         next: (token) => {
           console.log('LOGIN OK, token:', token);
-          localStorage.setItem('token', token);
-          this.closePopup();
-          this.router.navigate(['/']);
+
+          // MODIFICA: Emetti evento di successo PRIMA di navigare
+          this.loginSuccess.emit();
+
+          // AGGIUNTA: Aspetta un momento per permettere all'interfaccia di aggiornarsi
+          setTimeout(() => {
+            // Chiudi il popup
+            this.closePopup();
+
+            // Naviga alla homepage
+            this.router.navigate(['/']);
+          }, 100);
         },
         error: (err) => {
           console.error('LOGIN ERROR:', err);

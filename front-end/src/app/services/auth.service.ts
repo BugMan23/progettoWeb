@@ -16,7 +16,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/auth';
 
   // BehaviorSubject da Sofia
-  private isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
+  isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
   private userRole = new BehaviorSubject<boolean>(this.isAdmin());
   private userName = new BehaviorSubject<string>(localStorage.getItem('userName') || '');
 
@@ -26,7 +26,7 @@ export class AuthService {
   ) { }
 
   // Implementazione login di Sofia
-  login(email: string, password: string): Observable<any> {
+  /*login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, { email, password })
       .pipe(
         tap((response: any) => {
@@ -44,23 +44,27 @@ export class AuthService {
           this.userName.next(response.nome);
         })
       );
-  }
+  }*/
 
   // Implementazione login di Alberto usando JWT (alternativa)
   loginWithJWT(email: string, password: string): Observable<string> {
-    console.log('Attempting login with:', { email, password });
-    console.log('Request URL:', `${this.apiUrl}/login`);
-
     return this.http
       .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
       .pipe(
         map((token: string) => {
+          // Salva il token
           sessionStorage.setItem('token', token);
 
-          // Se necessario, decodificare il token per ulteriori informazioni
+          // Estrai informazioni dal token JWT
           const decoded: any = jwtDecode(token);
 
-          // Aggiorniamo anche gli stati
+          // IMPORTANTE: Salva anche i dati utente nel localStorage come fa il metodo login()
+          localStorage.setItem('userId', decoded.sub || ''); // o un'altra proprietà che contiene l'ID
+          localStorage.setItem('userName', decoded.sub || ''); // o un'altra proprietà che contiene il nome
+          localStorage.setItem('isAdmin', (decoded.role === 'admin').toString());
+          localStorage.setItem('authenticated', 'true');
+
+          // Aggiorna gli stati
           this.isAuthenticated.next(true);
           this.userRole.next(decoded.role === 'admin');
           this.userName.next(decoded.sub); // Imposta il nome utente dal token
