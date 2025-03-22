@@ -33,7 +33,7 @@
       <p class="section-subtitle">Approfitta delle offerte</p>
     </div>
     <div class="col-4 text-end">
-      <a href="/catalogo/scontati" class="btn btn-link">Vedi tutti</a>
+      <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="btn btn-outline-primary">Vedi tutte</a>
     </div>
   </div>
 

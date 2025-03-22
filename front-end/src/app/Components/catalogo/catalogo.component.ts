@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ProdottoService } from '../../services/prodotto.service';
 import { CategoriaService } from '../../services/categoria.service';
 import { Prodotto } from '../../Models/prodotto';
@@ -28,18 +28,86 @@ export class CatalogoComponent implements OnInit {
   filtroMarche: string[] = [];
   filtroColori: string[] = [];
   ricerca: string = '';
+  filtroScontati: boolean = false;
+  filtroNuovi: boolean = false;
 
   // Array unici per filtri
   marche: string[] = [];
   colori: string[] = [];
 
+  // Titolo della pagina in base al filtro attivo
+  titoloPagina: string = 'Catalogo';
+
   constructor(
     private prodottoService: ProdottoService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
+    // Prima carica i dati base (prodotti e categorie)
     this.loadData();
+
+    // Poi ascolta i cambiamenti nei parametri dell'URL
+    this.route.queryParams.subscribe(params => {
+      // Reset dei filtri
+      this.resetFilters(false); // Non ricaricare ancora i prodotti
+
+      // Leggi i parametri dalla URL
+      const categoriaId = params['categoria'] ? parseInt(params['categoria']) : null;
+      const scontati = params['scontati'] === 'true';
+      const nuovi = params['nuovi'] === 'true';
+      const marca = params['marca'];
+      const colore = params['colore'];
+      const minPrezzo = params['minPrezzo'] ? parseInt(params['minPrezzo']) : null;
+      const maxPrezzo = params['maxPrezzo'] ? parseInt(params['maxPrezzo']) : null;
+      const query = params['q'];
+
+      // Imposta i filtri in base ai parametri
+      if (categoriaId) {
+        this.filtroCategoria = categoriaId;
+        // Aggiorna il titolo se c'è una categoria
+        this.updateTitleByCategory(categoriaId);
+      }
+
+      if (scontati) {
+        this.filtroScontati = true;
+        this.titoloPagina = 'Prodotti Scontati';
+      }
+
+      if (nuovi) {
+        this.filtroNuovi = true;
+        this.titoloPagina = 'Nuovi Arrivi';
+      }
+
+      if (marca) {
+        this.filtroMarche = Array.isArray(marca) ? marca : [marca];
+      }
+
+      if (colore) {
+        this.filtroColori = Array.isArray(colore) ? colore : [colore];
+      }
+
+      if (minPrezzo) this.filtroMinPrezzo = minPrezzo;
+      if (maxPrezzo) this.filtroMaxPrezzo = maxPrezzo;
+
+      if (query) {
+        this.ricerca = query;
+        this.titoloPagina = `Risultati per: ${query}`;
+      }
+
+      // Applica i filtri
+      this.applyFilters();
+    });
+  }
+
+  // Aggiorna il titolo in base alla categoria selezionata
+  private updateTitleByCategory(categoriaId: number) {
+    const categoria = this.categorie.find(c => c.id === categoriaId);
+    if (categoria) {
+      this.titoloPagina = `Categoria: ${categoria.nome}`;
+    }
   }
 
   loadData() {
@@ -47,6 +115,10 @@ export class CatalogoComponent implements OnInit {
     this.categoriaService.getAllCategories().subscribe({
       next: (data) => {
         this.categorie = data;
+        // Aggiorna titolo se necessario (nel caso in cui i parametri URL siano già stati elaborati)
+        if (this.filtroCategoria) {
+          this.updateTitleByCategory(this.filtroCategoria);
+        }
       },
       error: (err) => {
         console.error('Errore caricamento categorie', err);
@@ -58,8 +130,8 @@ export class CatalogoComponent implements OnInit {
     this.prodottoService.getAllProducts().subscribe({
       next: (data) => {
         this.prodotti = data;
-        this.filteredProdotti = [...data];
         this.extractFilters();
+        this.applyFilters(); // Applica filtri dopo che i dati sono stati caricati
         this.loading = false;
       },
       error: (err) => {
@@ -81,49 +153,99 @@ export class CatalogoComponent implements OnInit {
 
   // Applica filtri
   applyFilters() {
-    this.filteredProdotti = this.prodotti.filter(p => {
-      // Filtro categoria
-      if (this.filtroCategoria && p.idCategoria !== this.filtroCategoria) {
-        return false;
-      }
+    // Inizia con tutti i prodotti
+    let prodottiFiltrati = [...this.prodotti];
 
-      // Filtro prezzo
-      if (this.filtroMinPrezzo && p.prezzo < this.filtroMinPrezzo) {
-        return false;
-      }
-      if (this.filtroMaxPrezzo && p.prezzo > this.filtroMaxPrezzo) {
-        return false;
-      }
+    // Filtro categoria
+    if (this.filtroCategoria !== null) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => p.idCategoria === this.filtroCategoria);
+    }
 
-      // Filtro marche
-      if (this.filtroMarche.length > 0 && !this.filtroMarche.includes(p.marca)) {
-        return false;
-      }
+    // Filtro prodotti scontati
+    if (this.filtroScontati) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => p.scontato);
+    }
 
-      // Filtro colori
-      if (this.filtroColori.length > 0 && !this.filtroColori.includes(p.colore)) {
-        return false;
-      }
+    // Filtro nuovi arrivi (implementazione di esempio - nella realtà dovresti avere un campo per determinare i nuovi arrivi)
+    if (this.filtroNuovi) {
+      // Ordina per ID in ordine decrescente (assumendo che gli ID più alti siano i prodotti più recenti)
+      prodottiFiltrati = prodottiFiltrati.sort((a, b) => b.id - a.id).slice(0, 10);
+    }
 
-      // Filtro ricerca
-      if (this.ricerca && !p.nome.toLowerCase().includes(this.ricerca.toLowerCase()) &&
-        !p.descrizione.toLowerCase().includes(this.ricerca.toLowerCase())) {
-        return false;
-      }
+    // Filtro prezzo
+    if (this.filtroMinPrezzo !== null) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => p.prezzo >= (this.filtroMinPrezzo || 0));
+    }
 
-      return true;
-    });
+    if (this.filtroMaxPrezzo !== null) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => p.prezzo <= (this.filtroMaxPrezzo || Infinity));
+    }
+
+    // Filtro marche
+    if (this.filtroMarche.length > 0) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => this.filtroMarche.includes(p.marca));
+    }
+
+    // Filtro colori
+    if (this.filtroColori.length > 0) {
+      prodottiFiltrati = prodottiFiltrati.filter(p => this.filtroColori.includes(p.colore));
+    }
+
+    // Filtro ricerca
+    if (this.ricerca && this.ricerca.trim() !== '') {
+      const searchTerm = this.ricerca.toLowerCase();
+      prodottiFiltrati = prodottiFiltrati.filter(p =>
+        p.nome.toLowerCase().includes(searchTerm) ||
+        p.descrizione.toLowerCase().includes(searchTerm) ||
+        p.marca.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    this.filteredProdotti = prodottiFiltrati;
+
+    // Aggiorna l'URL con i filtri (opzionale, ma utile per condividere link filtrati)
+    this.updateUrlWithFilters();
   }
 
   // Reset filtri
-  resetFilters() {
+  resetFilters(applyAfterReset: boolean = true) {
     this.filtroCategoria = null;
     this.filtroMinPrezzo = null;
     this.filtroMaxPrezzo = null;
     this.filtroMarche = [];
     this.filtroColori = [];
     this.ricerca = '';
-    this.filteredProdotti = [...this.prodotti];
+    this.filtroScontati = false;
+    this.filtroNuovi = false;
+    this.titoloPagina = 'Catalogo';
+
+    if (applyAfterReset) {
+      this.filteredProdotti = [...this.prodotti];
+      // Rimuovi i parametri dell'URL
+      this.router.navigate(['/catalogo']);
+    }
+  }
+
+  // Aggiorna l'URL con i filtri correnti
+  updateUrlWithFilters() {
+    const queryParams: any = {};
+
+    if (this.filtroCategoria !== null) queryParams.categoria = this.filtroCategoria;
+    if (this.filtroScontati) queryParams.scontati = true;
+    if (this.filtroNuovi) queryParams.nuovi = true;
+    if (this.filtroMinPrezzo !== null) queryParams.minPrezzo = this.filtroMinPrezzo;
+    if (this.filtroMaxPrezzo !== null) queryParams.maxPrezzo = this.filtroMaxPrezzo;
+    if (this.filtroMarche.length > 0) queryParams.marca = this.filtroMarche;
+    if (this.filtroColori.length > 0) queryParams.colore = this.filtroColori;
+    if (this.ricerca) queryParams.q = this.ricerca;
+
+    // Aggiorna l'URL senza ricaricare la pagina
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge', // mantiene i parametri esistenti se non vengono sovrascritti
+      replaceUrl: true // sostituisce l'URL invece di aggiungere una nuova entry nella history
+    });
   }
 
   // Toggle marca nel filtro
@@ -150,6 +272,30 @@ export class CatalogoComponent implements OnInit {
 
   // Cerca in tempo reale
   onSearch() {
+    this.applyFilters();
+  }
+
+  // Filtra per categoria (funzione pubblica che può essere chiamata dal template)
+  filtraPerCategoria(categoriaId: number) {
+    this.resetFilters(false);
+    this.filtroCategoria = categoriaId;
+    this.updateTitleByCategory(categoriaId);
+    this.applyFilters();
+  }
+
+  // Filtra prodotti scontati
+  filtraProdottiScontati() {
+    this.resetFilters(false);
+    this.filtroScontati = true;
+    this.titoloPagina = 'Prodotti Scontati';
+    this.applyFilters();
+  }
+
+  // Filtra nuovi arrivi
+  filtraNuoviArrivi() {
+    this.resetFilters(false);
+    this.filtroNuovi = true;
+    this.titoloPagina = 'Nuovi Arrivi';
     this.applyFilters();
   }
 }

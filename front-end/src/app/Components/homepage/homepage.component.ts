@@ -25,9 +25,6 @@ export class HomepageComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
 
-  // Numero massimo di prodotti da mostrare nella preview
-  readonly previewCount = 4;
-
   // Carosello
   currentSlideIndex = 0;
   slides = [
@@ -36,14 +33,16 @@ export class HomepageComponent implements OnInit, OnDestroy {
       titolo: 'Nuova Collezione',
       sottotitolo: 'Scopri le ultime novità',
       immagine: 'assets/images/slide1.jpg',
-      link: '/catalogo'
+      link: '/catalogo',
+      queryParams: { nuovi: true }
     },
     {
       id: 2,
       titolo: 'Prodotti Scontati',
       sottotitolo: 'Approfitta delle offerte',
       immagine: 'assets/images/slide2.jpg',
-      link: '/catalogo'
+      link: '/catalogo',
+      queryParams: { scontati: true }
     }
   ];
   private slideInterval?: Subscription;
@@ -71,11 +70,12 @@ export class HomepageComponent implements OnInit, OnDestroy {
         this.prodotti = data;
 
         // Filtra prodotti scontati
-        this.prodottiScontati = data.filter(p => p.scontato).slice(0, this.previewCount);
+        this.prodottiScontati = data.filter(p => p.scontato).slice(0, 4);
 
-        // Prendi gli ultimi prodotti come "nuovi arrivi"
-        // In un'app reale dovresti ordinarli per data di inserimento
-        this.nuoviArrivi = [...data].sort(() => 0.5 - Math.random()).slice(0, this.previewCount);
+        // Nuovi arrivi: ordina per ID in ordine decrescente (assumendo che gli ID più alti siano i prodotti più recenti)
+        this.nuoviArrivi = data
+          .sort((a, b) => b.id - a.id)
+          .slice(0, 4);
 
         this.loading = false;
       },
@@ -119,10 +119,5 @@ export class HomepageComponent implements OnInit, OnDestroy {
   // Calcola prezzo scontato (20% di sconto)
   getPrezzoScontato(prezzo: number): number {
     return Math.round(prezzo * 0.8);
-  }
-
-  // Naviga alla pagina del catalogo con filtro per categoria
-  navigateToCategory(categoriaId: number): void {
-    // La navigazione viene gestita tramite l'attributo [routerLink] nel template
   }
 }

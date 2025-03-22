@@ -1,4 +1,12 @@
 <div class="container-fluid mt-4">
+  <!-- Titolo dinamico della pagina -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-5 text-center">{{ titoloPagina }}</h1>
+      <hr>
+    </div>
+  </div>
+
   <div class="row">
     <!-- Sidebar Filtri -->
     <div class="col-md-3">
@@ -33,6 +41,17 @@
                 {{ categoria.nome }}
               </option>
             </select>
+          </div>
+
+          <!-- Checkbox Scontati -->
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="scontatiCheck"
+                     [(ngModel)]="filtroScontati" (change)="applyFilters()">
+              <label class="form-check-label" for="scontatiCheck">
+                Solo prodotti scontati
+              </label>
+            </div>
           </div>
 
           <!-- Prezzo -->
