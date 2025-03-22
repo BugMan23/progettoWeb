@@ -28,6 +28,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/categorie/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/registrazione").permitAll()
+                        .requestMatchers("/api/utenti/byEmail/**").permitAll()
                         // Poi la regola generale
                         .anyRequest().authenticated()
                 );

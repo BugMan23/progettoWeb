@@ -36,13 +36,18 @@ public class AuthService {
         return utenteProxy.save(utente);
     }
 
-    private String generateToken(Utente utente) {
+    public String generateToken(Utente utente) {
         return Jwts.builder()
                 .setSubject(utente.getEmail())
                 .claim("role", utente.getRuolo() ? "admin" : "user")
+                .claim("userId", utente.getId())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 ora di validità
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(secretKey)
                 .compact();
     }
+    public Utente loginAndGetUser(String email, String password) {
+        return utenteProxy.validateUser(email, password);
+    }
+
 }

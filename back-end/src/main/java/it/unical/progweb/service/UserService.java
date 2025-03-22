@@ -108,6 +108,15 @@ public class UserService {
         indirizzoDAO.addIndirizzo(indirizzo, utenteId);
     }
 
+
+    public Utente findByEmail(String email) {
+        Utente utente = utenteDAO.findByEmail(email);
+        if (utente == null) {
+            throw new NotFoundException("Utente non trovato");
+        }
+        return utente;
+    }
+
     /*public void changePassword(int userId, String currentPassword, String newPassword) {
         if(currentPassword.equals(newPassword)){
             throw new IllegalArgumentException("Le password sono uguali");

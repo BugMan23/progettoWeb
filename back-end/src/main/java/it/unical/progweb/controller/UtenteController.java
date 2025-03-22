@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -109,5 +111,27 @@ public class UtenteController {
         public int getId() { return id; }
         public String getNome() { return nome; }
         public Boolean getIsAdmin() { return isAdmin; }
+    }
+
+    @GetMapping("/byEmail/{email}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+        try {
+            Utente utente = userService.findByEmail(email);
+            if (utente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato");
+            }
+
+            // Crea un oggetto di risposta senza dati sensibili
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", utente.getId());
+            response.put("nome", utente.getNome());
+            response.put("cognome", utente.getCognome());
+            response.put("email", utente.getEmail());
+            response.put("ruolo", utente.getRuolo());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nel recupero dell'utente");
+        }
     }
 }

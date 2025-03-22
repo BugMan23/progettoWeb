@@ -104,17 +104,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   loadCartData(): void {
+    console.log('loadCartData called, userId from localStorage:', localStorage.getItem('userId'));
     const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    if (!userId) {
+      console.error('User ID not found in localStorage');
+      return;
+    }
 
-    // Carica il conteggio e i prodotti nel carrello
-    this.cartService.getUserCart(parseInt(userId)).subscribe({
+    // Verifica che l'ID utente sia un numero valido
+    const userIdNum = parseInt(userId);
+    if (isNaN(userIdNum)) {
+      console.error('User ID is not a valid number:', userId);
+      return; // Esci dalla funzione se l'ID non è valido
+    }
+
+    // Carica il conteggio e i prodotti nel carrello solo se l'ID è valido
+    this.cartService.getUserCart(userIdNum).subscribe({
       next: (items) => {
         this.cartItems = items;
         this.cartItemCount = items.length;
         this.calculateCartTotal();
       },
-      error: (err) => console.error('Errore nel caricamento del carrello', err)
+      error: (err) => {
+        console.error('Errore nel caricamento del carrello', err);
+        // Non mostrare errori all'utente per problemi di caricamento del carrello
+      }
     });
   }
 
@@ -131,14 +145,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToCart(): void {
-    // AGGIUNTA: Verifica che l'utente sia già loggato
-    if (this.isLoggedIn) {
-      // Nascondi il popup del carrello
+    const userId = localStorage.getItem('userId');
+
+    // Verifica se l'utente è effettivamente loggato con un ID valido
+    if (userId && !isNaN(parseInt(userId))) {
+      console.log('Navigating to cart with user ID:', userId);
       this.showCartPreview = false;
-      // Naviga direttamente alla pagina del carrello
       this.router.navigate(['/carrello']);
     } else {
-      // Se non è loggato, apri il popup di login
+      console.log('User not logged in or invalid ID, showing login popup');
       this.openLoginPopup();
     }
   }

@@ -1,7 +1,7 @@
 // auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, map } from 'rxjs';
+import {Observable, BehaviorSubject, map, of} from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from '../Models/user'; // Assicurati che questo percorso sia corretto
@@ -47,31 +47,66 @@ export class AuthService {
   }*/
 
   // Implementazione login di Alberto usando JWT (alternativa)
-  loginWithJWT(email: string, password: string): Observable<string> {
+  loginWithJWT(email: string, password: string): Observable<any> {
+    console.log('Attempting login with:', { email, password });
+
+    // Cambia la risposta da 'text' a 'json'
     return this.http
-      .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
+      .post<any>(`${this.apiUrl}/login`, { email, password })
       .pipe(
-        map((token: string) => {
-          // Salva il token
+        map((response) => {
+          // Gestiamo sia il caso in cui la risposta è un semplice token (stringa)
+          // sia il caso in cui è un oggetto complesso
+          let token: string;
+          let userId: number | null = null;
+          let userName: string | null = null;
+          let isAdmin: boolean = false;
+
+          if (typeof response === 'string') {
+            // La risposta è direttamente il token
+            token = response;
+          } else {
+            // La risposta è un oggetto che contiene token e altre informazioni
+            token = response.token;
+            userId = response.userId;
+            userName = response.nome;
+            isAdmin = response.isAdmin;
+          }
+
+          // Salva i dati nel localStorage
+          localStorage.setItem('token', token);
           sessionStorage.setItem('token', token);
-
-          // Estrai informazioni dal token JWT
-          const decoded: any = jwtDecode(token);
-
-          // IMPORTANTE: Salva anche i dati utente nel localStorage come fa il metodo login()
-          localStorage.setItem('userId', decoded.sub || ''); // o un'altra proprietà che contiene l'ID
-          localStorage.setItem('userName', decoded.sub || ''); // o un'altra proprietà che contiene il nome
-          localStorage.setItem('isAdmin', (decoded.role === 'admin').toString());
           localStorage.setItem('authenticated', 'true');
+
+          // Salva l'ID utente se è stato fornito nella risposta
+          if (userId !== null && userId !== undefined) {
+            localStorage.setItem('userId', userId.toString());
+            console.log('User ID from response:', userId);
+          } else {
+            console.error('No user ID in response');
+          }
+
+          // Salva il nome utente se è stato fornito, altrimenti usa l'email
+          localStorage.setItem('userName', userName || email);
+
+          // Salva il ruolo admin
+          localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
 
           // Aggiorna gli stati
           this.isAuthenticated.next(true);
-          this.userRole.next(decoded.role === 'admin');
-          this.userName.next(decoded.sub); // Imposta il nome utente dal token
+          this.userRole.next(isAdmin);
+          this.userName.next(userName || email);
 
           return token;
         })
       );
+  }
+
+// Metodo aggiuntivo per recuperare l'ID utente se non presente nel token
+  private getUserIdByEmail(email: string): Observable<number> {
+    // Siccome l'endpoint non esiste, è meglio disabilitare questo metodo
+    console.error('getUserIdByEmail called, but endpoint is not available');
+    return of(-1); // Ritorna un Observable con un valore dummy
   }
 
   // Registrazione utente comune a entrambe le implementazioni
