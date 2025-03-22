@@ -142,20 +142,29 @@ export class DettaglioProdottoComponent implements OnInit {
       return;
     }
 
+    // Assicurati di avere una taglia selezionata
+    if (!this.selectedTaglia) {
+      this.error = 'Seleziona una taglia prima di aggiungere al carrello';
+      return;
+    }
+
     this.addingToCart = true;
     this.cartSuccess = false;
     this.cartError = false;
 
-    this.carrelloService.addToCart({
+    const request = {
       userId: parseInt(userId),
       productId: this.prodotto.id,
-      quantity: this.selectedQuantita,
+      quantity: this.selectedQuantita || 1,
       taglia: this.selectedTaglia
-    }).subscribe({
+    };
+
+    console.log('Request per aggiunta al carrello:', request); // Per debug
+
+    this.carrelloService.addToCart(request).subscribe({
       next: () => {
         this.addingToCart = false;
         this.cartSuccess = true;
-        // Notifica allo header di aggiornare il conteggio del carrello
         this.carrelloService.cartChanged.next();
         setTimeout(() => this.cartSuccess = false, 3000);
       },

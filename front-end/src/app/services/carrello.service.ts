@@ -22,7 +22,17 @@ export class CarrelloService {
     quantity: number;
     taglia: string;
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/add`, request);
+    // Assicurati che l'oggetto sia correttamente formattato
+    const payload = {
+      userId: request.userId,
+      productId: request.productId,
+      quantity: request.quantity,
+      taglia: request.taglia || 'M'
+    };
+
+    console.log('Invio payload:', payload); // Per debug
+
+    return this.http.post(`${this.apiUrl}/add`, payload);
   }
 
   /**

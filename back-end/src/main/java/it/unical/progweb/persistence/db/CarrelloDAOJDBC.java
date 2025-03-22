@@ -76,7 +76,7 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                             rs.getInt("prezzo"),
                             rs.getString("descrizione"),
                             rs.getBoolean("scontato"),
-                            rs.getString("urlimage"),
+                            rs.getString("image"),
                             rs.getInt("idcategoria")
                     ));
                 }

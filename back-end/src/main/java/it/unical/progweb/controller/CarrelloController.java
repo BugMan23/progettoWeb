@@ -5,9 +5,11 @@ import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.request.CarrelloRequest;
 import it.unical.progweb.service.CarrelloService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,15 +25,30 @@ public class CarrelloController {
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody CarrelloRequest cartRequest) {
         try {
+            System.out.println("Ricevuta richiesta: " + cartRequest.toString());
+
             carrelloService.addAlCarrello(
                     cartRequest.getUserId(),
                     cartRequest.getProductId(),
                     cartRequest.getQuantity(),
                     cartRequest.getTaglia()
             );
-            return ResponseEntity.ok("Prodotto aggiunto al carrello");
-        } catch (NotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+            // Ritorna una risposta JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Prodotto aggiunto al carrello");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // Ritorna un errore in formato JSON
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
