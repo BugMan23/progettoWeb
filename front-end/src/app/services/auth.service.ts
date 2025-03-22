@@ -217,4 +217,8 @@ export class AuthService {
   getUserId(): string | null {
     return localStorage.getItem('userId');
   }
+
+  initializeUserCart(userId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/carrello/initialize/${userId}`, {});
+  }
 }

@@ -9,6 +9,7 @@ import it.unical.progweb.persistence.dao.DisponibilitaDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -43,11 +44,26 @@ public class CarrelloService {
     }
 
     public List<Prodotto> getCart(int userId) {
-        return carrelloDAO.getCarrello(userId);
+        // Prima controlla se l'utente ha un carrello
+        List<Prodotto> carrello = carrelloDAO.getCarrello(userId);
+
+        // Se non ha un carrello, inizializzane uno vuoto
+        if (carrello == null) {
+            carrelloDAO.initializeEmptyCart(userId);
+            return new ArrayList<>(); // Restituisci una lista vuota
+        }
+
+        return carrello;
     }
 
     public List<Carrello> getCartDetails(int userId) {
-        return carrelloDAO.getCartDetails(userId);
+        List<Carrello> dettagli = carrelloDAO.getCartDetails(userId);
+
+        if (dettagli == null) {
+            return new ArrayList<>(); // Restituisci una lista vuota se non ci sono dettagli
+        }
+
+        return dettagli;
     }
 
     public void clearCart(int userId) {
@@ -55,7 +71,13 @@ public class CarrelloService {
     }
 
     public int getCartTotal(int userId) {
+        // Se non ci sono prodotti, il totale è 0
         List<Prodotto> carrello = carrelloDAO.getCarrello(userId);
+        if (carrello == null || carrello.isEmpty()) {
+            return 0;
+        }
+
+        // Altrimenti calcola il totale come prima
         int total = 0;
         for (Prodotto prodotto : carrello) {
             total += prodotto.getPrezzo();
@@ -65,7 +87,7 @@ public class CarrelloService {
 
     public int getCartCount(int userId) {
         List<Prodotto> carrello = carrelloDAO.getCarrello(userId);
-        return carrello.size();
+        return carrello == null ? 0 : carrello.size();
     }
 
     public void removeFromCart(int userId, int productId) {
@@ -101,5 +123,9 @@ public class CarrelloService {
         }
 
         carrelloDAO.updateCartItemTaglia(userId, productId, taglia);
+    }
+
+    public void initializeEmptyCart(int userId) {
+        carrelloDAO.initializeEmptyCart(userId);
     }
 }

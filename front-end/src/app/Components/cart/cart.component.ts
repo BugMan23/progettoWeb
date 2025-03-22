@@ -57,24 +57,27 @@ export class CartComponent implements OnInit {
   }
 
   // Carica i dati del carrello dal server
+  // in front-end/src/app/Components/cart/cart.component.ts
+
   loadCarrello(): void {
     if (!this.userId) return;
 
     this.carrelloService.getUserCart(this.userId).subscribe({
       next: (prodotti) => {
-        this.prodottiCarrello = prodotti;
+        this.prodottiCarrello = prodotti || []; // Assicurati che sia sempre un array
 
-        // Carica la quantità per ogni prodotto dal server
-        // Nota: questo dipende da come è strutturata la tua API
+        // Carica la quantità per ogni prodotto
         this.carrelloService.getCartDetails(this.userId as number).subscribe({
           next: (dettagli) => {
-            dettagli.forEach(item => {
-              this.itemsQuantita.set(item.idProdotto, parseInt(item.quantita));
-              this.itemsTaglie.set(item.idProdotto, item.taglia || 'M');
+            if (dettagli && dettagli.length > 0) {
+              dettagli.forEach(item => {
+                this.itemsQuantita.set(item.idProdotto, parseInt(item.quantita));
+                this.itemsTaglie.set(item.idProdotto, item.taglia || 'M');
 
-              // Carica la disponibilità per ogni prodotto
-              this.caricaDisponibilita(item.idProdotto);
-            });
+                // Carica la disponibilità per ogni prodotto
+                this.caricaDisponibilita(item.idProdotto);
+              });
+            }
 
             this.calcolaTotale();
             this.loading = false;

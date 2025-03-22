@@ -107,4 +107,16 @@ public class CarrelloController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // in back-end/src/main/java/it/unical/progweb/controller/CarrelloController.java
+
+    @PostMapping("/initialize/{userId}")
+    public ResponseEntity<?> initializeCart(@PathVariable int userId) {
+        try {
+            carrelloService.initializeEmptyCart(userId);
+            return ResponseEntity.ok("Carrello inizializzato");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

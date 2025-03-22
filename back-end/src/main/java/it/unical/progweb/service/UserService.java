@@ -4,6 +4,7 @@ import it.unical.progweb.eccezioni.AuthenticationException;
 import it.unical.progweb.eccezioni.NotFoundException;
 import it.unical.progweb.model.Indirizzo;
 import it.unical.progweb.model.Utente;
+import it.unical.progweb.persistence.dao.CarrelloDAO;
 import it.unical.progweb.persistence.dao.IndirizzoDAO;
 import it.unical.progweb.persistence.dao.UtenteDAO;
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,11 +18,13 @@ public class UserService {
 
     private final UtenteDAO utenteDAO;
     private final IndirizzoDAO indirizzoDAO;
+    private final CarrelloDAO carrelloDao;
 
     @Autowired
-    public UserService(UtenteDAO utenteDAO, IndirizzoDAO indirizzoDAO) {
+    public UserService(UtenteDAO utenteDAO, IndirizzoDAO indirizzoDAO, CarrelloDAO carrelloDAO) {
         this.utenteDAO = utenteDAO;
         this.indirizzoDAO = indirizzoDAO;
+        this.carrelloDao = carrelloDAO;
     }
 
     /*public void registraUtente(Utente utente) {
@@ -61,11 +64,6 @@ public class UserService {
             throw new IllegalArgumentException("Password non valida");
         }
 
-        // Verifica esistenza utente
-       /* Utente esistente = utenteDAO.findByEmail(utente.getEmail());
-        if (esistente != null) {
-            throw new IllegalArgumentException("Email già registrata");
-        }*/
 
         // Hash della password
         String hashedPassword = BCrypt.hashpw(utente.getPassword(), BCrypt.gensalt());
@@ -75,6 +73,12 @@ public class UserService {
         boolean salvato = utenteDAO.save(utente);
         if (!salvato) {
             throw new RuntimeException("Impossibile salvare l'utente");
+        }
+
+        Utente utenteRegistrato = utenteDAO.findByEmail(utente.getEmail());
+        if (utenteRegistrato != null) {
+            // Inizializza il carrello vuoto
+            carrelloDao.initializeEmptyCart(utenteRegistrato.getId());
         }
     }
 

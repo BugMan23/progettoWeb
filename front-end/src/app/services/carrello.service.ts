@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { Prodotto } from '../Models/prodotto';
 import { Carrello } from '../Models/carrello';
@@ -28,8 +28,14 @@ export class CarrelloService {
   /**
    * Ottiene i prodotti nel carrello dell'utente
    */
+  // In carrello.service.ts
   getUserCart(userId: number): Observable<Prodotto[]> {
-    return this.http.get<Prodotto[]>(`${this.apiUrl}/${userId}`);
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Prodotto[]>(`${this.apiUrl}/${userId}`, { headers });
   }
 
   /**

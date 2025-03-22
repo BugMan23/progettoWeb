@@ -13,4 +13,6 @@ public interface CarrelloDAO {
     void removeFromCart(int userId, int productId);
     void updateCartItem(int userId, int productId, int quantity, String taglia);
     void updateCartItemTaglia(int userId, int productId, String taglia);
+
+    void initializeEmptyCart(int id);
 }

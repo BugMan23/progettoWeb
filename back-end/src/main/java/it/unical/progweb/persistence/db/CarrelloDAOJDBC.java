@@ -169,4 +169,27 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void initializeEmptyCart(int userId) {
+        // Non c'è bisogno di inserire record nel database, ma possiamo verificare
+        // che non esista già un carrello per questo utente
+        String query = "SELECT COUNT(*) FROM carrello WHERE idutente = ? AND isordinato = false";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    // Non esistono record, possiamo creare un record "segnaposto" se necessario
+                    // In alternativa, possiamo semplicemente non fare nulla e gestire
+                    // il caso di carrello vuoto nel servizio e controller
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'inizializzazione del carrello", e);
+        }
+    }
+
 }
