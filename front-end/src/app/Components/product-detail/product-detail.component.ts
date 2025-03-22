@@ -64,14 +64,36 @@ export class DettaglioProdottoComponent implements OnInit {
 
   loadProdotto(id: number): void {
     this.prodottoService.getProductById(id).subscribe({
-      next: (data) => {
-        this.prodotto = data;
-        this.loadRecensioni(id);
-        this.loadDisponibilita(id);
+      next: (data: any) => {
+        console.log('Dati ricevuti:', data); // Log per debug
+        // Controllo più difensivo sulla struttura dei dati
+        if (data) {
+          if (data.prodotto && data.recensioni) {
+            // Se abbiamo la struttura nidificata
+            this.prodotto = data.prodotto;
+            this.recensioni = data.recensioni;
+          } else if (data.id !== undefined) {
+            // Se è direttamente un oggetto prodotto
+            this.prodotto = data;
+            // Carica recensioni separatamente se necessario
+            this.loadRecensioni(id);
+          } else {
+            // Struttura dati non riconosciuta
+            console.error('Struttura dati non valida:', data);
+            this.error = 'Formato dati non valido dal server';
+            this.loading = false;
+            return;
+          }
+
+          this.loadDisponibilita(id);
+        } else {
+          this.error = 'Nessun dato ricevuto dal server';
+          this.loading = false;
+        }
       },
       error: (err) => {
         console.error('Errore caricamento prodotto', err);
-        this.error = 'Impossibile caricare i dettagli del prodotto';
+        this.error = 'Impossibile caricare i dettagli del prodotto: ' + (err.error || err.message || 'Errore sconosciuto');
         this.loading = false;
       }
     });
@@ -85,6 +107,7 @@ export class DettaglioProdottoComponent implements OnInit {
       error: (err) => {
         console.error('Errore caricamento recensioni', err);
         // Continuiamo senza recensioni
+        this.recensioni = [];
       }
     });
   }
