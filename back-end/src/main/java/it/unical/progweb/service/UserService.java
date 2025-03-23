@@ -11,6 +11,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,21 +27,6 @@ public class UserService {
         this.indirizzoDAO = indirizzoDAO;
         this.carrelloDao = carrelloDAO;
     }
-
-    /*public void registraUtente(Utente utente) {
-        // Validazione dati
-        if (utente.getPassword() == null || utente.getPassword().length() < 6) {
-            throw new IllegalArgumentException("Password non valida");
-        }
-        if (utente.getEmail() == null || !utente.getEmail().contains("@")) {
-            throw new IllegalArgumentException("Email non valida");
-        }
-
-        String hashedPassword = BCrypt.hashpw(utente.getPassword(), BCrypt.gensalt());
-        utente.setPassword(hashedPassword);
-
-        utenteDAO.save(utente);
-    }*/
 
     public void registraUtente(Utente utente) {
         // Validazione più dettagliata
@@ -121,10 +107,9 @@ public class UserService {
         return utente;
     }
 
-    /*public void changePassword(int userId, String currentPassword, String newPassword) {
-        if(currentPassword.equals(newPassword)){
-            throw new IllegalArgumentException("Le password sono uguali");
-        }
-        utenteDAO.updatePassword(userId, newPassword);
-    }*/
+    public List<Indirizzo> getUserAddresses(int utenteId) {
+        List<Indirizzo> ind = new ArrayList<>();
+        return ind;
+    }
+
 }

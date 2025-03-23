@@ -27,6 +27,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/prodotti/**").permitAll()
                         .requestMatchers("/api/categorie/**").permitAll()
                         .requestMatchers("/api/disponibilita/**").permitAll()
+                        .requestMatchers("/api/indirizzi/**").permitAll()
+                        .requestMatchers("/api/metodipagamento/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/registrazione").permitAll()
                         .requestMatchers("/api/carrello/**").permitAll()

@@ -27,6 +27,10 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, utenteId);
+
+            // Aggiungi un log per debug
+            System.out.println("Esecuzione query per indirizzi dell'utente ID: " + utenteId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     indirizzi.add(new Indirizzo(
@@ -41,12 +45,16 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
                     ));
                 }
             }
+
+            // Log del risultato
+            System.out.println("Trovati " + indirizzi.size() + " indirizzi per l'utente ID: " + utenteId);
+
         } catch (SQLException e) {
+            System.err.println("Errore query indirizzi: " + e.getMessage());
             throw new RuntimeException(e);
         }
         return indirizzi;
     }
-
     @Override
     public void addIndirizzo(Indirizzo indirizzo, int idutente) {
         String query = "INSERT INTO indirizzo (nomeVia, civico, citta, cap, provincia, regione, idUtente) VALUES (?, ?, ?, ?, ?, ?, ?)";

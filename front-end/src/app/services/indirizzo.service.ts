@@ -23,6 +23,7 @@ export class IndirizzoService {
    */
   addIndirizzo(indirizzo: Indirizzo, idUtente: number): Observable<any> {
     const indirizzoConUtente = { ...indirizzo, idUtente };
+    console.log('Invio indirizzo al server:', indirizzoConUtente);
     return this.http.post(this.apiUrl, indirizzoConUtente);
   }
 

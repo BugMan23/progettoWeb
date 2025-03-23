@@ -161,6 +161,8 @@ export class CheckoutComponent implements OnInit {
     this.indirizzoService.findByUtenteId(this.userId).subscribe({
       next: (indirizzi) => {
         this.indirizzi = indirizzi;
+        // Controlla se la risposta è vuota o ha dati
+        console.log('Indirizzi caricati:', indirizzi);
 
         // Seleziona il primo indirizzo come default se presente
         if (indirizzi.length > 0) {
@@ -285,8 +287,10 @@ export class CheckoutComponent implements OnInit {
         this.successMessage = 'Indirizzo aggiunto con successo';
         setTimeout(() => this.successMessage = null, 3000);
 
-        // Ricarica indirizzi
-        this.loadIndirizzi();
+        // Aggiungi un breve ritardo prima di ricaricare gli indirizzi
+        setTimeout(() => {
+          this.loadIndirizzi();
+        }, 500);
 
         // Chiudi form
         this.showNewAddressForm = false;

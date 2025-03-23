@@ -82,20 +82,6 @@ public class UtenteController {
         }
     }
 
-    /*@PutMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
-        try {
-            userService.changePassword(
-                    passwordChangeRequest.getUserId(),
-                    passwordChangeRequest.getCurrentPassword(),
-                    passwordChangeRequest.getNewPassword()
-            );
-            return ResponseEntity.ok("Password modificata con successo");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }*/
-
 
     public static class LoginResponse {
         private int id;

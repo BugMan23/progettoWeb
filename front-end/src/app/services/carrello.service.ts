@@ -89,7 +89,8 @@ export class CarrelloService {
    * Rimuove un prodotto dal carrello
    */
   removeFromCart(userId: number, productId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`);
+    // Specifica il responseType come 'text' invece che il default 'json'
+    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`, { responseType: 'text' });
   }
 
   /**
