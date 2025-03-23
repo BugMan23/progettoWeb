@@ -1,7 +1,6 @@
 package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Indirizzo;
-import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.IndirizzoDAO;
 
 import javax.sql.DataSource;
@@ -27,9 +26,7 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, utenteId);
-
-            // Aggiungi un log per debug
-            System.out.println("Esecuzione query per indirizzi dell'utente ID: " + utenteId);
+            System.out.println("DAO: Esecuzione query per indirizzi con utenteId=" + utenteId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -46,17 +43,16 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
                 }
             }
 
-            // Log del risultato
-            System.out.println("Trovati " + indirizzi.size() + " indirizzi per l'utente ID: " + utenteId);
-
+            System.out.println("DAO: Trovati " + indirizzi.size() + " indirizzi");
         } catch (SQLException e) {
-            System.err.println("Errore query indirizzi: " + e.getMessage());
+            System.err.println("DAO: Errore SQL: " + e.getMessage());
             throw new RuntimeException(e);
         }
         return indirizzi;
     }
+
     @Override
-    public void addIndirizzo(Indirizzo indirizzo, int idutente) {
+    public void addIndirizzo(Indirizzo indirizzo, int utenteId) {
         String query = "INSERT INTO indirizzo (nomeVia, civico, citta, cap, provincia, regione, idUtente) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
@@ -67,9 +63,13 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
             ps.setString(4, indirizzo.getCap());
             ps.setString(5, indirizzo.getProvincia());
             ps.setString(6, indirizzo.getRegione());
-            ps.setInt(7, idutente);
-            ps.executeUpdate();
+            ps.setInt(7, utenteId);
+
+            System.out.println("DAO: Esecuzione query INSERT per indirizzo con utenteId=" + utenteId);
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("DAO: Righe inserite: " + rowsAffected);
         } catch (SQLException e) {
+            System.err.println("DAO: Errore SQL nell'inserimento: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

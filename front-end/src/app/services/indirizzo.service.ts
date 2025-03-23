@@ -11,33 +11,15 @@ export class IndirizzoService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Ottiene tutti gli indirizzi per un utente
-   */
   findByUtenteId(utenteId: number): Observable<Indirizzo[]> {
+    console.log('Frontend: Richiesta indirizzi per utente ID:', utenteId);
     return this.http.get<Indirizzo[]>(`${this.apiUrl}/utente/${utenteId}`);
   }
 
-  /**
-   * Aggiunge un nuovo indirizzo per un utente
-   */
   addIndirizzo(indirizzo: Indirizzo, idUtente: number): Observable<any> {
+    console.log('Frontend: Invio nuovo indirizzo per utente ID:', idUtente);
+    console.log('Frontend: Dati indirizzo:', indirizzo);
     const indirizzoConUtente = { ...indirizzo, idUtente };
-    console.log('Invio indirizzo al server:', indirizzoConUtente);
     return this.http.post(this.apiUrl, indirizzoConUtente);
-  }
-
-  /**
-   * Aggiorna un indirizzo esistente
-   */
-  updateIndirizzo(indirizzo: Indirizzo): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${indirizzo.id}`, indirizzo);
-  }
-
-  /**
-   * Elimina un indirizzo
-   */
-  deleteIndirizzo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
