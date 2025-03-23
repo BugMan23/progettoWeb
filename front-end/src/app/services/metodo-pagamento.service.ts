@@ -1,3 +1,4 @@
+// In metodo-pagamento.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,39 +12,20 @@ export class MetodoPagamentoService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Ottiene tutti i metodi di pagamento per un utente
-   */
   getMetodiPagamentoUtente(userId: number): Observable<MetodoPagamento[]> {
     return this.http.get<MetodoPagamento[]>(`${this.apiUrl}/utente/${userId}`);
   }
 
-  /**
-   * Ottiene un metodo di pagamento specifico
-   */
   getMetodoPagamentoByID(id: number): Observable<MetodoPagamento> {
     return this.http.get<MetodoPagamento>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Salva un nuovo metodo di pagamento
-   */
   salvaMetodoPagamento(metodoPagamento: MetodoPagamento, userId: number): Observable<any> {
+    console.log('Frontend: Inviando metodo di pagamento al server:', metodoPagamento);
+
+    // Assicurati che l'ID utente sia impostato nell'oggetto
     const metodoPagamentoConUtente = { ...metodoPagamento, idUtente: userId };
+
     return this.http.post(this.apiUrl, metodoPagamentoConUtente);
-  }
-
-  /**
-   * Aggiorna un metodo di pagamento esistente
-   */
-  updateMetodoPagamento(metodoPagamento: MetodoPagamento): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${metodoPagamento.id}`, metodoPagamento);
-  }
-
-  /**
-   * Elimina un metodo di pagamento
-   */
-  deleteMetodoPagamento(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

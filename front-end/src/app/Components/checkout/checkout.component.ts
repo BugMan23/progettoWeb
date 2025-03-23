@@ -326,27 +326,49 @@ export class CheckoutComponent implements OnInit {
     if (!this.userId) return;
 
     // Validazione base
-    if (!this.nuovoMetodoPagamento.titolare || !this.nuovoMetodoPagamento.numeroCarta ||
-      !this.nuovoMetodoPagamento.dataScadenza || !this.nuovoMetodoPagamento.cvv) {
+    if (!this.nuovoMetodoPagamento.titolare ||
+      !this.nuovoMetodoPagamento.numeroCarta ||
+      !this.nuovoMetodoPagamento.dataScadenza ||
+      !this.nuovoMetodoPagamento.cvv) {
       this.error = 'Compilare tutti i campi del metodo di pagamento';
       setTimeout(() => this.error = null, 3000);
       return;
     }
 
-    this.metodoPagamentoService.salvaMetodoPagamento(this.nuovoMetodoPagamento, this.userId).subscribe({
+    // Pulisci il numero della carta (rimuovi spazi e caratteri non numerici)
+    const cleanedCardNumber = this.nuovoMetodoPagamento.numeroCarta.replace(/\D/g, '');
+
+    // Formatta la data di scadenza nel formato corretto MM/YY
+    let formattedExpiryDate = this.nuovoMetodoPagamento.dataScadenza;
+
+    // Se la data contiene caratteri diversi da numeri e /, puliscila
+    formattedExpiryDate = formattedExpiryDate.replace(/[^0-9/]/g, '');
+
+    // Se la data non contiene /, prova a formattarla automaticamente
+    if (!formattedExpiryDate.includes('/')) {
+      // Assumiamo che sia un formato a 4 cifre (MMYY)
+      if (formattedExpiryDate.length === 4) {
+        formattedExpiryDate = formattedExpiryDate.substring(0, 2) + '/' + formattedExpiryDate.substring(2);
+      }
+    }
+
+    // Crea un oggetto con il numero della carta pulito e la data formattata
+    const metodoPagamentoToSave = {
+      ...this.nuovoMetodoPagamento,
+      numeroCarta: cleanedCardNumber,
+      dataScadenza: formattedExpiryDate
+    };
+
+    this.metodoPagamentoService.salvaMetodoPagamento(metodoPagamentoToSave, this.userId).subscribe({
       next: (response) => {
         this.successMessage = 'Metodo di pagamento aggiunto con successo';
         setTimeout(() => this.successMessage = null, 3000);
-
-        // Ricarica metodi di pagamento
         this.loadMetodiPagamento();
-
-        // Chiudi form
         this.showNewPaymentForm = false;
       },
       error: (err) => {
         console.error('Errore nell\'aggiunta del metodo di pagamento', err);
-        this.error = 'Impossibile aggiungere il metodo di pagamento';
+        this.error = `Impossibile aggiungere il metodo di pagamento: ${err.error || 'Errore sconosciuto'}`;
         setTimeout(() => this.error = null, 3000);
       }
     });
