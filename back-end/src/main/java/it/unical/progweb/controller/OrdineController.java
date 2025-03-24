@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -20,7 +21,6 @@ public class OrdineController {
     @Autowired
     private OrdineService ordineService;
 
-    // Creazione ordine
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrdineRequest orderRequest) {
         try {
@@ -29,9 +29,21 @@ public class OrdineController {
                     orderRequest.getIdMetodoPagamento(),
                     orderRequest.getArticoliCarrello()
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body("Ordine creato con successo");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Restituisci un oggetto JSON valido invece di una stringa
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    new HashMap<String, Object>() {{
+                        put("message", "Ordine creato con successo");
+                        put("success", true);
+                    }}
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new HashMap<String, Object>() {{
+                        put("message", e.getMessage());
+                        put("success", false);
+                    }}
+            );
         }
     }
 

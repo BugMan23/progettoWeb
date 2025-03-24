@@ -401,31 +401,20 @@ export class CheckoutComponent implements OnInit {
       articoliCarrello
     ).subscribe({
       next: (response) => {
-        // Ordine completato con successo
+        // Gestisci la risposta come oggetto JSON
+        console.log('Ordine creato con successo:', response);
         this.processingOrder = false;
         this.ordineCompletato = true;
         this.ordineId = response.id || null;
 
         // Svuota il carrello
         this.carrelloService.clearCart(this.userId!).subscribe({
-          next: () => {
-            // Notifica che il carrello è cambiato
-            this.carrelloService.cartChanged.next();
-
-            // Rimuovi dati checkout dal localStorage
-            localStorage.removeItem('checkout_totale');
-            localStorage.removeItem('checkout_subtotale');
-            localStorage.removeItem('checkout_spedizione');
-            localStorage.removeItem('checkout_sconto');
-          },
-          error: (err) => {
-            console.error('Errore nello svuotamento del carrello', err);
-          }
+          // ...
         });
       },
       error: (err) => {
-        this.processingOrder = false;
         console.error('Errore nella creazione dell\'ordine', err);
+        this.processingOrder = false;
         this.error = 'Impossibile completare l\'ordine. Riprova più tardi.';
         setTimeout(() => this.error = null, 5000);
       }

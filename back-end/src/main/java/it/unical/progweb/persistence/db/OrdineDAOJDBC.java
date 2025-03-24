@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +23,14 @@ public class OrdineDAOJDBC implements OrdineDAO {
 
     @Override
     public int creaOrdine(Ordine ordine) {
-        String query = "INSERT INTO ordine (idutente, dataoridne, stato, totaledapagare, idmetodopagamento) VALUES (?, ?, ?, ?, ?) RETURNING id";
+        String query = "INSERT INTO ordine (idutente, stato, totaledapagare, idmetodopagamento) VALUES (?, ?, ?, ?) RETURNING id";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, ordine.getIdUtente());
-            ps.setString(2, ordine.getData());
-            ps.setString(3, ordine.getStato());
-            ps.setInt(4, ordine.getTotalePagare());
-            ps.setInt(5, ordine.getIdMetodoPagamento());
+            ps.setString(2, ordine.getStato());
+            ps.setInt(3, ordine.getTotalePagare());
+            ps.setInt(4, ordine.getIdMetodoPagamento());
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
                     return rs.getInt("id");

@@ -34,7 +34,7 @@ public class OrdineService {
         Ordine ordine = new Ordine(
                 0,
                 userId,
-                LocalDate.now().toString(),
+                null,
                 "IN_ELABORAZIONE",
                 totaleDaPagare,
                 idMetodoPagamento
