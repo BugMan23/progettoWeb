@@ -306,3 +306,83 @@ header {
     right: -60px;
   }
 }
+
+
+/* Stili per il dropdown utente */
+.user-menu-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-left: 15px;
+}
+
+.user-icon-link {
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius);
+  transition: background-color 0.2s;
+}
+
+.user-icon-link:hover {
+  background-color: var(--primary-light);
+}
+
+.user-name {
+  margin: 0 8px;
+  font-weight: 500;
+}
+
+.user-menu-preview {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 250px;
+  background-color: white;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.menu-preview-header {
+  padding: 12px 15px;
+  background-color: var(--light-gray);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.menu-preview-body {
+  padding: 10px 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: var(--dark-gray);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: var(--light-gray);
+}
+
+.menu-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 8px 0;
+}
+
+.admin-link {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.menu-preview-footer {
+  padding: 12px 15px;
+  background-color: var(--light-gray);
+  border-top: 1px solid #e0e0e0;
+}

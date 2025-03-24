@@ -1,4 +1,3 @@
-// user.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -28,7 +27,6 @@ export class UserService {
   }
 
   getUserAddresses(id: number): Observable<any[]> {
-    // Controlla se questa API esiste nel tuo backend
     return this.http.get<any[]>(`${this.baseUrl}/${id}/indirizzi`);
   }
 
@@ -36,14 +34,20 @@ export class UserService {
     return this.http.post(`${this.baseUrl}/indirizzi`, indirizzo);
   }
 
-  // Metodo per ottenere i metodi di pagamento dell'utente
+  /*deleteAddress(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/indirizzi/${id}`);
+  }*/
+
   getUserPaymentMethods(id: number): Observable<any[]> {
-    // Controlla se questa API esiste nel tuo backend
     return this.http.get<any[]>(`${this.baseUrl}/${id}/pagamenti`);
   }
 
   addPaymentMethod(metodoPagamento: any): Observable<any> {
-    // Controlla se questa API esiste nel tuo backend
     return this.http.post(`${this.baseUrl}/pagamenti`, metodoPagamento);
   }
+
+  /*deletePaymentMethod(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/pagamenti/${id}`);
+  }*/
+
 }

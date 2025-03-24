@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Ordine } from '../Models/ordine';
 import { DettagliOrdini } from '../Models/dettagli-ordini';
@@ -20,7 +20,7 @@ export class OrdineService {
       userId,
       idMetodoPagamento,
       articoliCarrello
-    }, { responseType: 'json' }); // Assicurati che il tipo di risposta sia json
+    });
   }
 
   /**
@@ -42,6 +42,13 @@ export class OrdineService {
    */
   getOrderItems(orderId: number): Observable<DettagliOrdini[]> {
     return this.http.get<DettagliOrdini[]>(`${this.apiUrl}/${orderId}/items`);
+  }
+
+  /**
+   * Ottiene i dati del metodo di pagamento
+   */
+  getPaymentMethod(paymentId: number): Observable<any> {
+    return this.http.get(`http://localhost:8080/api/metodipagamento/${paymentId}`);
   }
 
   /**

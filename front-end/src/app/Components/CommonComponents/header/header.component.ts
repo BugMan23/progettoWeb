@@ -27,6 +27,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cartTotal: number = 0;
   showCartPreview: boolean = false;
 
+  // Proprietà user menu
+  showUserMenu: boolean = false;
+
   // Categorie
   categorie: any[] = [];
 
@@ -37,9 +40,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Subscriptions
   private cartSub!: Subscription;
   private cartItemsSub!: Subscription;
-  private authStateSub!: Subscription;
-  private userNameSub!: Subscription;
-  private userRoleSub!: Subscription;
 
   constructor(
     private router: Router,
@@ -50,25 +50,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Sottoscrivi agli stati di autenticazione
-    this.authStateSub = this.authService.isAuthenticatedUser().subscribe(
-      isAuthenticated => {
-        console.log('Auth state changed:', isAuthenticated);
-        this.isLoggedIn = isAuthenticated;
-        if (isAuthenticated) {
-          this.loadCartData();
-        }
-      }
+    this.authService.isAuthenticatedUser().subscribe(
+      isAuthenticated => this.isLoggedIn = isAuthenticated
     );
 
-    this.userNameSub = this.authService.getUserName().subscribe(
+    this.authService.getUserName().subscribe(
       userName => this.userName = userName
     );
 
-    this.userRoleSub = this.authService.isAdminUser().subscribe(
+    this.authService.isAdminUser().subscribe(
       isAdmin => this.isAdmin = isAdmin
     );
 
-    // Carica stato iniziale
     this.checkAuthState();
     this.loadCategories();
 
@@ -81,20 +74,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // AGGIUNTA: Codice completo per pulire le sottoscrizioni
     if (this.cartSub) this.cartSub.unsubscribe();
     if (this.cartItemsSub) this.cartItemsSub.unsubscribe();
-    if (this.authStateSub) this.authStateSub.unsubscribe();
-    if (this.userNameSub) this.userNameSub.unsubscribe();
-    if (this.userRoleSub) this.userRoleSub.unsubscribe();
   }
 
   checkAuthState(): void {
     const userId = localStorage.getItem('userId');
-    const isLoggedIn = !!userId;
-    // AGGIUNTA: Log di debug
-    console.log('Checking auth state: userId =', userId, 'isLoggedIn =', isLoggedIn);
-    this.isLoggedIn = isLoggedIn;
+    this.isLoggedIn = !!userId;
     this.isAdmin = localStorage.getItem('isAdmin') === 'true';
     this.userName = localStorage.getItem('userName') || '';
 
@@ -104,31 +90,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   loadCartData(): void {
-    console.log('loadCartData called, userId from localStorage:', localStorage.getItem('userId'));
     const userId = localStorage.getItem('userId');
-    if (!userId) {
-      console.error('User ID not found in localStorage');
-      return;
-    }
+    if (!userId) return;
 
-    // Verifica che l'ID utente sia un numero valido
-    const userIdNum = parseInt(userId);
-    if (isNaN(userIdNum)) {
-      console.error('User ID is not a valid number:', userId);
-      return; // Esci dalla funzione se l'ID non è valido
-    }
-
-    // Carica il conteggio e i prodotti nel carrello solo se l'ID è valido
-    this.cartService.getUserCart(userIdNum).subscribe({
+    // Carica il conteggio e i prodotti nel carrello
+    this.cartService.getUserCart(parseInt(userId)).subscribe({
       next: (items) => {
         this.cartItems = items;
         this.cartItemCount = items.length;
         this.calculateCartTotal();
       },
-      error: (err) => {
-        console.error('Errore nel caricamento del carrello', err);
-        // Non mostrare errori all'utente per problemi di caricamento del carrello
-      }
+      error: (err) => console.error('Errore nel caricamento del carrello', err)
     });
   }
 
@@ -145,16 +117,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToCart(): void {
-    const userId = localStorage.getItem('userId');
-
-    // Verifica se l'utente è effettivamente loggato con un ID valido
-    if (userId && !isNaN(parseInt(userId))) {
-      console.log('Navigating to cart with user ID:', userId);
+    if (this.isLoggedIn) {
       this.showCartPreview = false;
       this.router.navigate(['/carrello']);
-    } else {
-      console.log('User not logged in or invalid ID, showing login popup');
-      this.openLoginPopup();
+    }
+  }
+
+  navigateToProfile(): void {
+    if (this.isLoggedIn) {
+      this.showUserMenu = false;
+      this.router.navigate(['/profilo']);
     }
   }
 
@@ -191,15 +163,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Questo metodo può essere chiamato dal componente login quando l'autenticazione ha successo
   onLoginSuccess(): void {
-    console.log('Login success received in header component');
     this.showPopup = false;
-
-    // AGGIUNTA: Forza l'aggiornamento dello stato
-    this.isLoggedIn = true;
-    this.userName = localStorage.getItem('userName') || '';
-    this.isAdmin = localStorage.getItem('isAdmin') === 'true';
-
-    // Carica i dati del carrello
-    this.loadCartData();
+    this.checkAuthState();
   }
 }

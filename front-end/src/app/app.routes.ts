@@ -44,36 +44,13 @@ export const routes: Routes = [
   {
     path: 'profilo',
     loadComponent: () => import('./Components/profilo/profilo.component').then(m => m.ProfiloComponent),
-    canActivate: [AuthGuard],
-    children: [
-      {
-        path: '',
-        redirectTo: 'info',
-        pathMatch: 'full'
-      },
-      {
-        path: 'info',
-        loadComponent: () => import('./Components/profilo/info-profilo/info-profilo.component').then(m => m.InfoProfiloComponent)
-      },
-      {
-        path: 'ordini',
-        loadComponent: () => import('./Components/profilo/ordini/ordini.component').then(m => m.OrdiniComponent)
-      },
-      {
-        path: 'indirizzi',
-        loadComponent: () => import('./Components/profilo/indirizzi/indirizzi.component').then(m => m.IndirizziComponent)
-      },
-      {
-        path: 'pagamenti',
-        loadComponent: () => import('./Components/profilo/pagamenti/pagamenti.component').then(m => m.PagamentiComponent)
-      }
-    ]
+    canActivate: [AuthGuard]
   },
 
-  // Visualizzazione ordine specifico
+  // Visualizzazione ordine specifico - usa lo stesso componente OrdiniComponent
   {
     path: 'ordini/:id',
-    loadComponent: () => import('./Components/orders/orders.component').then(m => m.OrdersComponent),
+    loadComponent: () => import('./Components/profilo/ordini/ordini.component').then(m => m.OrdiniComponent),
     canActivate: [AuthGuard]
   },
 
@@ -106,5 +83,11 @@ export const routes: Routes = [
         loadComponent: () => import('./Components/admin/utenti/utenti.component').then(m => m.UtentiComponent)
       }
     ]
+  },
+
+  // Fallback per rotte non trovate
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];

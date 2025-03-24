@@ -80,10 +80,54 @@
         <button *ngIf="!isLoggedIn" class="btn login-btn" (click)="openLoginPopup()">
           Accedi
         </button>
-        <div *ngIf="isLoggedIn" class="user-menu">
-          <span class="user-name">{{userName}}</span>
-          <button class="btn logout-btn" (click)="logout()">Esci</button>
+        <!-- Modifica alla sezione user-menu nell'header.component.html -->
+        <div *ngIf="isLoggedIn" class="user-menu-dropdown" (mouseenter)="showUserMenu = true" (mouseleave)="showUserMenu = false">
+          <a class="user-icon-link">
+            <i class="bi bi-person-circle"></i>
+            <span class="user-name">{{userName}}</span>
+            <i class="bi bi-chevron-down ms-1"></i>
+          </a>
+
+          <!-- User menu dropdown -->
+          <div *ngIf="showUserMenu" class="user-menu-preview">
+            <div class="menu-preview-header">
+              <h6 class="mb-0">Il tuo account</h6>
+              <small>Ciao, {{userName}}</small>
+            </div>
+
+            <div class="menu-preview-body">
+              <a routerLink="/profilo" class="menu-item">
+                <i class="bi bi-person me-2"></i>
+                Profilo
+              </a>
+              <a routerLink="/profilo/ordini" class="menu-item">
+                <i class="bi bi-box me-2"></i>
+                I miei ordini
+              </a>
+              <a routerLink="/profilo/indirizzi" class="menu-item">
+                <i class="bi bi-geo-alt me-2"></i>
+                Indirizzi
+              </a>
+              <a routerLink="/profilo/pagamenti" class="menu-item">
+                <i class="bi bi-credit-card me-2"></i>
+                Metodi di pagamento
+              </a>
+              <div *ngIf="isAdmin" class="menu-divider"></div>
+              <a *ngIf="isAdmin" routerLink="/admin" class="menu-item admin-link">
+                <i class="bi bi-gear me-2"></i>
+                Pannello Admin
+              </a>
+            </div>
+
+            <div class="menu-preview-footer">
+              <button class="btn btn-outline-danger btn-sm w-100" (click)="logout()">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   </nav>

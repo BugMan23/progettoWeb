@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { OrdineService } from '../../services/ordine.service';
+import { IndirizzoService } from '../../services/indirizzo.service';
+import { MetodoPagamentoService } from '../../services/metodo-pagamento.service';
+import { Indirizzo } from '../../Models/indirizzo';
+import { MetodoPagamento } from '../../Models/metodo-pagamento';
+import { Ordine } from '../../Models/ordine';
 
 @Component({
   selector: 'app-profilo',
@@ -13,73 +18,135 @@ import { OrdineService } from '../../services/ordine.service';
   styleUrls: ['./profilo.component.css']
 })
 export class ProfiloComponent implements OnInit {
+  // Dati utente
   user: any;
-  orders: any[] = [];
-  addresses: any[] = [];
-  paymentMethods: any[] = [];
+  userId: number | null = null;
+
+  // Dati profilo
+  orders: Ordine[] = [];
+  addresses: Indirizzo[] = [];
+  paymentMethods: MetodoPagamento[] = [];
+
+  // Gestione interfaccia
   activeTab: string = 'profile';
+  loading: boolean = true;
+  error: string | null = null;
+  successMessage: string | null = null;
 
   // Per aggiungere un nuovo indirizzo
-  newAddress: any = {
+  newAddress: Indirizzo = {
+    id: 0,
     nomeVia: '',
     civico: '',
     citta: '',
     cap: '',
     provincia: '',
-    regione: ''
+    regione: '',
+    idUtente: 0
+  };
+
+  // Per aggiungere un nuovo metodo di pagamento
+  newPaymentMethod: MetodoPagamento = {
+    id: 0,
+    tipoPagamento: 'Carta di credito',
+    titolare: '',
+    tipoCarta: 'VISA',
+    numeroCarta: '',
+    dataScadenza: '',
+    cvv: '',
+    idUtente: 0
   };
 
   // Per la modalità di modifica del profilo
   editMode = false;
   editableUser: any = {};
 
+  // Stati per i form
+  showNewAddressForm = false;
+  showNewPaymentForm = false;
+
   constructor(
     private userService: UserService,
-    private orderService: OrdineService,
-    private router: Router
+    private ordineService: OrdineService,
+    private indirizzoService: IndirizzoService,
+    private metodoPagamentoService: MetodoPagamentoService,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      this.router.navigate(['/login']);
+    // Ottieni il tab attivo dalla rotta (se disponibile)
+    this.route.paramMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab) {
+        this.setActiveTab(tab);
+      }
+    });
+
+    // Verifica se l'utente è loggato
+    const userIdStr = localStorage.getItem('userId');
+    if (!userIdStr) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/profilo' } });
       return;
     }
 
-    this.loadUserData(Number(userId));
-    this.loadUserOrders(Number(userId));
-    this.loadUserAddresses(Number(userId));
-    this.loadUserPaymentMethods(Number(userId));
+    this.userId = parseInt(userIdStr);
+    this.loadUserData();
   }
 
-  loadUserData(userId: number): void {
-    this.userService.getUserProfile(userId).subscribe({
+  loadUserData() {
+    if (!this.userId) return;
+
+    this.loading = true;
+
+    // Carica i dati dell'utente
+    this.userService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.user = data;
         this.editableUser = {...this.user};
+        this.loading = false;
       },
-      error: (error) => console.error('Errore nel caricamento dei dati utente:', error)
+      error: (err) => {
+        console.error('Errore caricamento dati utente:', err);
+        this.error = 'Impossibile caricare i dati del profilo.';
+        this.loading = false;
+      }
     });
+
+    // Carica gli ordini
+    this.loadUserOrders();
+
+    // Carica gli indirizzi
+    this.loadUserAddresses();
+
+    // Carica i metodi di pagamento
+    this.loadUserPaymentMethods();
   }
 
-  loadUserOrders(userId: number): void {
-    this.orderService.getUserOrders(userId).subscribe({
+  loadUserOrders(): void {
+    if (!this.userId) return;
+
+    this.ordineService.getUserOrders(this.userId).subscribe({
       next: (data) => this.orders = data,
-      error: (error) => console.error('Errore nel caricamento degli ordini:', error)
+      error: (err) => console.error('Errore caricamento ordini:', err)
     });
   }
 
-  loadUserAddresses(userId: number): void {
-    this.userService.getUserAddresses(userId).subscribe({
+  loadUserAddresses(): void {
+    if (!this.userId) return;
+
+    this.indirizzoService.findByUtenteId(this.userId).subscribe({
       next: (data) => this.addresses = data,
-      error: (error) => console.error('Errore nel caricamento degli indirizzi:', error)
+      error: (err) => console.error('Errore caricamento indirizzi:', err)
     });
   }
 
-  loadUserPaymentMethods(userId: number): void {
-    this.userService.getUserPaymentMethods(userId).subscribe({
+  loadUserPaymentMethods(): void {
+    if (!this.userId) return;
+
+    this.metodoPagamentoService.getMetodiPagamentoUtente(this.userId).subscribe({
       next: (data) => this.paymentMethods = data,
-      error: (error) => console.error('Errore nel caricamento dei metodi di pagamento:', error)
+      error: (err) => console.error('Errore caricamento metodi di pagamento:', err)
     });
   }
 
@@ -99,36 +166,136 @@ export class ProfiloComponent implements OnInit {
       next: () => {
         this.user = {...this.editableUser};
         this.editMode = false;
-        alert('Profilo aggiornato con successo');
+        this.successMessage = 'Profilo aggiornato con successo';
+        setTimeout(() => this.successMessage = null, 3000);
       },
-      error: (error) => console.error('Errore durante l\'aggiornamento del profilo:', error)
+      error: (err) => {
+        console.error('Errore aggiornamento profilo:', err);
+        this.error = 'Impossibile aggiornare il profilo.';
+        setTimeout(() => this.error = null, 3000);
+      }
     });
   }
 
+  toggleNewAddressForm(): void {
+    this.showNewAddressForm = !this.showNewAddressForm;
+    if (this.showNewAddressForm && this.userId) {
+      this.newAddress = {
+        id: 0,
+        nomeVia: '',
+        civico: '',
+        citta: '',
+        cap: '',
+        provincia: '',
+        regione: '',
+        idUtente: this.userId
+      };
+    }
+  }
+
+  toggleNewPaymentForm(): void {
+    this.showNewPaymentForm = !this.showNewPaymentForm;
+    if (this.showNewPaymentForm && this.userId) {
+      this.newPaymentMethod = {
+        id: 0,
+        tipoPagamento: 'Carta di credito',
+        titolare: '',
+        tipoCarta: 'VISA',
+        numeroCarta: '',
+        dataScadenza: '',
+        cvv: '',
+        idUtente: this.userId
+      };
+    }
+  }
+
   addNewAddress(): void {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    if (!this.userId) return;
 
-    this.newAddress.idUtente = Number(userId);
+    // Validazione basilare
+    if (!this.newAddress.nomeVia || !this.newAddress.civico || !this.newAddress.citta ||
+      !this.newAddress.cap || !this.newAddress.provincia || !this.newAddress.regione) {
+      this.error = 'Tutti i campi sono obbligatori';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
 
-    this.userService.addAddress(this.newAddress).subscribe({
+    this.indirizzoService.addIndirizzo(this.newAddress, this.userId).subscribe({
       next: () => {
-        alert('Indirizzo aggiunto con successo');
-        this.loadUserAddresses(Number(userId));
-        this.newAddress = {
-          nomeVia: '',
-          civico: '',
-          citta: '',
-          cap: '',
-          provincia: '',
-          regione: ''
-        };
+        this.successMessage = 'Indirizzo aggiunto con successo';
+        setTimeout(() => this.successMessage = null, 3000);
+        this.loadUserAddresses();
+        this.toggleNewAddressForm();
       },
-      error: (error) => console.error('Errore durante l\'aggiunta dell\'indirizzo:', error)
+      error: (err) => {
+        console.error('Errore aggiunta indirizzo:', err);
+        this.error = 'Impossibile aggiungere l\'indirizzo.';
+        setTimeout(() => this.error = null, 3000);
+      }
+    });
+  }
+
+  addNewPaymentMethod(): void {
+    if (!this.userId) return;
+
+    // Validazione basilare
+    if (!this.newPaymentMethod.titolare || !this.newPaymentMethod.numeroCarta ||
+      !this.newPaymentMethod.dataScadenza || !this.newPaymentMethod.cvv) {
+      this.error = 'Tutti i campi sono obbligatori';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
+
+    this.metodoPagamentoService.salvaMetodoPagamento(this.newPaymentMethod, this.userId).subscribe({
+      next: () => {
+        this.successMessage = 'Metodo di pagamento aggiunto con successo';
+        setTimeout(() => this.successMessage = null, 3000);
+        this.loadUserPaymentMethods();
+        this.toggleNewPaymentForm();
+      },
+      error: (err) => {
+        console.error('Errore aggiunta metodo di pagamento:', err);
+        this.error = 'Impossibile aggiungere il metodo di pagamento.';
+        setTimeout(() => this.error = null, 3000);
+      }
     });
   }
 
   viewOrderDetails(orderId: number): void {
     this.router.navigate(['/ordini', orderId]);
   }
+
+  /*deleteAddress(addressId: number): void {
+    if (!confirm('Sei sicuro di voler eliminare questo indirizzo?')) return;
+
+    this.indirizzoService.deleteIndirizzo(addressId).subscribe({
+      next: () => {
+        this.successMessage = 'Indirizzo eliminato con successo';
+        setTimeout(() => this.successMessage = null, 3000);
+        this.loadUserAddresses();
+      },
+      error: (err) => {
+        console.error('Errore eliminazione indirizzo:', err);
+        this.error = 'Impossibile eliminare l\'indirizzo.';
+        setTimeout(() => this.error = null, 3000);
+      }
+    });
+  }
+
+  deletePaymentMethod(paymentId: number): void {
+    if (!confirm('Sei sicuro di voler eliminare questo metodo di pagamento?')) return;
+
+    this.metodoPagamentoService.deleteMetodoPagamento(paymentId).subscribe({
+      next: () => {
+        this.successMessage = 'Metodo di pagamento eliminato con successo';
+        setTimeout(() => this.successMessage = null, 3000);
+        this.loadUserPaymentMethods();
+      },
+      error: (err) => {
+        console.error('Errore eliminazione metodo di pagamento:', err);
+        this.error = 'Impossibile eliminare il metodo di pagamento.';
+        setTimeout(() => this.error = null, 3000);
+      }
+    });
+  }*/
 }

@@ -1,0 +1,84 @@
+/* Variabili colori */
+:root {
+  --primary: #634080;
+  --primary-light: #7e5a9b;
+  --primary-dark: #4a2d62;
+  --accent: #FF9C00;
+  --accent-hover: #e68a00;
+}
+
+/* Stili generali */
+.card {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Sidebar/Tabs */
+.list-group-item {
+  border-left: 3px solid transparent;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.list-group-item.active {
+  background-color: var(--primary);
+  border-color: var(--accent);
+  color: white;
+}
+
+.list-group-item:not(.active):hover {
+  background-color: #f8f9fa;
+  border-left-color: #e0e0e0;
+}
+
+/* Badges */
+.badge {
+  padding: 0.5em 0.8em;
+  font-weight: 500;
+}
+
+/* Forms */
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Card grids */
+.card-title {
+  font-weight: 600;
+}
+
+.card-footer {
+  border-top: 1px solid rgba(0,0,0,.125);
+  padding: 0.75rem 1.25rem;
+}
+
+/* Table styling */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 600;
+  background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .list-group {
+    margin-bottom: 1.5rem;
+  }
+}
