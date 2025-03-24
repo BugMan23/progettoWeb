@@ -1,6 +1,105 @@
-<div class="container">
-  <h2>Accedi</h2>
-  <input type="email" [(ngModel)]="email" placeholder="Email" required>
-  <input type="password" [(ngModel)]="password" placeholder="Password" required>
-  <button (click)="login()">Accedi</button>
+<div class="container-fluidos regLog">
+  <!-- Titolo e pulsante di chiusura -->
+  <div class="form-group">
+    <div class="d-flex flex-column align-items-center">
+      <h1 class="accediLabel" *ngIf="isLoginMode">Accedi</h1>
+      <h1 class="accediLabel" *ngIf="!isLoginMode">Registrazione</h1>
+    </div>
+    <button (click)="closePopup()" class="btn btn-dark ics">X</button>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="authForm" (ngSubmit)="authenticate()" class="formos">
+
+    <!-- Due colonne allineate in orizzontale (o una sotto l’altra in responsive) -->
+    <div class="d-flex flex-row align-items-start form-row-container">
+
+      <!-- Colonna sinistra (Nome, Cognome) visibile solo se NON in login mode -->
+      <div class="first-column" *ngIf="!isLoginMode">
+        <div class="form-group formoss">
+          <label for="nome">Nome:</label>
+          <input
+            id="nome"
+            type="text"
+            class="form-control inputRA"
+            formControlName="nome"
+            required
+          >
+        </div>
+
+        <div class="form-group formoss">
+          <label for="cognome">Cognome:</label>
+          <input
+            id="cognome"
+            type="text"
+            class="form-control inputRA"
+            formControlName="cognome"
+            required
+          >
+        </div>
+      </div>
+
+      <!-- Colonna destra (Email, Password, Conferma) -->
+      <div class="second-column">
+        <div class="form-group formoss">
+          <label for="email">Email:</label>
+          <input
+            id="email"
+            type="email"
+            class="form-control inputRA"
+            formControlName="email"
+            required
+          >
+        </div>
+
+        <div class="form-group formoss password-input-container">
+          <label for="password">Password:</label>
+          <div class="input-position-relative">
+            <input
+              id="password"
+              type="password"
+              class="form-control inputRA"
+              formControlName="password"
+              required
+            >
+            <span class="toggle-password" (click)="togglePassword('password')">👁</span>
+          </div>
+        </div>
+
+        <!-- Conferma password visibile solo in registrazione -->
+        <div class="form-group formoss password-input-container" *ngIf="!isLoginMode">
+          <label for="confirmPassword">Conferma Password:</label>
+          <div class="input-position-relative">
+            <input
+              id="confirmPassword"
+              type="password"
+              class="form-control inputRA"
+              formControlName="confirmPassword"
+              required
+            >
+            <span class="toggle-password" (click)="togglePassword('confirmPassword')">👁</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pulsante di submit -->
+    <div class="d-flex flex-column align-items-center">
+      <button
+        type="submit"
+        class="btn btn-dark custom-btn tasti"
+        [disabled]="authForm.invalid"
+      >
+        {{ isLoginMode ? 'Accedi' : 'Registrati' }}
+      </button>
+    </div>
+
+    <!-- Link per passare da login a registrazione e viceversa -->
+    <div class="form-group formos">
+      <a href="#" (click)="toggleMode()" id="registrati-link">
+        {{ isLoginMode ? 'Sei nuovo? Registrati.' : 'Hai già un account? Accedi.' }}
+      </a>
+    </div>
+  </form>
 </div>

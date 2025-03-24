@@ -33,14 +33,16 @@ export class HomepageComponent implements OnInit, OnDestroy {
       titolo: 'Nuova Collezione',
       sottotitolo: 'Scopri le ultime novità',
       immagine: 'assets/images/slide1.jpg',
-      link: '/catalogo'
+      link: '/catalogo',
+      queryParams: { nuovi: true }
     },
     {
       id: 2,
       titolo: 'Prodotti Scontati',
       sottotitolo: 'Approfitta delle offerte',
       immagine: 'assets/images/slide2.jpg',
-      link: '/catalogo'
+      link: '/catalogo',
+      queryParams: { scontati: true }
     }
   ];
   private slideInterval?: Subscription;
@@ -53,12 +55,6 @@ export class HomepageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadData();
     this.startSlideshow();
-    console.log('Chiamata API in corso...');
-    this.prodottoService.getAllProducts().subscribe({
-      next: (data) => console.log('Dati ricevuti:', data),
-      error: (err) => console.error('Errore API:', err)
-    });
-
   }
 
   ngOnDestroy(): void {
@@ -76,9 +72,10 @@ export class HomepageComponent implements OnInit, OnDestroy {
         // Filtra prodotti scontati
         this.prodottiScontati = data.filter(p => p.scontato).slice(0, 4);
 
-        // Prendi gli ultimi prodotti come "nuovi arrivi"
-        // In un'app reale dovresti ordinarli per data di inserimento
-        this.nuoviArrivi = [...data].sort(() => 0.5 - Math.random()).slice(0, 4);
+        // Nuovi arrivi: ordina per ID in ordine decrescente (assumendo che gli ID più alti siano i prodotti più recenti)
+        this.nuoviArrivi = data
+          .sort((a, b) => b.id - a.id)
+          .slice(0, 4);
 
         this.loading = false;
       },
@@ -124,5 +121,3 @@ export class HomepageComponent implements OnInit, OnDestroy {
     return Math.round(prezzo * 0.8);
   }
 }
-
-

@@ -20,7 +20,13 @@ public class MetodoDiPagamentoService {
 
     public void salvaMetodoDiPagamento(MetodoDiPagamento metodoPagamento, int userId) {
         validaMetodoPagamento(metodoPagamento);
-        if (!metodoDiPagamentoDAO.addMetodoDiPagamento(metodoPagamento, userId)) {
+
+        // Rimuovi gli spazi dal numero della carta
+        String numeroCarta = metodoPagamento.getNumeroCarta().replaceAll("\\s+", "");
+        metodoPagamento.setNumeroCarta(numeroCarta);
+
+        boolean risultato = metodoDiPagamentoDAO.addMetodoDiPagamento(metodoPagamento, userId);
+        if (!risultato) {
             throw new RuntimeException("Errore nel salvataggio del metodo di pagamento");
         }
     }
@@ -38,26 +44,30 @@ public class MetodoDiPagamentoService {
     }
 
     private void validaMetodoPagamento(MetodoDiPagamento method) {
+        if (method.getTitolare() == null || method.getTitolare().trim().isEmpty()) {
+            throw new IllegalArgumentException("Titolare della carta obbligatorio");
+        }
+
         if (method.getNumeroCarta() == null || !isValidCardNumber(method.getNumeroCarta())) {
             throw new IllegalArgumentException("Numero carta non valido");
         }
+
         if (method.getCvv() == null || !isValidCVV(method.getCvv())) {
             throw new IllegalArgumentException("CVV non valido");
         }
-        if (method.getDataScadenza() == null || !isValidExpiryDate(method.getDataScadenza())) {
+
+        if (method.getDataScadenza() == null) {
             throw new IllegalArgumentException("Data di scadenza non valida");
         }
     }
 
     private boolean isValidCardNumber(String cardNumber) {
-        return cardNumber.matches("\\d{16}");
+        String cleanCardNumber = cardNumber.replaceAll("\\s+", "");
+        return cleanCardNumber.matches("\\d{16}");
     }
 
     private boolean isValidCVV(String cvv) {
         return cvv.matches("\\d{3}");
     }
 
-    private boolean isValidExpiryDate(String expiryDate) {
-        return expiryDate.matches("(0[1-9]|1[0-2])/[0-9]{2}");
-    }
 }

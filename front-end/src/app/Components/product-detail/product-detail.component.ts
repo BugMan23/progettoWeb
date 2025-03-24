@@ -64,14 +64,36 @@ export class DettaglioProdottoComponent implements OnInit {
 
   loadProdotto(id: number): void {
     this.prodottoService.getProductById(id).subscribe({
-      next: (data) => {
-        this.prodotto = data;
-        this.loadRecensioni(id);
-        this.loadDisponibilita(id);
+      next: (data: any) => {
+        console.log('Dati ricevuti:', data); // Log per debug
+        // Controllo più difensivo sulla struttura dei dati
+        if (data) {
+          if (data.prodotto && data.recensioni) {
+            // Se abbiamo la struttura nidificata
+            this.prodotto = data.prodotto;
+            this.recensioni = data.recensioni;
+          } else if (data.id !== undefined) {
+            // Se è direttamente un oggetto prodotto
+            this.prodotto = data;
+            // Carica recensioni separatamente se necessario
+            this.loadRecensioni(id);
+          } else {
+            // Struttura dati non riconosciuta
+            console.error('Struttura dati non valida:', data);
+            this.error = 'Formato dati non valido dal server';
+            this.loading = false;
+            return;
+          }
+
+          this.loadDisponibilita(id);
+        } else {
+          this.error = 'Nessun dato ricevuto dal server';
+          this.loading = false;
+        }
       },
       error: (err) => {
         console.error('Errore caricamento prodotto', err);
-        this.error = 'Impossibile caricare i dettagli del prodotto';
+        this.error = 'Impossibile caricare i dettagli del prodotto: ' + (err.error || err.message || 'Errore sconosciuto');
         this.loading = false;
       }
     });
@@ -85,6 +107,7 @@ export class DettaglioProdottoComponent implements OnInit {
       error: (err) => {
         console.error('Errore caricamento recensioni', err);
         // Continuiamo senza recensioni
+        this.recensioni = [];
       }
     });
   }
@@ -119,20 +142,29 @@ export class DettaglioProdottoComponent implements OnInit {
       return;
     }
 
+    // Assicurati di avere una taglia selezionata
+    if (!this.selectedTaglia) {
+      this.error = 'Seleziona una taglia prima di aggiungere al carrello';
+      return;
+    }
+
     this.addingToCart = true;
     this.cartSuccess = false;
     this.cartError = false;
 
-    this.carrelloService.addToCart({
+    const request = {
       userId: parseInt(userId),
       productId: this.prodotto.id,
-      quantity: this.selectedQuantita,
+      quantity: this.selectedQuantita || 1,
       taglia: this.selectedTaglia
-    }).subscribe({
+    };
+
+    console.log('Request per aggiunta al carrello:', request); // Per debug
+
+    this.carrelloService.addToCart(request).subscribe({
       next: () => {
         this.addingToCart = false;
         this.cartSuccess = true;
-        // Notifica allo header di aggiornare il conteggio del carrello
         this.carrelloService.cartChanged.next();
         setTimeout(() => this.cartSuccess = false, 3000);
       },

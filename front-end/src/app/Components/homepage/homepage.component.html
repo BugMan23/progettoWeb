@@ -1,158 +1,106 @@
-<div class="homepage-container">
-  <!-- Carosello principale -->
-  <section class="hero-slider mb-5">
-    <div class="carousel-container">
-      <div class="carousel-slides">
-        <div *ngFor="let slide of slides; let i = index"
-             class="carousel-slide"
-             [class.active]="i === currentSlideIndex"
-             [style.background-image]="'url(' + slide.immagine + ')'">
-          <div class="slide-content container">
-            <h1>{{ slide.titolo }}</h1>
-            <p>{{ slide.sottotitolo }}</p>
-            <a [routerLink]="slide.link" class="btn btn-primary btn-lg">Scopri di più</a>
-          </div>
+<!-- Homepage Template Corretto -->
+<div class="container mt-4 mb-5">
+  <!-- Sezione Nuova Collezione con prodotti -->
+  <div class="row mb-4">
+    <div class="col-8">
+      <h2 class="section-title">Nuova Collezione</h2>
+      <p class="section-subtitle">Scopri le ultime novità</p>
+    </div>
+    <div class="col-4 text-end">
+      <a href="/catalogo/nuovaCollezione" class="btn btn-link">Vedi tutti</a>
+    </div>
+  </div>
+
+  <!-- Griglia prodotti nuova collezione -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+    <div class="col" *ngFor="let prodotto of nuoviArrivi">
+      <div class="card product-card h-100">
+        <img [src]="prodotto.urlImage" class="card-img-top" [alt]="prodotto.nome">
+        <div class="card-body">
+          <h5 class="card-title">{{prodotto.nome}}</h5>
+          <p class="card-text brand-name">{{prodotto.marca}}</p>
+          <p class="card-text price">€{{prodotto.prezzo}}</p>
+          <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary d-block">Visualizza</a>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Controlli carosello -->
-      <button class="carousel-control prev" (click)="prevSlide()">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button class="carousel-control next" (click)="nextSlide()">
-        <i class="bi bi-chevron-right"></i>
-      </button>
+  <!-- Sezione Prodotti Scontati -->
+  <div class="row mb-4">
+    <div class="col-8">
+      <h2 class="section-title">Prodotti Scontati</h2>
+      <p class="section-subtitle">Approfitta delle offerte</p>
+    </div>
+    <div class="col-4 text-end">
+      <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="btn btn-outline-primary">Vedi tutte</a>
+    </div>
+  </div>
 
-      <!-- Indicatori -->
-      <div class="carousel-indicators">
-        <button *ngFor="let slide of slides; let i = index"
-                class="indicator"
-                [class.active]="i === currentSlideIndex"
-                (click)="setSlide(i)"></button>
+  <!-- Griglia prodotti scontati -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+    <div class="col" *ngFor="let prodotto of prodottiScontati">
+      <div class="card product-card h-100">
+        <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
+        <img [src]="prodotto.urlImage" class="card-img-top" [alt]="prodotto.nome">
+        <div class="card-body">
+          <h5 class="card-title">{{prodotto.nome}}</h5>
+          <p class="card-text brand-name">{{prodotto.marca}}</p>
+          <div class="d-flex align-items-center gap-2">
+            <p class="card-text price">€{{getPrezzoScontato(prodotto.prezzo)}}</p>
+            <p class="card-text original-price text-decoration-line-through text-muted">€{{prodotto.prezzo}}</p>
+          </div>
+          <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary d-block">Visualizza</a>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <div class="container">
-    <!-- Messaggio di caricamento -->
-    <div *ngIf="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Caricamento...</span>
+  <!-- Esplora le Categorie -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="section-title">Esplora le Categorie</h2>
+      <p class="section-subtitle">Scopri i nostri migliori prodotti sportivi</p>
+    </div>
+  </div>
+
+  <!-- Griglia categorie con bottoni cliccabili -->
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-4 mb-5">
+    <div class="col" *ngFor="let categoria of categorie">
+      <a [routerLink]="['/catalogo']" [queryParams]="{categoria: categoria.id}" class="category-card">
+        <div class="category-icon mb-3">
+          <i class="bi bi-tag-fill"></i>
+        </div>
+        <h3 class="category-title">{{categoria.nome}}</h3>
+        <p class="category-description">{{categoria.descrizione}}</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- Sezione Info Spedizione e Resi -->
+  <div class="shipping-returns mt-5 py-4 bg-light rounded">
+    <div class="row g-4">
+      <div class="col-md-4 text-center">
+        <div class="info-box">
+          <i class="bi bi-truck fs-1 mb-3 text-primary"></i>
+          <h4>Spedizione Gratuita</h4>
+          <p>Per ordini superiori a €50</p>
+        </div>
       </div>
-      <p class="mt-2">Caricamento prodotti in corso...</p>
-    </div>
-
-    <!-- Messaggio di errore -->
-    <div *ngIf="error" class="alert alert-danger">
-      {{ error }}
-    </div>
-
-    <!-- Contenuto principale (visibile solo se i dati sono caricati) -->
-    <div *ngIf="!loading && !error">
-      <!-- Categorie -->
-      <section class="categories-section mb-5" *ngIf="categorie.length > 0">
-        <h2 class="section-title">Esplora le Categorie</h2>
-        <div class="row g-4">
-          <div class="col-md-4" *ngFor="let categoria of categorie">
-            <div class="category-card" [routerLink]="['/catalogo']" [queryParams]="{categoria: categoria.id}">
-              <div class="category-content">
-                <h3>{{ categoria.nome }}</h3>
-                <p>{{ categoria.descrizione }}</p>
-              </div>
-            </div>
-          </div>
+      <div class="col-md-4 text-center">
+        <div class="info-box">
+          <i class="bi bi-arrow-return-left fs-1 mb-3 text-primary"></i>
+          <h4>Resi Gratuiti</h4>
+          <p>Entro 30 giorni dall'acquisto</p>
         </div>
-      </section>
-
-      <!-- Prodotti in offerta -->
-      <section class="featured-products mb-5" *ngIf="prodottiScontati.length > 0">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="section-title mb-0">Offerte Speciali</h2>
-          <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="btn btn-outline-primary">Vedi tutte</a>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="info-box">
+          <i class="bi bi-shield-check fs-1 mb-3 text-primary"></i>
+          <h4>Pagamenti Sicuri</h4>
+          <p>Transazioni protette e sicure</p>
         </div>
-
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-          <div class="col" *ngFor="let prodotto of prodottiScontati">
-            <div class="product-card">
-              <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
-              <div class="product-image">
-                <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'"
-                     [alt]="prodotto.nome"
-                     class="img-fluid">
-              </div>
-              <div class="product-info">
-                <h3 class="product-name">{{ prodotto.nome }}</h3>
-                <p class="product-brand">{{ prodotto.marca }}</p>
-                <div class="price-container">
-                  <span class="current-price">€{{ getPrezzoScontato(prodotto.prezzo) }}</span>
-                  <span class="original-price">€{{ prodotto.prezzo }}</span>
-                </div>
-                <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary w-100">Scopri</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Banner promozionali -->
-      <section class="promo-section mb-5">
-        <div class="row g-4">
-          <div class="col-md-6">
-            <div class="promo-card">
-              <div class="promo-content">
-                <h3>Spedizione Gratuita</h3>
-                <p>Per ordini superiori a 50€</p>
-              </div>
-              <div class="promo-icon">
-                <i class="bi bi-truck fs-1"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="promo-card">
-              <div class="promo-content">
-                <h3>Reso Facile</h3>
-                <p>30 giorni per cambiare idea</p>
-              </div>
-              <div class="promo-icon">
-                <i class="bi bi-arrow-counterclockwise fs-1"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Nuovi arrivi -->
-      <section class="new-arrivals mb-5" *ngIf="nuoviArrivi.length > 0">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="section-title mb-0">Nuovi Arrivi</h2>
-          <a [routerLink]="['/catalogo']" class="btn btn-outline-primary">Vedi tutti</a>
-        </div>
-
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-          <div class="col" *ngFor="let prodotto of nuoviArrivi">
-            <div class="product-card">
-              <div *ngIf="prodotto.scontato" class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
-              <div class="product-image">
-                <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'"
-                     [alt]="prodotto.nome"
-                     class="img-fluid">
-              </div>
-              <div class="product-info">
-                <h3 class="product-name">{{ prodotto.nome }}</h3>
-                <p class="product-brand">{{ prodotto.marca }}</p>
-                <div class="price-container">
-                  <span class="current-price">
-                    €{{ prodotto.scontato ? getPrezzoScontato(prodotto.prezzo) : prodotto.prezzo }}
-                  </span>
-                  <span class="original-price" *ngIf="prodotto.scontato">€{{ prodotto.prezzo }}</span>
-                </div>
-                <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-outline-primary w-100">Scopri</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   </div>
 </div>

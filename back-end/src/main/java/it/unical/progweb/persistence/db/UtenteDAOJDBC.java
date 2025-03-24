@@ -113,6 +113,45 @@ public class UtenteDAOJDBC implements UtenteDAO {
         return null;
     }
 
+    @Override
+    public Utente findByEmail(String email) {
+        String query = "SELECT * FROM utente WHERE email = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            // Stampa per debug
+            System.out.println("Ricerca utente con email: " + email);
+
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Stampa dettagli utente trovato
+                    System.out.println("Utente trovato: " +
+                            "ID=" + rs.getInt("id") +
+                            ", Nome=" + rs.getString("nome") +
+                            ", Email=" + rs.getString("email")
+                    );
+
+                    return new Utente(
+                            rs.getInt("id"),
+                            rs.getString("nome"),
+                            rs.getString("cognome"),
+                            rs.getString("email"),
+                            rs.getString("password"),
+                            rs.getBoolean("isAdmin") // o "isAdmin"
+                    );
+                } else {
+                    // Stampa se nessun utente trovato
+                    System.out.println("Nessun utente trovato con email: " + email);
+                }
+            }
+        } catch (SQLException e) {
+            // Stampa l'eccezione completa per debug
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     @Override
     public void delete(int id) {

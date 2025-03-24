@@ -53,7 +53,7 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
     @Override
     public List<Recensione> findByProdottoId(int prodottoId) {
         List<Recensione> recensioni = new ArrayList<>();
-        String query = "SELECT * FROM recensioni WHERE idProdotto = ?";
+        String query = "SELECT * FROM recensione WHERE idProdotto = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {

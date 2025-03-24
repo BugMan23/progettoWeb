@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="aggiunto componenti per il profilo e admin" />
+    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="aggiunto componenti per il profilo e admin">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -51,7 +53,7 @@
     "Spring Boot.ProgWebApplication.executor": "Run",
     "git-widget-placeholder": "sofia",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb/back-end",
+    "last_opened_file_path": "C:/Users/Sofia/Desktop/EsempioProgAngular/progettoWeb",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -60,7 +62,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "C:\\Users\\Sofia\\Desktop\\EsempioProgAngular\\progettoWeb\\front-end\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -95,6 +97,7 @@
       <workItem from="1740065246114" duration="957000" />
       <workItem from="1740066461973" duration="5271000" />
       <workItem from="1741360161527" duration="9161000" />
+      <workItem from="1742137490997" duration="75000" />
     </task>
     <task id="LOCAL-00001" summary="aggiunti componenti">
       <option name="closed" value="true" />
@@ -156,16 +159,5 @@
     <MESSAGE value="sistemato front-end, implementato catalogo e dettagli prodotti, aggiornato le rotte, aggiunto authguard" />
     <MESSAGE value="aggiunto componenti per il profilo e admin" />
     <option name="LAST_COMMIT_MESSAGE" value="aggiunto componenti per il profilo e admin" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/front-end/src/app/app.routes.ts</url>
-          <line>16</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

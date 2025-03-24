@@ -32,6 +32,9 @@ public class UtenteProxy {
 
     public Utente validateUser(String email, String password) {
         System.out.println("Proxy: Validazione utente in corso...");
-        return utenteDAO.validateUser(email, password);
+        Utente utente = utenteDAO.findByEmail(email);
+        if(utente == null)
+            System.out.println("Utente non trovato.....");
+        return utente;
     }
 }

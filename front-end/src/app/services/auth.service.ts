@@ -1,7 +1,7 @@
 // auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, map } from 'rxjs';
+import {Observable, BehaviorSubject, map, of} from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from '../Models/user'; // Assicurati che questo percorso sia corretto
@@ -16,7 +16,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/auth';
 
   // BehaviorSubject da Sofia
-  private isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
+  isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
   private userRole = new BehaviorSubject<boolean>(this.isAdmin());
   private userName = new BehaviorSubject<string>(localStorage.getItem('userName') || '');
 
@@ -26,7 +26,7 @@ export class AuthService {
   ) { }
 
   // Implementazione login di Sofia
-  login(email: string, password: string): Observable<any> {
+  /*login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, { email, password })
       .pipe(
         tap((response: any) => {
@@ -44,32 +44,78 @@ export class AuthService {
           this.userName.next(response.nome);
         })
       );
-  }
+  }*/
 
   // Implementazione login di Alberto usando JWT (alternativa)
-  loginWithJWT(email: string, password: string): Observable<string> {
+  loginWithJWT(email: string, password: string): Observable<any> {
+    console.log('Attempting login with:', { email, password });
+
+    // Cambia la risposta da 'text' a 'json'
     return this.http
-      .post(`${this.apiUrl}/login`, { email, password }, { responseType: 'text' })
+      .post<any>(`${this.apiUrl}/login`, { email, password })
       .pipe(
-        map((token: string) => {
+        map((response) => {
+          // Gestiamo sia il caso in cui la risposta è un semplice token (stringa)
+          // sia il caso in cui è un oggetto complesso
+          let token: string;
+          let userId: number | null = null;
+          let userName: string | null = null;
+          let isAdmin: boolean = false;
+
+          if (typeof response === 'string') {
+            // La risposta è direttamente il token
+            token = response;
+          } else {
+            // La risposta è un oggetto che contiene token e altre informazioni
+            token = response.token;
+            userId = response.userId;
+            userName = response.nome;
+            isAdmin = response.isAdmin;
+          }
+
+          // Salva i dati nel localStorage
+          localStorage.setItem('token', token);
           sessionStorage.setItem('token', token);
+          localStorage.setItem('authenticated', 'true');
 
-          // Se necessario, decodificare il token per ulteriori informazioni
-          const decoded: any = jwtDecode(token);
+          // Salva l'ID utente se è stato fornito nella risposta
+          if (userId !== null && userId !== undefined) {
+            localStorage.setItem('userId', userId.toString());
+            console.log('User ID from response:', userId);
+          } else {
+            console.error('No user ID in response');
+          }
 
-          // Aggiorniamo anche gli stati
+          // Salva il nome utente se è stato fornito, altrimenti usa l'email
+          localStorage.setItem('userName', userName || email);
+
+          // Salva il ruolo admin
+          localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
+
+          // Aggiorna gli stati
           this.isAuthenticated.next(true);
-          this.userRole.next(decoded.role === 'admin');
+          this.userRole.next(isAdmin);
+          this.userName.next(userName || email);
 
           return token;
         })
       );
   }
 
-  // Registrazione utente comune a entrambe le implementazioni
-  register(user: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/registrazione`, user);
+// Metodo aggiuntivo per recuperare l'ID utente se non presente nel token
+  private getUserIdByEmail(email: string): Observable<number> {
+    // Siccome l'endpoint non esiste, è meglio disabilitare questo metodo
+    console.error('getUserIdByEmail called, but endpoint is not available');
+    return of(-1); // Ritorna un Observable con un valore dummy
   }
+
+  // Registrazione utente comune a entrambe le implementazioni
+  register(user: User): Observable<string> {
+    return this.http.post(`${this.baseUrl}/registrazione`, user, {
+      responseType: 'text' // Specifica che ti aspetti una risposta di testo
+    });
+  }
+
 
   // Registrazione alternativa di Alberto
   registerWithJWT(user: User): Observable<string> {
@@ -170,5 +216,9 @@ export class AuthService {
   // Metodo per ottenere l'ID dell'utente attuale
   getUserId(): string | null {
     return localStorage.getItem('userId');
+  }
+
+  initializeUserCart(userId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/carrello/initialize/${userId}`, {});
   }
 }

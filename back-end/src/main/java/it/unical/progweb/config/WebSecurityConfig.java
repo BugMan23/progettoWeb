@@ -26,7 +26,13 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/prodotti/**").permitAll()
                         .requestMatchers("/api/categorie/**").permitAll()
-                        .requestMatchers("/api/users/login", "/api/users/registrazione").permitAll()
+                        .requestMatchers("/api/disponibilita/**").permitAll()
+                        .requestMatchers("/api/indirizzi/**").permitAll()
+                        .requestMatchers("/api/metodipagamento/**").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/registrazione").permitAll()
+                        .requestMatchers("/api/carrello/**").permitAll()
+                        .requestMatchers("/api/ordini/**").permitAll()
                         // Poi la regola generale
                         .anyRequest().authenticated()
                 );

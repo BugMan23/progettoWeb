@@ -1,13 +1,15 @@
-// profile.component.ts
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { OrdineService } from '../../services/ordine.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profilo',
   templateUrl: './profilo.component.html',
   standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   styleUrls: ['./profilo.component.css']
 })
 export class ProfiloComponent implements OnInit {
@@ -51,34 +53,34 @@ export class ProfiloComponent implements OnInit {
   }
 
   loadUserData(userId: number): void {
-    this.userService.getUserProfile(userId).subscribe(
-      (data) => {
+    this.userService.getUserProfile(userId).subscribe({
+      next: (data) => {
         this.user = data;
         this.editableUser = {...this.user};
       },
-      (error) => console.error('Errore nel caricamento dei dati utente:', error)
-    );
+      error: (error) => console.error('Errore nel caricamento dei dati utente:', error)
+    });
   }
 
   loadUserOrders(userId: number): void {
-    this.orderService.getUserOrders(userId).subscribe(
-      (data) => this.orders = data,
-      (error) => console.error('Errore nel caricamento degli ordini:', error)
-    );
+    this.orderService.getUserOrders(userId).subscribe({
+      next: (data) => this.orders = data,
+      error: (error) => console.error('Errore nel caricamento degli ordini:', error)
+    });
   }
 
   loadUserAddresses(userId: number): void {
-    this.userService.getUserAddresses(userId).subscribe(
-      (data) => this.addresses = data,
-      (error) => console.error('Errore nel caricamento degli indirizzi:', error)
-    );
+    this.userService.getUserAddresses(userId).subscribe({
+      next: (data) => this.addresses = data,
+      error: (error) => console.error('Errore nel caricamento degli indirizzi:', error)
+    });
   }
 
   loadUserPaymentMethods(userId: number): void {
-    this.userService.getUserPaymentMethods(userId).subscribe(
-      (data) => this.paymentMethods = data,
-      (error) => console.error('Errore nel caricamento dei metodi di pagamento:', error)
-    );
+    this.userService.getUserPaymentMethods(userId).subscribe({
+      next: (data) => this.paymentMethods = data,
+      error: (error) => console.error('Errore nel caricamento dei metodi di pagamento:', error)
+    });
   }
 
   setActiveTab(tab: string): void {
@@ -93,22 +95,24 @@ export class ProfiloComponent implements OnInit {
   }
 
   saveUserChanges(): void {
-    this.userService.updateUserProfile(this.user.id, this.editableUser).subscribe(
-      () => {
+    this.userService.updateUserProfile(this.user.id, this.editableUser).subscribe({
+      next: () => {
         this.user = {...this.editableUser};
         this.editMode = false;
         alert('Profilo aggiornato con successo');
       },
-      (error) => console.error('Errore durante l\'aggiornamento del profilo:', error)
-    );
+      error: (error) => console.error('Errore durante l\'aggiornamento del profilo:', error)
+    });
   }
 
   addNewAddress(): void {
     const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
     this.newAddress.idUtente = Number(userId);
 
-    this.userService.addAddress(this.newAddress).subscribe(
-      () => {
+    this.userService.addAddress(this.newAddress).subscribe({
+      next: () => {
         alert('Indirizzo aggiunto con successo');
         this.loadUserAddresses(Number(userId));
         this.newAddress = {
@@ -120,8 +124,8 @@ export class ProfiloComponent implements OnInit {
           regione: ''
         };
       },
-      (error) => console.error('Errore durante l\'aggiunta dell\'indirizzo:', error)
-    );
+      error: (error) => console.error('Errore durante l\'aggiunta dell\'indirizzo:', error)
+    });
   }
 
   viewOrderDetails(orderId: number): void {

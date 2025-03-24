@@ -95,5 +95,14 @@ public class ProdottoController {
             this.prodotto = prodotto;
             this.recensioni = recensioni;
         }
+
+        // Aggiungi getter per una corretta serializzazione
+        public Prodotto getProdotto() {
+            return prodotto;
+        }
+
+        public List<Recensione> getRecensioni() {
+            return recensioni;
+        }
     }
 }

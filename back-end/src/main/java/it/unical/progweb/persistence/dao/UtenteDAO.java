@@ -10,4 +10,6 @@ public interface UtenteDAO {
     boolean save(Utente utente);
     void delete(int id);
     Utente validateUser(String email, String password);
+
+    Utente findByEmail(String email);
 }

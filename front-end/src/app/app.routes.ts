@@ -28,10 +28,10 @@ export const routes: Routes = [
     loadComponent: () => import('./Components/product-detail/product-detail.component').then(m => m.DettaglioProdottoComponent)
   },
 
-  // Carrello e checkout
+  // Carrello e checkout - protetti da AuthGuard
   {
     path: 'carrello',
-    loadComponent: () => import('./Components/cart/cart.component').then(m => m.CarrelloComponent),
+    loadComponent: () => import('./Components/cart/cart.component').then(m => m.CartComponent),
     canActivate: [AuthGuard]
   },
   {
@@ -41,7 +41,7 @@ export const routes: Routes = [
   },
 
   // Profilo utente
-  /*{
+  {
     path: 'profilo',
     loadComponent: () => import('./Components/profilo/profilo.component').then(m => m.ProfiloComponent),
     canActivate: [AuthGuard],
@@ -69,9 +69,16 @@ export const routes: Routes = [
       }
     ]
   },
-*/
+
+  // Visualizzazione ordine specifico
+  {
+    path: 'ordini/:id',
+    loadComponent: () => import('./Components/orders/orders.component').then(m => m.OrdersComponent),
+    canActivate: [AuthGuard]
+  },
+
   // Area admin
-  /*{
+  {
     path: 'admin',
     loadComponent: () => import('./Components/admin/admin.component').then(m => m.AdminComponent),
     canActivate: [AuthGuard],
@@ -99,12 +106,5 @@ export const routes: Routes = [
         loadComponent: () => import('./Components/admin/utenti/utenti.component').then(m => m.UtentiComponent)
       }
     ]
-  },
-
-  // Pagina non trovata
-  {
-    path: '**',
-    loadComponent: () => import('./Components/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
-   */
 ];

@@ -12,10 +12,14 @@ export class IndirizzoService {
   constructor(private http: HttpClient) { }
 
   findByUtenteId(utenteId: number): Observable<Indirizzo[]> {
+    console.log('Frontend: Richiesta indirizzi per utente ID:', utenteId);
     return this.http.get<Indirizzo[]>(`${this.apiUrl}/utente/${utenteId}`);
   }
 
-  addIndirizzo(indirizzo: Indirizzo, idutente: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, { indirizzo, idutente });
+  addIndirizzo(indirizzo: Indirizzo, idUtente: number): Observable<any> {
+    console.log('Frontend: Invio nuovo indirizzo per utente ID:', idUtente);
+    console.log('Frontend: Dati indirizzo:', indirizzo);
+    const indirizzoConUtente = { ...indirizzo, idUtente };
+    return this.http.post(this.apiUrl, indirizzoConUtente);
   }
 }
