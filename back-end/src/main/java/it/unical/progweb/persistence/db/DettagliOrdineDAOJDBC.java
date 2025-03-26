@@ -36,7 +36,7 @@ public class DettagliOrdineDAOJDBC implements DettagliOrdineDAO {
     @Override
     public List<DettagliOrdini> findByOrderId(int ordineId) {
         List<DettagliOrdini> dettagli = new ArrayList<>();
-        String query = "SELECT * FROM dettagli_ordine WHERE idOrdine = ?";
+        String query = "SELECT * FROM dettagliordini WHERE idOrdine = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {

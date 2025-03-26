@@ -1,209 +1,93 @@
-<div class="container py-5">
-  <!-- Messaggio di caricamento -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Caricamento...</span>
-    </div>
-    <p class="mt-3">Caricamento del profilo in corso...</p>
-  </div>
-
-  <!-- Messaggi di feedback -->
-  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show my-3" role="alert">
-    {{ error }}
-    <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
-  </div>
-
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show my-3" role="alert">
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
-  </div>
-
-  <!-- Contenuto principale (se non in caricamento) -->
-  <div *ngIf="!loading" class="row">
-    <!-- Sidebar con tabs -->
+<!-- profile.component.html -->
+<div class="container mt-5 mb-5">
+  <div class="row">
     <div class="col-md-3">
       <div class="list-group shadow-sm">
-        <button class="list-group-item list-group-item-action d-flex align-items-center"
+        <button class="list-group-item list-group-item-action"
                 [class.active]="activeTab === 'profile'"
                 (click)="setActiveTab('profile')">
-          <i class="bi bi-person-circle me-2"></i>
-          Dati Personali
+          <i class="bi bi-person me-2"></i> Dati Personali
         </button>
-        <button class="list-group-item list-group-item-action d-flex align-items-center"
-                [class.active]="activeTab === 'orders'"
-                (click)="setActiveTab('orders')">
-          <i class="bi bi-box me-2"></i>
-          I miei ordini
-          <span *ngIf="orders.length > 0" class="badge bg-primary ms-auto">{{ orders.length }}</span>
-        </button>
-        <button class="list-group-item list-group-item-action d-flex align-items-center"
+        <button class="list-group-item list-group-item-action"
                 [class.active]="activeTab === 'addresses'"
                 (click)="setActiveTab('addresses')">
-          <i class="bi bi-geo-alt me-2"></i>
-          Indirizzi
-          <span *ngIf="addresses.length > 0" class="badge bg-primary ms-auto">{{ addresses.length }}</span>
+          <i class="bi bi-geo-alt me-2"></i> Indirizzi
         </button>
-        <button class="list-group-item list-group-item-action d-flex align-items-center"
-                [class.active]="activeTab === 'payment'"
-                (click)="setActiveTab('payment')">
-          <i class="bi bi-credit-card me-2"></i>
-          Metodi di pagamento
-          <span *ngIf="paymentMethods.length > 0" class="badge bg-primary ms-auto">{{ paymentMethods.length }}</span>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'payments'"
+                (click)="setActiveTab('payments')">
+          <i class="bi bi-credit-card me-2"></i> Metodi di pagamento
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'orders'"
+                (click)="setActiveTab('orders')">
+          <i class="bi bi-box me-2"></i> I miei ordini
         </button>
       </div>
     </div>
 
-    <!-- Area contenuto principale -->
     <div class="col-md-9">
-      <!-- Tab Profilo -->
-      <div *ngIf="activeTab === 'profile'" class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0">I tuoi dati personali</h5>
-          <button class="btn btn-sm"
-                  [class.btn-outline-primary]="!editMode"
-                  [class.btn-outline-secondary]="editMode"
-                  (click)="toggleEditMode()">
-            <i class="bi" [class.bi-pencil]="!editMode" [class.bi-x]="editMode"></i>
-            {{ editMode ? 'Annulla' : 'Modifica' }}
-          </button>
-        </div>
-        <div class="card-body">
-          <div *ngIf="!editMode" class="row">
-            <div class="col-md-6">
-              <p><strong>Nome:</strong> {{ user?.nome }}</p>
-              <p><strong>Cognome:</strong> {{ user?.cognome }}</p>
-              <p><strong>Email:</strong> {{ user?.email }}</p>
-            </div>
-            <div class="col-md-6">
-              <p *ngIf="user?.telefono"><strong>Telefono:</strong> {{ user?.telefono }}</p>
-              <p *ngIf="user?.username"><strong>Username:</strong> {{ user?.username }}</p>
-              <p><strong>Ruolo:</strong> {{ user?.ruolo ? 'Amministratore' : 'Utente' }}</p>
-            </div>
-          </div>
-
-          <div *ngIf="editMode">
-            <form (ngSubmit)="saveUserChanges()">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="nome" class="form-label">Nome*</label>
-                  <input type="text" class="form-control" id="nome" [(ngModel)]="editableUser.nome" name="nome" required>
-                </div>
-              </div>
-            </form>
-          </div>
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Caricamento...</span>
         </div>
       </div>
 
-      <!-- Tab Ordini -->
-      <div *ngIf="activeTab === 'orders'" class="card shadow-sm">
+      <!-- Error message -->
+      <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
+      </div>
+
+      <!-- Dati Personali -->
+      <div *ngIf="activeTab === 'profile' && !loading" class="card shadow-sm">
         <div class="card-header bg-white py-3">
-          <h5 class="mb-0">I tuoi ordini</h5>
+          <h4 class="mb-0">Dati Personali</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="orders.length === 0" class="text-center py-4">
-            <i class="bi bi-bag-x" style="font-size: 3rem; color: #ccc;"></i>
-            <p class="mt-3">Non hai ancora effettuato ordini.</p>
-            <a routerLink="/catalogo" class="btn btn-primary">Inizia lo shopping</a>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="text-muted">Nome</h6>
+              <p class="mb-0">{{ user?.nome || 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted">Cognome</h6>
+              <p class="mb-0">{{ user?.cognome || 'N/A' }}</p>
+            </div>
           </div>
-
-          <div *ngIf="orders.length > 0">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                <tr>
-                  <th>Ordine #</th>
-                  <th>Data</th>
-                  <th>Stato</th>
-                  <th>Totale</th>
-                  <th>Azioni</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let order of orders">
-                  <td>{{ order.id }}</td>
-                  <td>{{ order.data }}</td>
-                  <td>
-                      <span class="badge" [ngClass]="{
-                        'bg-primary': order.stato === 'IN_ELABORAZIONE',
-                        'bg-warning text-dark': order.stato === 'SPEDITO',
-                        'bg-success': order.stato === 'CONSEGNATO',
-                        'bg-danger': order.stato === 'ANNULLATO'
-                      }">{{ order.stato }}</span>
-                  </td>
-                  <td>€{{ order.totalePagare.toFixed(2) }}</td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary" (click)="viewOrderDetails(order.id)">
-                      <i class="bi bi-eye me-1"></i> Dettagli
-                    </button>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="text-muted">Email</h6>
+              <p class="mb-0">{{ user?.email || 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted">Ruolo</h6>
+              <p class="mb-0">{{ user?.ruolo ? 'Amministratore' : 'Utente' }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Tab Indirizzi -->
-      <div *ngIf="activeTab === 'addresses'" class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0">I tuoi indirizzi</h5>
-          <button class="btn btn-sm btn-outline-primary" (click)="toggleNewAddressForm()">
-            <i class="bi" [class.bi-plus]="!showNewAddressForm" [class.bi-x]="showNewAddressForm"></i>
-            {{ showNewAddressForm ? 'Annulla' : 'Aggiungi indirizzo' }}
-          </button>
+      <!-- Indirizzi -->
+      <div *ngIf="activeTab === 'addresses' && !loading" class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h4 class="mb-0">I miei indirizzi</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="addresses.length === 0 && !showNewAddressForm" class="text-center py-4">
-            <i class="bi bi-geo-alt" style="font-size: 3rem; color: #ccc;"></i>
-            <p class="mt-3">Non hai ancora salvato nessun indirizzo.</p>
+          <div *ngIf="indirizzi.length === 0" class="text-center py-4">
+            <i class="bi bi-geo-alt-fill text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 mb-0">Non hai ancora salvato nessun indirizzo.</p>
           </div>
 
-          <!-- Form per nuovo indirizzo -->
-          <div *ngIf="showNewAddressForm" class="mb-4">
-            <h6 class="border-bottom pb-2 mb-3">Nuovo indirizzo</h6>
-            <form (ngSubmit)="addNewAddress()">
-              <div class="row g-3">
-                <div class="col-md-8">
-                  <label for="nomeVia" class="form-label">Via*</label>
-                  <input type="text" class="form-control" id="nomeVia" [(ngModel)]="newAddress.nomeVia" name="nomeVia" required>
-                </div>
-                <div class="col-md-4">
-                  <label for="civico" class="form-label">Civico*</label>
-                  <input type="text" class="form-control" id="civico" [(ngModel)]="newAddress.civico" name="civico" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="citta" class="form-label">Città*</label>
-                  <input type="text" class="form-control" id="citta" [(ngModel)]="newAddress.citta" name="citta" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="cap" class="form-label">CAP*</label>
-                  <input type="text" class="form-control" id="cap" [(ngModel)]="newAddress.cap" name="cap" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="provincia" class="form-label">Provincia*</label>
-                  <input type="text" class="form-control" id="provincia" [(ngModel)]="newAddress.provincia" name="provincia" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="regione" class="form-label">Regione*</label>
-                  <input type="text" class="form-control" id="regione" [(ngModel)]="newAddress.regione" name="regione" required>
-                </div>
-                <div class="col-12 mt-3">
-                  <button type="submit" class="btn btn-primary">Salva indirizzo</button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Lista indirizzi -->
-          <div *ngIf="addresses.length > 0" class="row row-cols-1 row-cols-md-2 g-4">
-            <div class="col" *ngFor="let address of addresses">
+          <div class="row g-4" *ngIf="indirizzi.length > 0">
+            <div class="col-md-6" *ngFor="let indirizzo of indirizzi">
               <div class="card h-100">
                 <div class="card-body">
-                  <h6 class="card-title">{{ address.nomeVia }}, {{ address.civico }}</h6>
+                  <h5 class="card-title">{{ indirizzo.nomeVia }}, {{ indirizzo.civico }}</h5>
                   <p class="card-text">
-                    {{ address.citta }}, {{ address.cap }}<br>
-                    {{ address.provincia }}, {{ address.regione }}
+                    {{ indirizzo.citta }}, {{ indirizzo.cap }}<br>
+                    {{ indirizzo.provincia }}, {{ indirizzo.regione }}
                   </p>
                 </div>
               </div>
@@ -212,75 +96,157 @@
         </div>
       </div>
 
-      <!-- Tab Metodi di Pagamento -->
-      <div *ngIf="activeTab === 'payment'" class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0">I tuoi metodi di pagamento</h5>
-          <button class="btn btn-sm btn-outline-primary" (click)="toggleNewPaymentForm()">
-            <i class="bi" [class.bi-plus]="!showNewPaymentForm" [class.bi-x]="showNewPaymentForm"></i>
-            {{ showNewPaymentForm ? 'Annulla' : 'Aggiungi metodo' }}
-          </button>
+      <!-- Metodi di pagamento -->
+      <div *ngIf="activeTab === 'payments' && !loading" class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h4 class="mb-0">Metodi di pagamento</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="paymentMethods.length === 0 && !showNewPaymentForm" class="text-center py-4">
-            <i class="bi bi-credit-card" style="font-size: 3rem; color: #ccc;"></i>
-            <p class="mt-3">Non hai ancora salvato nessun metodo di pagamento.</p>
+          <div *ngIf="metodiPagamento.length === 0" class="text-center py-4">
+            <i class="bi bi-credit-card-fill text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 mb-0">Non hai ancora salvato nessun metodo di pagamento.</p>
           </div>
 
-          <!-- Form per nuovo metodo di pagamento -->
-          <div *ngIf="showNewPaymentForm" class="mb-4">
-            <h6 class="border-bottom pb-2 mb-3">Nuovo metodo di pagamento</h6>
-            <form (ngSubmit)="addNewPaymentMethod()">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="titolare" class="form-label">Titolare della carta*</label>
-                  <input type="text" class="form-control" id="titolare" [(ngModel)]="newPaymentMethod.titolare" name="titolare" required>
-                </div>
-                <div class="col-md-6">
-                  <label for="tipoCarta" class="form-label">Tipo di carta*</label>
-                  <select class="form-select" id="tipoCarta" [(ngModel)]="newPaymentMethod.tipoCarta" name="tipoCarta" required>
-                    <option value="VISA">VISA</option>
-                    <option value="MASTERCARD">MasterCard</option>
-                    <option value="AMEX">American Express</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label for="numeroCarta" class="form-label">Numero carta*</label>
-                  <input type="text" class="form-control" id="numeroCarta" [(ngModel)]="newPaymentMethod.numeroCarta" name="numeroCarta" placeholder="XXXX XXXX XXXX XXXX" required>
-                </div>
-                <div class="col-md-3">
-                  <label for="dataScadenza" class="form-label">Scadenza*</label>
-                  <input type="text" class="form-control" id="dataScadenza" [(ngModel)]="newPaymentMethod.dataScadenza" name="dataScadenza" placeholder="MM/AA" required>
-                </div>
-                <div class="col-md-3">
-                  <label for="cvv" class="form-label">CVV*</label>
-                  <input type="text" class="form-control" id="cvv" [(ngModel)]="newPaymentMethod.cvv" name="cvv" placeholder="123" required>
-                </div>
-                <div class="col-12 mt-3">
-                  <button type="submit" class="btn btn-primary">Salva metodo di pagamento</button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Lista metodi di pagamento -->
-          <div *ngIf="paymentMethods.length > 0" class="row row-cols-1 row-cols-md-2 g-4">
-            <div class="col" *ngFor="let method of paymentMethods">
+          <div class="row g-4" *ngIf="metodiPagamento.length > 0">
+            <div class="col-md-6" *ngFor="let metodo of metodiPagamento">
               <div class="card h-100">
                 <div class="card-body">
-                  <div class="d-flex align-items-center mb-2">
+                  <div class="d-flex align-items-center mb-3">
                     <i class="bi" [ngClass]="{
-                      'bi-credit-card': method.tipoCarta === 'VISA',
-                      'bi-credit-card-2-front': method.tipoCarta === 'MASTERCARD',
-                      'bi-credit-card-fill': method.tipoCarta === 'AMEX'
+                      'bi-credit-card-fill': metodo.tipoCarta === 'VISA',
+                      'bi-credit-card-2-front-fill': metodo.tipoCarta === 'MASTERCARD',
+                      'bi-credit-card-2-back-fill': metodo.tipoCarta === 'AMEX'
                     }" style="font-size: 1.5rem; margin-right: 10px;"></i>
-                    <h6 class="card-title mb-0">{{ method.tipoCarta }}</h6>
+                    <div>
+                      <h5 class="card-title mb-0">{{ metodo.tipoCarta }}</h5>
+                      <p class="text-muted mb-0">**** **** **** {{ metodo.numeroCarta.slice(-4) }}</p>
+                    </div>
                   </div>
-                  <p class="card-text">
-                    {{ method.titolare }}<br>
-                    **** **** **** {{ method.numeroCarta.slice(-4) }}<br>
-                    Scadenza: {{ method.dataScadenza }}
-                  </p>
+                  <div class="row">
+                    <div class="col-6">
+                      <p class="small text-muted mb-0">Titolare</p>
+                      <p>{{ metodo.titolare }}</p>
+                    </div>
+                    <div class="col-6">
+                      <p class="small text-muted mb-0">Scadenza</p>
+                      <p>{{ metodo.dataScadenza }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ordini -->
+      <div *ngIf="activeTab === 'orders' && !loading" class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h4 class="mb-0">I miei ordini</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="ordini.length === 0" class="text-center py-4">
+            <i class="bi bi-box2-fill text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 mb-0">Non hai ancora effettuato ordini.</p>
+            <a routerLink="/catalogo" class="btn btn-primary mt-3">Inizia lo shopping</a>
+          </div>
+
+          <div *ngIf="ordini.length > 0">
+            <div class="accordion" id="accordionOrdini">
+              <div class="accordion-item mb-3" *ngFor="let ordine of ordini; let i = index">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button"
+                          [attr.data-bs-toggle]="'collapse'"
+                          [attr.data-bs-target]="'#collapse' + i"
+                          [attr.aria-expanded]="false"
+                          [attr.aria-controls]="'collapse' + i">
+                    <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                      <span>
+                        <strong>Ordine #{{ ordine.id }}</strong>
+                      </span>
+                      <span>
+                        Data: {{ ordine.data }}
+                      </span>
+                      <span>
+                        <span [ngClass]="{
+                          'badge bg-warning': ordine.stato === 'IN_ELABORAZIONE',
+                          'badge bg-info': ordine.stato === 'SPEDITO',
+                          'badge bg-success': ordine.stato === 'CONSEGNATO',
+                          'badge bg-danger': ordine.stato === 'ANNULLATO'
+                        }">{{ ordine.stato }}</span>
+                      </span>
+                      <span>
+                        <strong>€{{ (ordine.totalePagare / 100).toFixed(2) }}</strong>
+                      </span>
+                    </div>
+                  </button>
+                </h2>
+                <div [id]="'collapse' + i" class="accordion-collapse collapse" [attr.data-bs-parent]="'#accordionOrdini'">
+                  <div class="accordion-body">
+                    <div class="text-center" *ngIf="loadingDetails[ordine.id]">
+                      <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Caricamento...</span>
+                      </div>
+                    </div>
+
+                    <div *ngIf="dettagliOrdini[ordine.id] && !loadingDetails[ordine.id]">
+                      <table class="table table-striped">
+                        <thead>
+                        <tr>
+                          <th>Prodotto</th>
+                          <th>Quantità</th>
+                          <th>Prezzo</th>
+                          <th>Subtotale</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let dettaglio of dettagliOrdini[ordine.id]">
+                          <td>{{ getNomeProdotto(dettaglio.idProdotto) }}</td>
+                          <td>{{ dettaglio.quantita }}</td>
+                          <td>€{{ getPrezzoUnitario(dettaglio.idProdotto).toFixed(2) }}</td>
+                          <td>€{{ (getPrezzoUnitario(dettaglio.idProdotto) * dettaglio.quantita).toFixed(2) }}</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                          <td colspan="3" class="text-end"><strong>Totale</strong></td>
+                          <td><strong>€{{ (ordine.totalePagare / 100).toFixed(2) }}</strong></td>
+                        </tr>
+                        </tfoot>
+                      </table>
+
+                      <!-- Dettagli spedizione -->
+                      <div class="row mt-4">
+                        <div class="col-md-6">
+                          <h6>Indirizzo di spedizione</h6>
+                          <p *ngIf="getIndirizzoOrdine(ordine.id) as indirizzo">
+                            {{ indirizzo.nomeVia }}, {{ indirizzo.civico }}<br>
+                            {{ indirizzo.citta }}, {{ indirizzo.cap }}<br>
+                            {{ indirizzo.provincia }}, {{ indirizzo.regione }}
+                          </p>
+                          <p *ngIf="!getIndirizzoOrdine(ordine.id)">
+                            Informazioni non disponibili
+                          </p>
+                        </div>
+                        <div class="col-md-6">
+                          <h6>Metodo di pagamento</h6>
+                          <p *ngIf="getMetodoPagamentoOrdine(ordine.id) as metodoPagamento">
+                            {{ metodoPagamento.tipoCarta }}<br>
+                            **** **** **** {{ metodoPagamento.numeroCarta.slice(-4) }}<br>
+                            {{ metodoPagamento.titolare }}
+                          </p>
+                          <p *ngIf="!getMetodoPagamentoOrdine(ordine.id)">
+                            Informazioni non disponibili
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" (click)="loadDettagliOrdine(ordine.id)"
+                            *ngIf="!dettagliOrdini[ordine.id] && !loadingDetails[ordine.id]">
+                      Visualizza dettagli
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -289,21 +255,4 @@
       </div>
     </div>
   </div>
-</div>
-<div class="col-md-6">
-  <label for="cognome" class="form-label">Cognome*</label>
-  <input type="text" class="form-control" id="cognome" [(ngModel)]="editableUser.cognome" name="cognome" required>
-</div>
-<div class="col-md-6">
-  <label for="email" class="form-label">Email*</label>
-  <input type="email" class="form-control" id="email" [(ngModel)]="editableUser.email" name="email" required>
-</div>
-<div class="col-md-6">
-  <label for="telefono" class="form-label">Telefono</label>
-  <input type="tel" class="form-control" id="telefono" [(ngModel)]="editableUser.telefono" name="telefono">
-</div>
-<div class="col-12 mt-4">
-  <button type="submit" class="btn btn-primary">
-    <i class="bi bi-check2 me-2"></i>Salva modifiche
-  </button>
 </div>

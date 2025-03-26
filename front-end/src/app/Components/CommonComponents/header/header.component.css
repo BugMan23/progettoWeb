@@ -386,3 +386,64 @@ header {
   background-color: var(--light-gray);
   border-top: 1px solid #e0e0e0;
 }
+
+/* Add to your existing header.component.css */
+
+/* User dropdown menu */
+.user-dropdown {
+  position: relative;
+  margin-left: 15px;
+}
+
+.user-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--white);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  transition: background-color 0.2s;
+}
+
+.user-dropdown-toggle:hover {
+  background-color: var(--primary-light);
+}
+
+.user-dropdown-toggle i {
+  font-size: 1.2rem;
+  margin-left: 8px;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  background-color: white;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+  margin-top: 5px;
+}
+
+.user-dropdown-menu a {
+  display: block;
+  padding: 12px 15px;
+  color: var(--dark-gray);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.user-dropdown-menu a:hover {
+  background-color: var(--light-gray);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #e9ecef;
+  margin: 0;
+}
+
+

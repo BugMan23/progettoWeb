@@ -27,7 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cartTotal: number = 0;
   showCartPreview: boolean = false;
 
-  // Proprietà user menu
+  // User dropdown
   showUserMenu: boolean = false;
 
   // Categorie
@@ -58,10 +58,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       userName => this.userName = userName
     );
 
-    this.authService.isAdminUser().subscribe(
-      isAdmin => this.isAdmin = isAdmin
-    );
-
     this.checkAuthState();
     this.loadCategories();
 
@@ -71,11 +67,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.loadCartData();
       }
     });
+
+    // Aggiungi un listener per chiudere il menu utente quando si clicca altrove
+    document.addEventListener('click', this.closeUserMenuOnClickOutside.bind(this));
   }
 
   ngOnDestroy(): void {
     if (this.cartSub) this.cartSub.unsubscribe();
     if (this.cartItemsSub) this.cartItemsSub.unsubscribe();
+    document.removeEventListener('click', this.closeUserMenuOnClickOutside.bind(this));
   }
 
   checkAuthState(): void {
@@ -123,13 +123,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateToProfile(): void {
-    if (this.isLoggedIn) {
-      this.showUserMenu = false;
-      this.router.navigate(['/profilo']);
-    }
-  }
-
   logout(): void {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
@@ -141,9 +134,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cartItemCount = 0;
     this.cartItems = [];
     this.cartTotal = 0;
+    this.showUserMenu = false;
 
     // Redirect alla homepage
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
+  }
+
+  toggleUserMenu(): void {
+    this.showUserMenu = !this.showUserMenu;
+  }
+
+  closeUserMenuOnClickOutside(event: any): void {
+    if (this.showUserMenu) {
+      const userDropdown = document.querySelector('.user-dropdown');
+      if (userDropdown && !userDropdown.contains(event.target)) {
+        this.showUserMenu = false;
+      }
+    }
   }
 
   goHomepage() {
