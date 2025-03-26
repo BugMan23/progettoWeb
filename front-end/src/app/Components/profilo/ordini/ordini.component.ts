@@ -180,19 +180,54 @@ export class OrdiniComponent implements OnInit {
     return '**** **** **** ' + ultimi4;
   }
 
-  // Formatta una data in formato leggibile
   formattaData(dataStr: string | undefined): string {
-    if (!dataStr) return '';
+    if (!dataStr) return 'Data non disponibile';
 
     try {
-      const data = new Date(dataStr);
-      return data.toLocaleDateString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
+      // Se il formato è SQL standard (YYYY-MM-DD)
+      if (dataStr.includes('-')) {
+        const data = new Date(dataStr);
+        if (!isNaN(data.getTime())) {
+          return data.toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          });
+        }
+      }
+
+      // Se è nel formato dataoridne (probabile errore di battitura nel database)
+      if (dataStr.includes('dataoridne')) {
+        const valorePulito = dataStr.replace('dataoridne:', '').trim();
+        const data = new Date(valorePulito);
+        if (!isNaN(data.getTime())) {
+          return data.toLocaleDateString('it-IT');
+        }
+      }
+
+      // Se è nel formato italiano (DD/MM/YYYY)
+      if (dataStr.includes('/')) {
+        const parti = dataStr.split('/');
+        if (parti.length === 3) {
+          const data = new Date(parseInt(parti[2]), parseInt(parti[1]) - 1, parseInt(parti[0]));
+          if (!isNaN(data.getTime())) {
+            return data.toLocaleDateString('it-IT');
+          }
+        }
+      }
+
+      // Se è un timestamp numerico
+      if (!isNaN(Number(dataStr))) {
+        const data = new Date(Number(dataStr));
+        if (!isNaN(data.getTime())) {
+          return data.toLocaleDateString('it-IT');
+        }
+      }
+
+      return dataStr; // Se non riusciamo a formattarla, mostriamo la stringa originale
     } catch (e) {
-      return dataStr; // In caso di errore, mostriamo la stringa originale
+      console.error('Errore nella formattazione della data:', e);
+      return 'Data non valida';
     }
   }
 
