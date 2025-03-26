@@ -5,11 +5,9 @@ import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.request.CarrelloRequest;
 import it.unical.progweb.service.CarrelloService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,30 +23,15 @@ public class CarrelloController {
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody CarrelloRequest cartRequest) {
         try {
-            System.out.println("Ricevuta richiesta: " + cartRequest.toString());
-
             carrelloService.addAlCarrello(
                     cartRequest.getUserId(),
                     cartRequest.getProductId(),
                     cartRequest.getQuantity(),
                     cartRequest.getTaglia()
             );
-
-            // Ritorna una risposta JSON
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Prodotto aggiunto al carrello");
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            // Ritorna un errore in formato JSON
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("error", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            return ResponseEntity.ok("Prodotto aggiunto al carrello");
+        } catch (NotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -80,11 +63,18 @@ public class CarrelloController {
         return ResponseEntity.ok(count);
     }
 
-    // Svuota carrello
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> clearCart(@PathVariable int userId) {
-        carrelloService.clearCart(userId);
-        return ResponseEntity.ok("Carrello svuotato");
+        try {
+            System.out.println("Richiesta di contrassegnare il carrello come ordinato per utente: " + userId);
+            carrelloService.clearCart(userId);
+            // Restituisce una risposta esplicita con un messaggio più appropriato
+            return ResponseEntity.ok("Carrello confermato come ordinato");
+        } catch (Exception e) {
+            System.err.println("Errore nell'aggiornamento dello stato del carrello: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Errore: " + e.getMessage());
+        }
     }
 
     // Rimuovi prodotto dal carrello
@@ -104,20 +94,9 @@ public class CarrelloController {
             String taglia = (String) request.get("taglia");
 
             carrelloService.updateCartItem(userId, productId, quantity, taglia);
-
-            // Ritorna una risposta JSON
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Articolo aggiornato");
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok("Articolo aggiornato");
         } catch (Exception e) {
-            // Ritorna un errore in formato JSON
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("error", e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -130,27 +109,7 @@ public class CarrelloController {
             String taglia = (String) request.get("taglia");
 
             carrelloService.updateCartItemTaglia(userId, productId, taglia);
-
-            // Ritorna una risposta JSON
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Taglia aggiornata");
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Ritorna un errore in formato JSON
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("error", e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
-    }
-    @PostMapping("/initialize/{userId}")
-    public ResponseEntity<?> initializeCart(@PathVariable int userId) {
-        try {
-            carrelloService.initializeEmptyCart(userId);
-            return ResponseEntity.ok("Carrello inizializzato");
+            return ResponseEntity.ok("Taglia aggiornata");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

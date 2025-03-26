@@ -4,15 +4,15 @@ import it.unical.progweb.model.Ordine;
 import it.unical.progweb.persistence.dao.OrdineDAO;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrdineDAOJDBC implements OrdineDAO {
     private final DataSource dataSource;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public OrdineDAOJDBC(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -20,15 +20,14 @@ public class OrdineDAOJDBC implements OrdineDAO {
 
     @Override
     public int creaOrdine(Ordine ordine) {
-        String query = "INSERT INTO ordine (idutente, dataoridne, stato, totaledapagare, idmetodopagamento) VALUES (?, ?, ?, ?, ?) RETURNING id";
+        String query = "INSERT INTO ordine (idutente, stato, totaledapagare, idmetodopagamento) VALUES (?, ?, ?, ?) RETURNING id";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, ordine.getIdUtente());
-            ps.setString(2, ordine.getData());
-            ps.setString(3, ordine.getStato());
-            ps.setInt(4, ordine.getTotalePagare());
-            ps.setInt(5, ordine.getIdMetodoPagamento());
+            ps.setString(2, ordine.getStato());
+            ps.setInt(3, ordine.getTotalePagare());
+            ps.setInt(4, ordine.getIdMetodoPagamento());
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
                     return rs.getInt("id");
@@ -40,6 +39,7 @@ public class OrdineDAOJDBC implements OrdineDAO {
         return -1;
     }
 
+
     @Override
     public List<Ordine> getOrdiniByIdUtente(int userId) {
         List<Ordine> ordini = new ArrayList<>();
@@ -50,10 +50,18 @@ public class OrdineDAOJDBC implements OrdineDAO {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    // Converti il timestamp in stringa nel formato desiderato
+                    Timestamp dataTimestamp = rs.getTimestamp("dataoridne");
+                    String dataFormattata = null;
+                    if (dataTimestamp != null) {
+                        LocalDateTime data = dataTimestamp.toLocalDateTime();
+                        dataFormattata = data.format(DATE_FORMATTER);
+                    }
+
                     ordini.add(new Ordine(
                             rs.getInt("id"),
                             rs.getInt("idutente"),
-                            rs.getString("dataoridne"),
+                            dataFormattata, // Usa la data formattata
                             rs.getString("stato"),
                             rs.getInt("totaledapagare"),
                             rs.getInt("idmetodopagamento")
@@ -66,6 +74,7 @@ public class OrdineDAOJDBC implements OrdineDAO {
         return ordini;
     }
 
+
     @Override
     public Ordine findById(int id) {
         String query = "SELECT * FROM ordine WHERE id = ?";
@@ -75,10 +84,18 @@ public class OrdineDAOJDBC implements OrdineDAO {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
+                    // Converti il timestamp in stringa nel formato desiderato
+                    Timestamp dataTimestamp = rs.getTimestamp("dataoridne");
+                    String dataFormattata = null;
+                    if (dataTimestamp != null) {
+                        LocalDateTime data = dataTimestamp.toLocalDateTime();
+                        dataFormattata = data.format(DATE_FORMATTER);
+                    }
+
                     return new Ordine(
                             rs.getInt("id"),
                             rs.getInt("idutente"),
-                            rs.getString("dataoridne"),
+                            dataFormattata, // Usa la data formattata
                             rs.getString("stato"),
                             rs.getInt("totaledapagare"),
                             rs.getInt("idmetodopagamento")
@@ -91,7 +108,6 @@ public class OrdineDAOJDBC implements OrdineDAO {
         return null;
     }
 
-    @Override
     public List<Ordine> findByUserId(int userid) {
         List<Ordine> ordini = new ArrayList<>();
         String query = "SELECT * FROM ordine WHERE idutente = ?";
@@ -101,10 +117,18 @@ public class OrdineDAOJDBC implements OrdineDAO {
             ps.setInt(1, userid);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    // Converti il timestamp in stringa nel formato desiderato
+                    Timestamp dataTimestamp = rs.getTimestamp("dataoridne");
+                    String dataFormattata = null;
+                    if (dataTimestamp != null) {
+                        LocalDateTime data = dataTimestamp.toLocalDateTime();
+                        dataFormattata = data.format(DATE_FORMATTER);
+                    }
+
                     ordini.add(new Ordine(
                             rs.getInt("id"),
                             rs.getInt("idutente"),
-                            rs.getString("dataoridne"),
+                            dataFormattata, // Usa la data formattata
                             rs.getString("stato"),
                             rs.getInt("totaledapagare"),
                             rs.getInt("idmetodopagamento")

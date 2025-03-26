@@ -53,6 +53,11 @@ export const routes: Routes = [
     loadComponent: () => import('./Components/profilo/ordini/ordini.component').then(m => m.OrdiniComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'profilo/ordini',
+    loadComponent: () => import('./Components/profilo/ordini/ordini.component').then(m => m.OrdiniComponent),
+    canActivate: [AuthGuard] // Se stai usando un guard
+  },
 
   // Area admin
   {

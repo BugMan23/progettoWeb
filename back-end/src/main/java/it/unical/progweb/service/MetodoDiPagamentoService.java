@@ -20,13 +20,7 @@ public class MetodoDiPagamentoService {
 
     public void salvaMetodoDiPagamento(MetodoDiPagamento metodoPagamento, int userId) {
         validaMetodoPagamento(metodoPagamento);
-
-        // Rimuovi gli spazi dal numero della carta
-        String numeroCarta = metodoPagamento.getNumeroCarta().replaceAll("\\s+", "");
-        metodoPagamento.setNumeroCarta(numeroCarta);
-
-        boolean risultato = metodoDiPagamentoDAO.addMetodoDiPagamento(metodoPagamento, userId);
-        if (!risultato) {
+        if (!metodoDiPagamentoDAO.addMetodoDiPagamento(metodoPagamento, userId)) {
             throw new RuntimeException("Errore nel salvataggio del metodo di pagamento");
         }
     }
@@ -36,38 +30,41 @@ public class MetodoDiPagamentoService {
     }
 
     public MetodoDiPagamento getMetodoDiPagamentoByID(int id) {
+        System.out.println("Richiesta metodo di pagamento con ID: " + id);
+
         MetodoDiPagamento method = metodoDiPagamentoDAO.findById(id);
         if (method == null) {
-            throw new NotFoundException("Metodo di pagamento non trovato");
+            System.err.println("Metodo di pagamento non trovato con ID: " + id);
+            throw new NotFoundException("Metodo di pagamento non trovato con ID: " + id);
         }
+
+        System.out.println("Metodo di pagamento trovato: " + method.getTipoCarta() + " - " + method.getTitolare());
         return method;
     }
 
     private void validaMetodoPagamento(MetodoDiPagamento method) {
-        if (method.getTitolare() == null || method.getTitolare().trim().isEmpty()) {
-            throw new IllegalArgumentException("Titolare della carta obbligatorio");
-        }
-
         if (method.getNumeroCarta() == null || !isValidCardNumber(method.getNumeroCarta())) {
             throw new IllegalArgumentException("Numero carta non valido");
         }
-
         if (method.getCvv() == null || !isValidCVV(method.getCvv())) {
             throw new IllegalArgumentException("CVV non valido");
         }
-
-        if (method.getDataScadenza() == null) {
+        if (method.getDataScadenza() == null || !isValidExpiryDate(method.getDataScadenza())) {
             throw new IllegalArgumentException("Data di scadenza non valida");
         }
     }
 
     private boolean isValidCardNumber(String cardNumber) {
-        String cleanCardNumber = cardNumber.replaceAll("\\s+", "");
-        return cleanCardNumber.matches("\\d{16}");
+        return cardNumber.matches("\\d{16}");
     }
 
     private boolean isValidCVV(String cvv) {
         return cvv.matches("\\d{3}");
     }
+
+    private boolean isValidExpiryDate(String expiryDate) {
+        return expiryDate.matches("(0[1-9]|1[0-2])/[0-9]{2}");
+    }
+
 
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Prodotto } from '../Models/prodotto';
 import { Carrello } from '../Models/carrello';
 
@@ -22,30 +23,14 @@ export class CarrelloService {
     quantity: number;
     taglia: string;
   }): Observable<any> {
-    // Assicurati che l'oggetto sia correttamente formattato
-    const payload = {
-      userId: request.userId,
-      productId: request.productId,
-      quantity: request.quantity,
-      taglia: request.taglia || 'M'
-    };
-
-    console.log('Invio payload:', payload); // Per debug
-
-    return this.http.post(`${this.apiUrl}/add`, payload);
+    return this.http.post(`${this.apiUrl}/add`, request);
   }
 
   /**
    * Ottiene i prodotti nel carrello dell'utente
    */
-  // In carrello.service.ts
   getUserCart(userId: number): Observable<Prodotto[]> {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.get<Prodotto[]>(`${this.apiUrl}/${userId}`, { headers });
+    return this.http.get<Prodotto[]>(`${this.apiUrl}/${userId}`);
   }
 
   /**
@@ -89,15 +74,33 @@ export class CarrelloService {
    * Rimuove un prodotto dal carrello
    */
   removeFromCart(userId: number, productId: number): Observable<any> {
-    // Specifica il responseType come 'text' invece che il default 'json'
-    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`, { responseType: 'text' });
+    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`);
   }
 
   /**
    * Svuota il carrello dell'utente
    */
   clearCart(userId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}`);
+    // Aggiungiamo header specifici e gestiamo meglio la risposta vuota
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': '*/*'
+    });
+
+    return this.http.delete(`${this.apiUrl}/${userId}`, { headers })
+      .pipe(
+        // Se la risposta è vuota ma lo status è 200, consideriamola un successo
+        tap(response => console.log('Carrello svuotato con successo', response)),
+        catchError(error => {
+          // Se l'errore ha status 200, trattalo come successo
+          if (error.status === 200) {
+            console.log('Respuesta vacía tratada como éxito');
+            return of({success: true, message: 'Carrello svuotato'});
+          }
+          console.error('Errore nello svuotamento del carrello', error);
+          throw error;
+        })
+      );
   }
 
   /**

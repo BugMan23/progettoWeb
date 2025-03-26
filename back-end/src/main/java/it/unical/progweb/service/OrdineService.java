@@ -10,8 +10,6 @@ import it.unical.progweb.persistence.dao.ProdottoDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -21,11 +19,6 @@ public class OrdineService {
     private final DettagliOrdineDAO dettagliOrdineDAO;
     private final ProdottoDAO prodottoDAO;
 
-    // Valori validi per lo stato dell'ordine
-    private static final List<String> STATI_VALIDI = Arrays.asList(
-            "IN_ELABORAZIONE", "SPEDITO", "CONSEGNATO", "ANNULLATO"
-    );
-
     @Autowired
     public OrdineService(OrdineDAO ordineDAO, DettagliOrdineDAO dettagliOrdineDAO, ProdottoDAO prodottoDAO) {
         this.ordineDAO = ordineDAO;
@@ -33,22 +26,24 @@ public class OrdineService {
         this.prodottoDAO = prodottoDAO;
     }
 
+    /**
+     * Crea un nuovo ordine e ne restituisce l'ID
+     */
     public int createOrder(int userId, int idMetodoPagamento, List<DettagliOrdini> articoliCarrello) {
         validazioneArticoliNelCarrello(articoliCarrello);
         int totaleDaPagare = calcolaTotale(articoliCarrello);
 
+        // Crea un ordine senza specificare la data (la imposterà il DB)
         Ordine ordine = new Ordine(
-                0,
+                0,  // id temporaneo che verrà sostituito dal DB
                 userId,
-                LocalDate.now().toString(),
-                "IN_ELABORAZIONE",
+                "IN_ELABORAZIONE",  // stato iniziale
                 totaleDaPagare,
                 idMetodoPagamento
         );
 
         int ordineId = ordineDAO.creaOrdine(ordine);
-
-        if (ordineId == -1) {
+        if (ordineId <= 0) {
             throw new RuntimeException("Errore nella creazione dell'ordine");
         }
 
@@ -61,57 +56,66 @@ public class OrdineService {
         return ordineId;
     }
 
+    /**
+     * Restituisce tutti gli ordini di un utente
+     */
     public List<Ordine> getUserOrders(int userId) {
         return ordineDAO.getOrdiniByIdUtente(userId);
     }
 
+    /**
+     * Restituisce i dettagli di un ordine specifico
+     */
     public Ordine getOrderById(int orderId) {
         Ordine ordine = ordineDAO.findById(orderId);
         if (ordine == null) {
-            throw new NotFoundException("Ordine non trovato");
+            throw new NotFoundException("Ordine non trovato con ID: " + orderId);
         }
         return ordine;
     }
 
-    public void updateOrderStatus(int orderId, String newStatus) {
-        // Verifica se lo stato è valido
-        if (!STATI_VALIDI.contains(newStatus)) {
-            throw new IllegalArgumentException("Stato ordine non valido. Stati validi: " + String.join(", ", STATI_VALIDI));
-        }
-
-        // Verifica se l'ordine esiste
-        Ordine ordine = getOrderById(orderId);
-        if (ordine == null) {
-            throw new RuntimeException("Errore nella ricerca dell'ordine");
-        }
-
-        // Aggiorna lo stato dell'ordine
-        boolean updated = ordineDAO.updateStatus(orderId, newStatus);
-
-        if (!updated) {
-            throw new RuntimeException("Impossibile aggiornare lo stato dell'ordine");
-        }
-    }
-
+    /**
+     * Verifica la validità degli articoli nel carrello
+     */
     private void validazioneArticoliNelCarrello(List<DettagliOrdini> items) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("Il carrello è vuoto");
         }
+
+        // Verifica che tutti gli articoli abbiano un ID prodotto valido
+        for (DettagliOrdini item : items) {
+            if (item.getIdProdotto() <= 0) {
+                throw new IllegalArgumentException("ID prodotto non valido: " + item.getIdProdotto());
+            }
+            if (item.getQuantita() <= 0) {
+                throw new IllegalArgumentException("Quantità non valida per il prodotto: " + item.getIdProdotto());
+            }
+        }
     }
 
+    /**
+     * Calcola il totale dell'ordine
+     */
     private int calcolaTotale(List<DettagliOrdini> items) {
         int totale = 0;
         for (DettagliOrdini item : items) {
             Prodotto prodotto = prodottoDAO.findById(item.getIdProdotto());
+            if (prodotto == null) {
+                throw new NotFoundException("Prodotto non trovato con ID: " + item.getIdProdotto());
+            }
             totale += prodotto.getPrezzo() * item.getQuantita();
         }
         return totale;
     }
 
+    /**
+     * Ottiene i dettagli di un ordine specifico
+     */
     public List<DettagliOrdini> getOrderDetails(int orderId) {
-        // Verifica se l'ordine esiste
-        getOrderById(orderId);
-
-        return dettagliOrdineDAO.findByOrderId(orderId);
+        List<DettagliOrdini> dettagli = dettagliOrdineDAO.findByOrderId(orderId);
+        if (dettagli.isEmpty()) {
+            throw new NotFoundException("Nessun dettaglio trovato per l'ordine con ID: " + orderId);
+        }
+        return dettagli;
     }
 }

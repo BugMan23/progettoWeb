@@ -13,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -37,120 +35,149 @@ public class OrdineController {
                     orderRequest.getIdMetodoPagamento(),
                     orderRequest.getArticoliCarrello()
             );
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", ordineId);
-            response.put("message", "Ordine creato con successo");
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new OrdineResponse(ordineId));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Errore durante la creazione dell'ordine: " + e.getMessage());
         }
     }
 
     // Recupero ordini utente
     @GetMapping("/utente/{userId}")
     public ResponseEntity<List<Ordine>> getUserOrders(@PathVariable int userId) {
-        List<Ordine> ordini = ordineService.getUserOrders(userId);
-        return ResponseEntity.ok(ordini);
+        try {
+            List<Ordine> ordini = ordineService.getUserOrders(userId);
+            return ResponseEntity.ok(ordini);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // Dettaglio singolo ordine
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderDetails(@PathVariable int orderId) {
         try {
+            // Ottieni l'ordine
             Ordine ordine = ordineService.getOrderById(orderId);
-            List<DettagliOrdini> dettagli = ordineService.getOrderDetails(orderId);
-            return ResponseEntity.ok(new OrderDetailResponse(ordine, dettagli));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
 
-    // Recupero degli articoli di un ordine
-    @GetMapping("/{orderId}/items")
-    public ResponseEntity<?> getOrderItems(@PathVariable int orderId) {
-        try {
-            List<DettagliOrdini> dettagli = ordineService.getOrderDetails(orderId);
-            return ResponseEntity.ok(dettagli);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+            // Ottieni i dettagli dell'ordine (articoli)
+            List<DettagliOrdini> dettagliBase = ordineService.getOrderDetails(orderId);
 
-    // Recupero prodotti di un ordine con dettagli
-    @GetMapping("/{orderId}/products")
-    public ResponseEntity<?> getOrderProducts(@PathVariable int orderId) {
-        try {
-            List<DettagliOrdini> dettagli = ordineService.getOrderDetails(orderId);
-            List<OrderProductResponse> prodotti = new ArrayList<>();
+            // Crea la lista di dettagli arricchita con informazioni sui prodotti
+            List<DettagliOrdineConProdotto> dettagliCompleti = new ArrayList<>();
 
-            for (DettagliOrdini dettaglio : dettagli) {
-                Prodotto prodotto = prodottoService.getProductById(dettaglio.getIdProdotto());
-                prodotti.add(new OrderProductResponse(dettaglio, prodotto));
+            for (DettagliOrdini dettaglio : dettagliBase) {
+                Prodotto prodotto = null;
+                try {
+                    prodotto = prodottoService.getProductById(dettaglio.getIdProdotto());
+                } catch (NotFoundException e) {
+                    // Il prodotto non esiste più, usiamo informazioni di base
+                }
+
+                // Crea un oggetto di dettaglio arricchito
+                DettagliOrdineConProdotto dettaglioCompleto = new DettagliOrdineConProdotto(
+                        dettaglio.getId(),
+                        dettaglio.getIdOrdine(),
+                        dettaglio.getIdProdotto(),
+                        dettaglio.getQuantita(),
+                        prodotto != null ? prodotto.getNome() : "Prodotto non disponibile",
+                        prodotto != null ? prodotto.getPrezzo() : 0
+                );
+
+                dettagliCompleti.add(dettaglioCompleto);
             }
 
-            return ResponseEntity.ok(prodotti);
+            // Crea la risposta completa
+            OrderDetailResponse response = new OrderDetailResponse(ordine, dettagliCompleti);
+            return ResponseEntity.ok(response);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Errore durante il recupero dei dettagli dell'ordine: " + e.getMessage());
         }
     }
 
-    // Aggiorna lo stato di un ordine (solo admin)
-    @PutMapping("/{orderId}/status")
-    public ResponseEntity<?> updateOrderStatus(
-            @PathVariable int orderId,
-            @RequestBody Map<String, String> request) {
-        try {
-            String newStatus = request.get("status");
-            if (newStatus == null) {
-                return ResponseEntity.badRequest().body("Status field is required");
-            }
-
-            ordineService.updateOrderStatus(orderId, newStatus);
-            return ResponseEntity.ok("Stato ordine aggiornato con successo");
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    // Classe per la risposta con dettagli ordine
+    // Classe interna per la risposta con dettagli dell'ordine
     public static class OrderDetailResponse {
         private Ordine ordine;
-        private List<DettagliOrdini> dettagli;
+        private List<DettagliOrdineConProdotto> dettagli;
 
-        public OrderDetailResponse(Ordine ordine, List<DettagliOrdini> dettagli) {
+        public OrderDetailResponse(Ordine ordine, List<DettagliOrdineConProdotto> dettagli) {
             this.ordine = ordine;
             this.dettagli = dettagli;
         }
 
+        // Getter necessari per la serializzazione JSON
         public Ordine getOrdine() {
             return ordine;
         }
 
-        public List<DettagliOrdini> getDettagli() {
+        public List<DettagliOrdineConProdotto> getDettagli() {
             return dettagli;
         }
     }
 
-    // Classe per la risposta con prodotto e dettagli ordine
-    public static class OrderProductResponse {
-        private DettagliOrdini dettaglio;
-        private Prodotto prodotto;
+    // Classe per risposta alla creazione dell'ordine
+    public static class OrdineResponse {
+        private int id;
 
-        public OrderProductResponse(DettagliOrdini dettaglio, Prodotto prodotto) {
-            this.dettaglio = dettaglio;
-            this.prodotto = prodotto;
+        public OrdineResponse(int id) {
+            this.id = id;
         }
 
-        public DettagliOrdini getDettaglio() {
-            return dettaglio;
+        public int getId() {
+            return id;
+        }
+    }
+
+    // Classe per dettagli dell'ordine arricchiti con informazioni sul prodotto
+    public static class DettagliOrdineConProdotto {
+        private int id;
+        private int idOrdine;
+        private int idProdotto;
+        private int quantita;
+        private String nomeProdotto;
+        private int prezzoProdotto;
+
+        public DettagliOrdineConProdotto(int id, int idOrdine, int idProdotto, int quantita,
+                                         String nomeProdotto, int prezzoProdotto) {
+            this.id = id;
+            this.idOrdine = idOrdine;
+            this.idProdotto = idProdotto;
+            this.quantita = quantita;
+            this.nomeProdotto = nomeProdotto;
+            this.prezzoProdotto = prezzoProdotto;
         }
 
-        public Prodotto getProdotto() {
-            return prodotto;
+        // Getter necessari per la serializzazione JSON
+        public int getId() {
+            return id;
+        }
+
+        public int getIdOrdine() {
+            return idOrdine;
+        }
+
+        public int getIdProdotto() {
+            return idProdotto;
+        }
+
+        public int getQuantita() {
+            return quantita;
+        }
+
+        public String getNomeProdotto() {
+            return nomeProdotto;
+        }
+
+        public int getPrezzoProdotto() {
+            return prezzoProdotto;
         }
     }
 }

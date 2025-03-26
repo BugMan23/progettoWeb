@@ -8,6 +8,22 @@ import { Ordine } from '../../../Models/ordine';
 import { DettagliOrdini } from '../../../Models/dettagli-ordini';
 import { Prodotto } from '../../../Models/prodotto';
 
+// Interfaccia per i dettagli ordine con prodotti
+interface OrderDetailsResponse {
+  ordine: Ordine;
+  dettagli: DettagliOrdineInfo[];
+}
+
+// Interfaccia per i dettagli degli ordini
+interface DettagliOrdineInfo {
+  id: number;
+  idOrdine: number;
+  idProdotto: number;
+  nomeProdotto?: string;
+  prezzoProdotto?: number;
+  quantita: number;
+}
+
 @Component({
   selector: 'app-ordini',
   standalone: true,
@@ -34,6 +50,10 @@ export class OrdiniComponent implements OnInit {
   // Dettagli ordine per vista dettaglio
   dettagliOrdine: DettagliOrdini[] = [];
   prodotti: Map<number, Prodotto> = new Map();
+
+  // Proprietà mancanti
+  orderDetails: OrderDetailsResponse | null = null;
+  orderTotal: number = 0;
 
   // Info metodo di pagamento
   metodoPagamento: any = null;
@@ -69,7 +89,7 @@ export class OrdiniComponent implements OnInit {
         this.orderId = parseInt(idParam);
         this.isDetailView = true;
         this.inProfileView = false;
-        this.loadOrderDetails();
+        this.loadOrderInfo(this.orderId);
       } else {
         // Vista lista ordini
         this.isDetailView = false;
@@ -78,6 +98,7 @@ export class OrdiniComponent implements OnInit {
     });
   }
 
+  // Metodo per caricare gli ordini dell'utente
   loadAllOrders(): void {
     if (!this.userId) return;
 
@@ -94,26 +115,27 @@ export class OrdiniComponent implements OnInit {
     });
   }
 
-  loadOrderDetails(): void {
-    if (!this.orderId) return;
+  // Metodo unificato per caricare i dettagli dell'ordine
+  loadOrderInfo(orderId: number): void {
+    this.ordineService.getOrderDetails(orderId).subscribe({
+      next: (response: any) => {
+        console.log('Dettagli ordine ricevuti:', response);
+        this.orderDetails = response;
+        this.ordineSelezionato = response.ordine;
+        this.dettagliOrdine = response.dettagli;
 
-    this.ordineService.getOrderDetails(this.orderId).subscribe({
-      next: (data) => {
-        // In base alla struttura della risposta dal backend
-        if (data.ordine && data.dettagli) {
-          this.ordineSelezionato = data.ordine;
-          this.dettagliOrdine = data.dettagli;
-
-          // Carica i dati dei prodotti
-          this.loadProductDetails();
-
-          // Carica metodo di pagamento se disponibile
-          if (this.ordineSelezionato && this.ordineSelezionato.idMetodoPagamento) {
-            this.loadPaymentMethod(this.ordineSelezionato.idMetodoPagamento);
-          }
-        } else {
-          this.error = 'Formato risposta non valido';
+        // Carica il metodo di pagamento se l'ordine contiene l'ID
+        if (this.ordineSelezionato && this.ordineSelezionato.idMetodoPagamento) {
+          this.loadPaymentMethod(this.ordineSelezionato.idMetodoPagamento);
         }
+
+        // Carica i dettagli dei prodotti
+        this.loadProductDetails();
+
+        // Calcola il totale
+        this.calculateTotals();
+
+        this.loading = false;
       },
       error: (err) => {
         console.error('Errore nel caricamento dei dettagli ordine', err);
@@ -123,6 +145,33 @@ export class OrdiniComponent implements OnInit {
     });
   }
 
+  // Calcola il totale dell'ordine
+  calculateTotals(): void {
+    this.orderTotal = 0;
+
+    if (this.dettagliOrdine.length > 0) {
+      this.dettagliOrdine.forEach(item => {
+        const prodotto = this.getProdotto(item.idProdotto);
+        if (prodotto) {
+          const prezzo = prodotto.prezzo || 0;
+          const quantita = item.quantita || 0;
+          this.orderTotal += prezzo * quantita;
+        }
+      });
+    } else if (this.orderDetails && this.orderDetails.dettagli) {
+      this.orderDetails.dettagli.forEach(item => {
+        const prezzo = Number(item.prezzoProdotto) || 0;
+        const quantita = Number(item.quantita) || 0;
+        const subtotale = prezzo * quantita;
+
+        if (!isNaN(subtotale)) {
+          this.orderTotal += subtotale;
+        }
+      });
+    }
+  }
+
+  // Carica i dettagli dei prodotti
   loadProductDetails(): void {
     // Array di promesse per caricare tutti i prodotti
     const productPromises = this.dettagliOrdine.map(dettaglio => {
@@ -145,21 +194,30 @@ export class OrdiniComponent implements OnInit {
     // Quando tutti i prodotti sono caricati
     Promise.all(productPromises)
       .then(() => {
-        this.loading = false;
+        this.calculateTotals();
       })
       .catch(err => {
         console.error('Errore nel caricamento dei prodotti', err);
-        this.loading = false;
       });
   }
 
+  // Carica i dettagli del metodo di pagamento
   loadPaymentMethod(paymentId: number): void {
+    if (!paymentId) {
+      console.warn('ID metodo di pagamento non valido');
+      this.metodoPagamento = { titolare: 'Non disponibile', tipoCarta: 'Non disponibile' };
+      return;
+    }
+
     this.metodoPagamentoService.getMetodoPagamentoByID(paymentId).subscribe({
       next: (data) => {
+        console.log('Metodo di pagamento caricato:', data);
         this.metodoPagamento = data;
       },
       error: (err) => {
         console.error('Errore nel caricamento del metodo di pagamento', err);
+        // Imposta un valore di fallback per una migliore esperienza utente
+        this.metodoPagamento = { titolare: 'Non disponibile', tipoCarta: 'Non disponibile' };
       }
     });
   }

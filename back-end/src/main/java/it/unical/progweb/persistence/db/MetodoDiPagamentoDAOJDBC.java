@@ -21,13 +21,11 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
     @Override
     public List<MetodoDiPagamento> findByUtenteId(int utenteId) {
         List<MetodoDiPagamento> metodiDiPagamento = new ArrayList<>();
-        String query = "SELECT * FROM metododiPagamento WHERE idUtente = ?";
+        String query = "SELECT * FROM metodoDiPagamento WHERE idUtente = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, utenteId);
-            System.out.println("DAO: Esecuzione query findByUtenteId con ID: " + utenteId);
-
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     metodiDiPagamento.add(new MetodoDiPagamento(
@@ -42,18 +40,17 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
                     ));
                 }
             }
-
-            System.out.println("DAO: Trovati " + metodiDiPagamento.size() + " metodi di pagamento");
         } catch (SQLException e) {
-            System.err.println("DAO: Errore SQL in findByUtenteId: " + e.getMessage());
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException("Errore nel recupero dei metodi di pagamento: " + e.getMessage(), e);
         }
         return metodiDiPagamento;
     }
 
     @Override
     public boolean addMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento, int utenteId) {
-        String query = "INSERT INTO metodoDiPagamento (tipoPagamento, titolare, tipoCarta, numCarta, dataScadenza, cvv, idUtente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO MetodoDiPagamento (tipoPagamento, titolare, tipoCarta, numeroCarta, dataScadenza, cvv, idUtente) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -64,46 +61,45 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
             ps.setString(5, metodoDiPagamento.getDataScadenza());
             ps.setString(6, metodoDiPagamento.getCvv());
             ps.setInt(7, utenteId);
-
-            System.out.println("DAO: Esecuzione INSERT per metodo di pagamento con utenteId: " + utenteId);
             int rowsUpdated = ps.executeUpdate();
-            System.out.println("DAO: Righe inserite: " + rowsUpdated);
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            System.err.println("DAO: Errore SQL in addMetodoDiPagamento: " + e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Errore nell'aggiunta del metodo di pagamento: " + e.getMessage(), e);
         }
     }
 
     @Override
     public MetodoDiPagamento findById(int id) {
-        MetodoDiPagamento metodoDiPagamento = null;
         String query = "SELECT * FROM metodoDiPagamento WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
+            System.out.println("Esecuzione query per metodo di pagamento con ID: " + id);
             ps.setInt(1, id);
-            System.out.println("DAO: Esecuzione query findById con ID: " + id);
-
             try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next()) {
-                    metodoDiPagamento = new MetodoDiPagamento(
+                if (rs.next()) {
+                    System.out.println("MetodoDiPagamento trovato con ID: " + id);
+                    MetodoDiPagamento metodoDiPagamento = new MetodoDiPagamento(
                             rs.getInt("id"),
                             rs.getString("tipoPagamento"),
                             rs.getString("titolare"),
                             rs.getString("tipoCarta"),
-                            rs.getString("numeroCarta"),
+                            rs.getString("numCarta"),
                             rs.getString("dataScadenza"),
                             rs.getString("cvv"),
                             rs.getInt("idUtente")
                     );
+                    return metodoDiPagamento;
+                } else {
+                    System.out.println("Nessun metodo di pagamento trovato con ID: " + id);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("DAO: Errore SQL in findById: " + e.getMessage());
-            throw new RuntimeException(e);
+            System.err.println("Errore SQL durante il recupero del metodo di pagamento: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Errore nel recupero del metodo di pagamento: " + e.getMessage(), e);
         }
-        return metodoDiPagamento;
+        return null;
     }
 }

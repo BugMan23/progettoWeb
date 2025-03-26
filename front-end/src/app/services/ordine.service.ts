@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Observable, of} from 'rxjs';
 import { Ordine } from '../Models/ordine';
 import { DettagliOrdini } from '../Models/dettagli-ordini';
+import {catchError, tap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -15,19 +16,33 @@ export class OrdineService {
   /**
    * Crea un nuovo ordine
    */
-  createOrder(userId: number, idMetodoPagamento: number, articoliCarrello: DettagliOrdini[]): Observable<any> {
-    return this.http.post(this.apiUrl, {
-      userId,
-      idMetodoPagamento,
-      articoliCarrello
-    });
+  createOrder(userId: number, idMetodoPagamento: number, articoliCarrello: any[]): Observable<any> {
+    // Assicuriamoci che la struttura corrisponda esattamente a OrdineRequest.java
+    const orderData = {
+      userId: userId,
+      idMetodoPagamento: idMetodoPagamento,
+      articoliCarrello: articoliCarrello
+    };
+    console.log('Invio ordine al server:', orderData);
+    return this.http.post(this.apiUrl, orderData);
   }
 
   /**
    * Ottiene gli ordini di un utente
    */
   getUserOrders(userId: number): Observable<Ordine[]> {
-    return this.http.get<Ordine[]>(`${this.apiUrl}/utente/${userId}`);
+    // Aggiungi log per debug
+    console.log(`Richiesta ordini per utente ID: ${userId}`);
+
+    return this.http.get<Ordine[]>(`${this.apiUrl}/utente/${userId}`)
+      .pipe(
+        tap(orders => console.log('Ordini ricevuti:', orders)),
+        catchError(err => {
+          console.error('Errore nel recupero ordini:', err);
+          // Ritorna un array vuoto in caso di errore invece di propagare l'errore
+          return of([]);
+        })
+      );
   }
 
   /**
