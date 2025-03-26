@@ -30,16 +30,34 @@ public class MetodoDiPagamentoService {
     }
 
     public MetodoDiPagamento getMetodoDiPagamentoByID(int id) {
-        System.out.println("Richiesta metodo di pagamento con ID: " + id);
-
         MetodoDiPagamento method = metodoDiPagamentoDAO.findById(id);
         if (method == null) {
-            System.err.println("Metodo di pagamento non trovato con ID: " + id);
-            throw new NotFoundException("Metodo di pagamento non trovato con ID: " + id);
+            throw new NotFoundException("Metodo di pagamento non trovato");
         }
-
-        System.out.println("Metodo di pagamento trovato: " + method.getTipoCarta() + " - " + method.getTitolare());
         return method;
+    }
+
+    public void updateMetodoDiPagamento(MetodoDiPagamento metodoPagamento) {
+        // Verifica che il metodo di pagamento esista
+        MetodoDiPagamento esistente = getMetodoDiPagamentoByID(metodoPagamento.getId());
+
+        // Valida i dati del metodo di pagamento
+        validaMetodoPagamento(metodoPagamento);
+
+        // Aggiorna il metodo di pagamento nel database
+        if (!metodoDiPagamentoDAO.updateMetodoDiPagamento(metodoPagamento)) {
+            throw new RuntimeException("Errore nell'aggiornamento del metodo di pagamento");
+        }
+    }
+
+    public void deleteMetodoDiPagamento(int id) {
+        // Verifica che il metodo di pagamento esista
+        MetodoDiPagamento esistente = getMetodoDiPagamentoByID(id);
+
+        // Elimina il metodo di pagamento
+        if (!metodoDiPagamentoDAO.deleteMetodoDiPagamento(id)) {
+            throw new RuntimeException("Errore nell'eliminazione del metodo di pagamento");
+        }
     }
 
     private void validaMetodoPagamento(MetodoDiPagamento method) {
@@ -65,6 +83,4 @@ public class MetodoDiPagamentoService {
     private boolean isValidExpiryDate(String expiryDate) {
         return expiryDate.matches("(0[1-9]|1[0-2])/[0-9]{2}");
     }
-
-
 }

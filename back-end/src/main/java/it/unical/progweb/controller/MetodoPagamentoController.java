@@ -18,81 +18,65 @@ public class MetodoPagamentoController {
     @Autowired
     private MetodoDiPagamentoService metodoDiPagamentoService;
 
+    // Ottiene tutti i metodi di pagamento dell'utente
     @GetMapping("/utente/{userId}")
     public ResponseEntity<List<MetodoDiPagamento>> getMetodiPagamentoUtente(@PathVariable int userId) {
-        try {
-            List<MetodoDiPagamento> metodiPagamento = metodoDiPagamentoService.getMetodiPagamentoUtente(userId);
-            return ResponseEntity.ok(metodiPagamento);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        List<MetodoDiPagamento> metodiPagamento = metodoDiPagamentoService.getMetodiPagamentoUtente(userId);
+        return ResponseEntity.ok(metodiPagamento);
     }
 
+    // Ottiene un metodo di pagamento specifico tramite ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getMetodoPagamentoById(@PathVariable int id) {
         try {
-            System.out.println("Ricevuta richiesta per metodo di pagamento con ID: " + id);
             MetodoDiPagamento metodoPagamento = metodoDiPagamentoService.getMetodoDiPagamentoByID(id);
             return ResponseEntity.ok(metodoPagamento);
         } catch (NotFoundException e) {
-            System.err.println("Metodo di pagamento non trovato: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Errore interno: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore nel recupero del metodo di pagamento: " + e.getMessage());
         }
     }
 
+    // Aggiunge un nuovo metodo di pagamento
     @PostMapping
-    public ResponseEntity<?> salvaMetodoPagamento(@RequestBody MetodoDiPagamento metodoPagamento) {
+    public ResponseEntity<?> saveMetodoPagamento(@RequestBody MetodoDiPagamento metodoPagamento,
+                                                 @RequestParam int userId) {
         try {
-            // Il parametro userId dovrebbe essere incluso nella richiesta
-            int userId = metodoPagamento.getIdUtente();
             metodoDiPagamentoService.salvaMetodoDiPagamento(metodoPagamento, userId);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Metodo di pagamento salvato con successo");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Metodo di pagamento aggiunto con successo");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore nel salvataggio del metodo di pagamento: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
+    // Aggiorna un metodo di pagamento esistente
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMetodoPagamento(@PathVariable int id, @RequestBody MetodoDiPagamento metodoPagamento) {
+    public ResponseEntity<?> updateMetodoPagamento(@PathVariable int id,
+                                                   @RequestBody MetodoDiPagamento metodoPagamento) {
         try {
-            // Verifica che l'ID nel path corrisponda all'ID nell'oggetto
+            // Assicuriamoci che l'ID nel path coincida con quello nell'oggetto
             if (metodoPagamento.getId() != id) {
-                return ResponseEntity.badRequest().body("ID nel path non corrisponde all'ID nell'oggetto");
+                metodoPagamento.setId(id);
             }
 
-
+            metodoDiPagamentoService.updateMetodoDiPagamento(metodoPagamento);
             return ResponseEntity.ok("Metodo di pagamento aggiornato con successo");
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore nell'aggiornamento del metodo di pagamento: " + e.getMessage());
         }
     }
 
+    // Elimina un metodo di pagamento
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMetodoPagamento(@PathVariable int id) {
         try {
+            metodoDiPagamentoService.deleteMetodoDiPagamento(id);
             return ResponseEntity.ok("Metodo di pagamento eliminato con successo");
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore nell'eliminazione del metodo di pagamento: " + e.getMessage());
         }
     }
 }

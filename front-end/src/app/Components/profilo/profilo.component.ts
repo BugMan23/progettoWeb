@@ -7,12 +7,12 @@ import { OrdineService } from '../../services/ordine.service';
 import { IndirizzoService } from '../../services/indirizzo.service';
 import { MetodoPagamentoService } from '../../services/metodo-pagamento.service';
 import { ProdottoService } from '../../services/prodotto.service';
-import { User } from '../../Models/user';
-import { Indirizzo } from '../../Models/indirizzo';
-import { MetodoPagamento } from '../../Models/metodo-pagamento';
-import { Ordine } from '../../Models/ordine';
-import { DettagliOrdini } from '../../Models/dettagli-ordini';
-import { Prodotto } from '../../Models/prodotto';
+import { User } from '../../models/user';
+import { Indirizzo } from '../../models/indirizzo';
+import { MetodoPagamento } from '../../models/metodo-pagamento';
+import { Ordine } from '../../models/ordine';
+import { DettagliOrdini } from '../../models/dettagli-ordini';
+import { Prodotto } from '../../models/prodotto';
 
 @Component({
   selector: 'app-profilo',

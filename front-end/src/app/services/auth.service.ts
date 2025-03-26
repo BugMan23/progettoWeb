@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import {Observable, BehaviorSubject, map, of} from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { User } from '../Models/user'; // Assicurati che questo percorso sia corretto
+import { User } from '../models/user'; // Assicurati che questo percorso sia corretto
 import { jwtDecode } from 'jwt-decode'; // Importa jwtDecode se necessario
 
 @Injectable({

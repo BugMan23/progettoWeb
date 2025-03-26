@@ -6,9 +6,9 @@ import { ProdottoService } from '../../services/prodotto.service';
 import { RecensioneService } from '../../services/recensione.service';
 import { CarrelloService } from '../../services/carrello.service';
 import { DisponibilitaService } from '../../services/disponibilita.service';
-import { Prodotto } from '../../Models/prodotto';
-import { Recensione } from '../../Models/recensione';
-import { Disponibilita } from '../../Models/disponibilita';
+import { Prodotto } from '../../models/prodotto';
+import { Recensione } from '../../models/recensione';
+import { Disponibilita } from '../../models/disponibilita';
 
 @Component({
   selector: 'app-product-detail',

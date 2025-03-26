@@ -1,160 +1,195 @@
-<!-- Messaggio di caricamento -->
-<div *ngIf="loading" class="text-center py-4">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">Caricamento...</span>
-  </div>
-  <p class="mt-3">
-    {{ isDetailView ? 'Caricamento dettagli ordine...' : 'Caricamento ordini...' }}
-  </p>
-</div>
-
-<!-- Messaggio di errore -->
-<div *ngIf="error" class="alert alert-danger" role="alert">
-  {{ error }}
-</div>
-
-<!-- VISTA LISTA ORDINI -->
-<div *ngIf="!loading && !error && !isDetailView">
-  <div *ngIf="!inProfileView" class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">I tuoi ordini</h4>
-    <a routerLink="/profilo" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-2"></i>Torna al profilo
-    </a>
+<div class="container py-4">
+  <!-- Loader -->
+  <div *ngIf="caricamento" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Caricamento...</span>
+    </div>
+    <p class="mt-3">Caricamento in corso...</p>
   </div>
 
-  <!-- Nessun ordine -->
-  <div *ngIf="ordini.length === 0" class="text-center py-4">
-    <i class="bi bi-bag-x" style="font-size: 3rem; color: #ccc;"></i>
-    <p class="mt-3">Non hai ancora effettuato ordini.</p>
-    <a routerLink="/catalogo" class="btn btn-primary">Inizia lo shopping</a>
+  <!-- Errore -->
+  <div *ngIf="errore" class="alert alert-danger">{{ errore }}</div>
+
+  <!-- Vista dettaglio ordine -->
+  <div *ngIf="!caricamento && !errore && visualizzaDettaglio && ordineSelezionato">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Dettaglio Ordine #{{ ordineSelezionato.id }}</h2>
+      <button class="btn btn-outline-primary" (click)="tornaAllaLista()">
+        <i class="bi bi-arrow-left me-2"></i>Torna alla lista
+      </button>
+    </div>
+
+    <div class="row">
+      <!-- Dettagli ordine -->
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0">Riepilogo Ordine</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p><strong>Numero Ordine:</strong> #{{ ordineSelezionato.id }}</p>
+                <p><strong>Data:</strong> {{ formattaData(ordineSelezionato.data) }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Stato:</strong> <span class="badge bg-success">{{ ordineSelezionato.stato }}</span></p>
+                <p><strong>Totale:</strong> €{{ (ordineSelezionato?.totalePagare || 0).toFixed(2) }}</p>
+              </div>
+            </div>
+
+            <!-- Metodo di pagamento -->
+            <div class="mb-4">
+              <h6>Metodo di Pagamento</h6>
+              <div *ngIf="metodoPagamento" class="card p-3">
+                <div class="d-flex align-items-center">
+                  <div>
+                    <p class="mb-1"><strong>{{ metodoPagamento.tipoCarta }}</strong> {{ mascheraNumeroCarta(metodoPagamento.numeroCarta) }}</p>
+                    <p class="mb-0 text-muted">{{ metodoPagamento.titolare }} | Scadenza: {{ metodoPagamento.dataScadenza }}</p>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!metodoPagamento" class="text-muted">
+                Informazioni di pagamento non disponibili
+              </div>
+            </div>
+
+            <!-- Tabella articoli -->
+            <h6>Articoli Ordinati</h6>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                <tr>
+                  <th>Prodotto</th>
+                  <th>Prezzo</th>
+                  <th>Quantità</th>
+                  <th class="text-end">Totale</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let dettaglio of dettagliOrdine">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
+                        <div class="fw-bold">{{ prodotto.nome }}</div>
+                        <div class="text-muted small">{{ prodotto.marca }} | {{ prodotto.colore }}</div>
+                      </div>
+                      <div *ngIf="!getProdotto(dettaglio.idProdotto)">
+                        Prodotto ID: {{ dettaglio.idProdotto }}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
+                      €{{ prodotto.prezzo.toFixed(2) }}
+                    </div>
+                  </td>
+                  <td>{{ dettaglio.quantita }}</td>
+                  <td class="text-end">
+                    <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
+                      €{{ (calcolaSubtotale(dettaglio) || 0).toFixed(2) }}
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Totale Ordine:</td>
+                  <td class="text-end fw-bold">€{{ ordineSelezionato.totalePagare.toFixed(2) }}</td>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Stato dell'Ordine</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Ordine Confermato</span>
+                <i class="bi bi-check-circle-fill text-success"></i>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>In Preparazione</span>
+                <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': ordineSelezionato.stato === 'IN_PREPARAZIONE' || ordineSelezionato.stato === 'SPEDITO' || ordineSelezionato.stato === 'CONSEGNATO', 'bi-circle text-secondary': !(ordineSelezionato.stato === 'IN_PREPARAZIONE' || ordineSelezionato.stato === 'SPEDITO' || ordineSelezionato.stato === 'CONSEGNATO')}"></i>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Spedito</span>
+                <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': ordineSelezionato.stato === 'SPEDITO' || ordineSelezionato.stato === 'CONSEGNATO', 'bi-circle text-secondary': !(ordineSelezionato.stato === 'SPEDITO' || ordineSelezionato.stato === 'CONSEGNATO')}"></i>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Consegnato</span>
+                <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': ordineSelezionato.stato === 'CONSEGNATO', 'bi-circle text-secondary': ordineSelezionato.stato !== 'CONSEGNATO'}"></i>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h6>Hai bisogno di aiuto?</h6>
+              <p class="small text-muted">Per qualsiasi domanda sul tuo ordine, contattaci al numero 800-123-456</p>
+              <button class="btn btn-outline-primary w-100">
+                <i class="bi bi-question-circle me-2"></i>Assistenza
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Lista ordini -->
-  <div *ngIf="ordini.length > 0">
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead>
-        <tr>
-          <th>Ordine #</th>
-          <th>Data</th>
-          <th>Stato</th>
-          <th>Totale</th>
-          <th>Azioni</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let ordine of ordini">
-          <td>{{ ordine.id }}</td>
-          <td>{{ ordine.data }}</td>
-          <td>
-            <span class="badge" [ngClass]="getStatusClass(ordine.stato)">{{ ordine.stato }}</span>
-          </td>
-          <td>€{{ ordine.totalePagare.toFixed(2) }}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary" (click)="viewOrderDetails(ordine.id)">
-              <i class="bi bi-eye me-1"></i> Dettagli
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+  <div *ngIf="!caricamento && !errore && !visualizzaDettaglio">
+    <h2 class="mb-4">I miei Ordini</h2>
 
-<!-- VISTA DETTAGLIO ORDINE -->
-<div *ngIf="!loading && !error && isDetailView && ordineSelezionato" class="order-details">
-  <!-- Breadcrumb -->
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
-      <li class="breadcrumb-item"><a routerLink="/profilo">Profilo</a></li>
-      <li class="breadcrumb-item active">Ordine #{{ ordineSelezionato.id }}</li>
-    </ol>
-  </nav>
-
-  <!-- Intestazione ordine -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-      <div>
-        <h4 class="mb-0">Ordine #{{ ordineSelezionato.id }}</h4>
-        <div class="text-muted">{{ ordineSelezionato.data }}</div>
-      </div>
-      <div>
-        <span class="badge" [ngClass]="getStatusClass(ordineSelezionato.stato)">{{ ordineSelezionato.stato }}</span>
-      </div>
+    <div *ngIf="ordini.length === 0" class="text-center py-5">
+      <i class="bi bi-bag-x" style="font-size: 3rem; color: #ccc;"></i>
+      <h4 class="mt-3">Non hai ancora effettuato ordini</h4>
+      <p class="text-muted">Esplora il nostro catalogo e trova i migliori articoli sportivi per te.</p>
+      <a routerLink="/catalogo" class="btn btn-primary mt-2">Vai al Catalogo</a>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <h6>Riepilogo ordine</h6>
-          <p class="mb-1"><strong>Totale:</strong> €{{ ordineSelezionato.totalePagare.toFixed(2) }}</p>
-          <p class="mb-1"><strong>Stato:</strong> {{ ordineSelezionato.stato }}</p>
-          <p class="mb-1"><strong>Data:</strong> {{ ordineSelezionato.data }}</p>
-        </div>
-        <div class="col-md-6 mb-3" *ngIf="metodoPagamento">
-          <h6>Metodo di pagamento</h6>
-          <p class="mb-1"><strong>Tipo:</strong> {{ metodoPagamento.tipoCarta }}</p>
-          <p class="mb-1"><strong>Titolare:</strong> {{ metodoPagamento.titolare }}</p>
-          <p class="mb-1"><strong>Carta:</strong> **** **** **** {{ metodoPagamento.numeroCarta.slice(-4) }}</p>
+
+    <div *ngIf="ordini.length > 0" class="card mb-4">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col">
+            <h5 class="mb-0">Ordini Recenti</h5>
+          </div>
+          <div class="col-auto">
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                Filtra per
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><a class="dropdown-item" href="#">Tutti gli ordini</a></li>
+                <li><a class="dropdown-item" href="#">Ultimi 30 giorni</a></li>
+                <li><a class="dropdown-item" href="#">Ultimi 6 mesi</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Prodotti nell'ordine -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white py-3">
-      <h5 class="mb-0">Prodotti ordinati</h5>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table mb-0">
-          <thead>
-          <tr>
-            <th>Prodotto</th>
-            <th>Prezzo</th>
-            <th>Quantità</th>
-            <th class="text-end">Totale</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let dettaglio of dettagliOrdine">
-            <td>
-              <div class="d-flex align-items-center">
-                <img *ngIf="getProdotto(dettaglio.idProdotto)?.urlImage"
-                     [src]="getProdotto(dettaglio.idProdotto)?.urlImage || 'assets/images/placeholder.jpg'"
-                     alt="Prodotto"
-                     class="me-3"
-                     style="width: 50px; height: 50px; object-fit: cover;">
-                <div>
-                  <div>{{ getProdotto(dettaglio.idProdotto)?.nome || 'Prodotto non disponibile' }}</div>
-                  <small class="text-muted">{{ getProdotto(dettaglio.idProdotto)?.marca }}</small>
-                </div>
-              </div>
-            </td>
-            <td>€{{ getProductPrice(dettaglio.idProdotto) }}</td>
-            <td>{{ dettaglio.quantita }}</td>
-            <td class="text-end fw-bold">€{{ calcolaTotaleRiga(dettaglio).toFixed(2) }}</td>
-          </tr>
-          </tbody>
-          <tfoot>
-          <tr>
-            <td colspan="3" class="text-end fw-bold">Totale</td>
-            <td class="text-end fw-bold">€{{ ordineSelezionato.totalePagare.toFixed(2) }}</td>
-          </tr>
-          </tfoot>
-        </table>
+      <div class="list-group list-group-flush">
+        <a *ngFor="let ordine of ordini"
+           [routerLink]="['/ordini', ordine.id]"
+           class="list-group-item list-group-item-action">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">Ordine #{{ ordine.id }}</h6>
+              <div class="text-muted small">{{ formattaData(ordine.data) }}</div>
+            </div>
+            <div class="text-end">
+              <div class="badge bg-success mb-1">{{ ordine.stato }}</div>
+              <div class="fw-bold">€{{ ordine.totalePagare.toFixed(2) }}</div>
+            </div>
+          </div>
+        </a>
       </div>
     </div>
-  </div>
-
-  <!-- Pulsante per tornare agli ordini -->
-  <div class="d-flex justify-content-between mt-4">
-    <button class="btn btn-outline-primary" (click)="backToOrders()">
-      <i class="bi bi-arrow-left me-2"></i>Torna agli ordini
-    </button>
-
-    <!-- Eventuali azioni aggiuntive per l'ordine potrebbero essere aggiunte qui -->
   </div>
 </div>

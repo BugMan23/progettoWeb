@@ -7,10 +7,10 @@ import { ProdottoService } from '../../services/prodotto.service';
 import { IndirizzoService } from '../../services/indirizzo.service';
 import { MetodoPagamentoService } from '../../services/metodo-pagamento.service';
 import { OrdineService } from '../../services/ordine.service';
-import { Indirizzo } from '../../Models/indirizzo';
-import { MetodoPagamento } from '../../Models/metodo-pagamento';
-import { Prodotto } from '../../Models/prodotto';
-import { DettagliOrdini } from '../../Models/dettagli-ordini';
+import { Indirizzo } from '../../models/indirizzo';
+import { MetodoPagamento } from '../../models/metodo-pagamento';
+import { Prodotto } from '../../models/prodotto';
+import { DettagliOrdini } from '../../models/dettagli-ordini';
 
 @Component({
   selector: 'app-checkout',

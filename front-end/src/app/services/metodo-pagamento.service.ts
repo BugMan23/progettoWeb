@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { MetodoPagamento } from '../Models/metodo-pagamento';
+import { MetodoPagamento } from '../models/metodo-pagamento';
 
 @Injectable({
   providedIn: 'root'

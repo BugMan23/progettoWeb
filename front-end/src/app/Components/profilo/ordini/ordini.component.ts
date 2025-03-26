@@ -1,28 +1,13 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { OrdineService } from '../../../services/ordine.service';
-import { ProdottoService } from '../../../services/prodotto.service';
-import { MetodoPagamentoService } from '../../../services/metodo-pagamento.service';
-import { Ordine } from '../../../Models/ordine';
-import { DettagliOrdini } from '../../../Models/dettagli-ordini';
-import { Prodotto } from '../../../Models/prodotto';
-
-// Interfaccia per i dettagli ordine con prodotti
-interface OrderDetailsResponse {
-  ordine: Ordine;
-  dettagli: DettagliOrdineInfo[];
-}
-
-// Interfaccia per i dettagli degli ordini
-interface DettagliOrdineInfo {
-  id: number;
-  idOrdine: number;
-  idProdotto: number;
-  nomeProdotto?: string;
-  prezzoProdotto?: number;
-  quantita: number;
-}
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { OrdineService} from '../../../services/ordine.service';
+import { ProdottoService} from '../../../services/prodotto.service';
+import { MetodoPagamentoService} from '../../../services/metodo-pagamento.service';
+import { Ordine} from '../../../models/ordine';
+import { DettagliOrdini} from '../../../models/dettagli-ordini';
+import { Prodotto} from '../../../models/prodotto';
+import { MetodoPagamento} from '../../../models/metodo-pagamento';
 
 @Component({
   selector: 'app-ordini',
@@ -32,34 +17,22 @@ interface DettagliOrdineInfo {
   styleUrls: ['./ordini.component.css']
 })
 export class OrdiniComponent implements OnInit {
-  // Input dal componente padre (ProfiloComponent)
-  @Input() inProfileView: boolean = true;
+  // Dati dell'utente
+  userId: number | null = null;
+
+  // Lista degli ordini per la visualizzazione nel profilo
+  ordini: Ordine[] = [];
+
+  // Dettaglio di un singolo ordine
+  ordineSelezionato: Ordine | null = null;
+  dettagliOrdine: DettagliOrdini[] = [];
+  prodottiOrdine: Map<number, Prodotto> = new Map();
+  metodoPagamento: MetodoPagamento | null = null;
 
   // Stato dell'interfaccia
-  loading = true;
-  error: string | null = null;
-
-  // Vista dettaglio o vista lista
-  isDetailView: boolean = false;
-
-  // Dati degli ordini
-  orderId: number | null = null;
-  ordini: Ordine[] = [];
-  ordineSelezionato: Ordine | null = null;
-
-  // Dettagli ordine per vista dettaglio
-  dettagliOrdine: DettagliOrdini[] = [];
-  prodotti: Map<number, Prodotto> = new Map();
-
-  // Proprietà mancanti
-  orderDetails: OrderDetailsResponse | null = null;
-  orderTotal: number = 0;
-
-  // Info metodo di pagamento
-  metodoPagamento: any = null;
-
-  // ID utente corrente
-  userId: number | null = null;
+  caricamento = true;
+  errore: string | null = null;
+  visualizzaDettaglio = false;
 
   constructor(
     private ordineService: OrdineService,
@@ -67,198 +40,164 @@ export class OrdiniComponent implements OnInit {
     private metodoPagamentoService: MetodoPagamentoService,
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    // Ottieni l'ID utente
-    const userIdStr = localStorage.getItem('userId');
-    if (!userIdStr) {
-      this.error = 'Utente non autenticato';
-      this.loading = false;
+    // Ottieni l'ID utente dal localStorage
+    const userIdString = localStorage.getItem('userId');
+    this.userId = userIdString ? parseInt(userIdString) : null;
+
+    if (!this.userId) {
+      this.router.navigate(['/login']);
       return;
     }
 
-    this.userId = parseInt(userIdStr);
-
-    // Controlla se siamo in modalità dettaglio o lista
+    // Controlla se stiamo visualizzando un ordine specifico
     this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
+      const ordineId = params.get('id');
 
-      if (idParam) {
-        // Vista dettaglio ordine
-        this.orderId = parseInt(idParam);
-        this.isDetailView = true;
-        this.inProfileView = false;
-        this.loadOrderInfo(this.orderId);
+      if (ordineId) {
+        // Visualizza dettaglio singolo ordine
+        this.caricaDettaglioOrdine(parseInt(ordineId));
       } else {
-        // Vista lista ordini
-        this.isDetailView = false;
-        this.loadAllOrders();
+        // Visualizza lista ordini
+        this.caricaOrdiniUtente();
       }
     });
   }
 
-  // Metodo per caricare gli ordini dell'utente
-  loadAllOrders(): void {
+  // Carica la lista degli ordini dell'utente
+  caricaOrdiniUtente(): void {
     if (!this.userId) return;
 
+    this.caricamento = true;
     this.ordineService.getUserOrders(this.userId).subscribe({
-      next: (data) => {
-        this.ordini = data;
-        this.loading = false;
+      next: (ordini) => {
+        this.ordini = ordini || [];
+        this.caricamento = false;
       },
       error: (err) => {
         console.error('Errore nel caricamento degli ordini', err);
-        this.error = 'Impossibile caricare gli ordini';
-        this.loading = false;
+        this.errore = 'Impossibile caricare gli ordini. Riprova più tardi.';
+        this.caricamento = false;
       }
     });
   }
 
-  // Metodo unificato per caricare i dettagli dell'ordine
-  loadOrderInfo(orderId: number): void {
-    this.ordineService.getOrderDetails(orderId).subscribe({
+  // Carica il dettaglio di un singolo ordine
+  caricaDettaglioOrdine(ordineId: number): void {
+    this.caricamento = true;
+    this.visualizzaDettaglio = true;
+
+    // Carica l'ordine
+    this.ordineService.getOrderDetails(ordineId).subscribe({
       next: (response: any) => {
-        console.log('Dettagli ordine ricevuti:', response);
-        this.orderDetails = response;
-        this.ordineSelezionato = response.ordine;
-        this.dettagliOrdine = response.dettagli;
+        if (response && response.ordine) {
+          this.ordineSelezionato = response.ordine;
+          this.dettagliOrdine = response.dettagli || [];
 
-        // Carica il metodo di pagamento se l'ordine contiene l'ID
-        if (this.ordineSelezionato && this.ordineSelezionato.idMetodoPagamento) {
-          this.loadPaymentMethod(this.ordineSelezionato.idMetodoPagamento);
+          // Carica i dati del metodo di pagamento
+          if (this.ordineSelezionato && this.ordineSelezionato.idMetodoPagamento) {
+            this.caricaMetodoPagamento(this.ordineSelezionato.idMetodoPagamento);
+          }
+
+          // Carica i dati dei prodotti
+          this.caricaProdottiOrdine();
+        } else {
+          this.errore = 'Dati dell\'ordine non disponibili';
         }
-
-        // Carica i dettagli dei prodotti
-        this.loadProductDetails();
-
-        // Calcola il totale
-        this.calculateTotals();
-
-        this.loading = false;
+        this.caricamento = false;
       },
       error: (err) => {
-        console.error('Errore nel caricamento dei dettagli ordine', err);
-        this.error = 'Impossibile caricare i dettagli dell\'ordine';
-        this.loading = false;
+        console.error('Errore nel caricamento del dettaglio ordine', err);
+        this.errore = 'Impossibile caricare i dettagli dell\'ordine. Riprova più tardi.';
+        this.caricamento = false;
       }
     });
   }
 
-  // Calcola il totale dell'ordine
-  calculateTotals(): void {
-    this.orderTotal = 0;
-
-    if (this.dettagliOrdine.length > 0) {
-      this.dettagliOrdine.forEach(item => {
-        const prodotto = this.getProdotto(item.idProdotto);
-        if (prodotto) {
-          const prezzo = prodotto.prezzo || 0;
-          const quantita = item.quantita || 0;
-          this.orderTotal += prezzo * quantita;
-        }
-      });
-    } else if (this.orderDetails && this.orderDetails.dettagli) {
-      this.orderDetails.dettagli.forEach(item => {
-        const prezzo = Number(item.prezzoProdotto) || 0;
-        const quantita = Number(item.quantita) || 0;
-        const subtotale = prezzo * quantita;
-
-        if (!isNaN(subtotale)) {
-          this.orderTotal += subtotale;
-        }
-      });
-    }
+  // Carica i dati del metodo di pagamento
+  caricaMetodoPagamento(idMetodoPagamento: number): void {
+    this.metodoPagamentoService.getMetodoPagamentoByID(idMetodoPagamento).subscribe({
+      next: (metodo) => {
+        this.metodoPagamento = metodo;
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento del metodo di pagamento', err);
+        // Non blocchiamo la visualizzazione dell'ordine per questo errore
+      }
+    });
   }
 
-  // Carica i dettagli dei prodotti
-  loadProductDetails(): void {
-    // Array di promesse per caricare tutti i prodotti
-    const productPromises = this.dettagliOrdine.map(dettaglio => {
-      return new Promise<void>((resolve, reject) => {
+  // Carica i dati dei prodotti nell'ordine
+  caricaProdottiOrdine(): void {
+    if (!this.dettagliOrdine || this.dettagliOrdine.length === 0) return;
+
+    // Per ogni prodotto nell'ordine, carica i suoi dati
+    const promises = this.dettagliOrdine.map(dettaglio => {
+      return new Promise<void>((resolve) => {
         this.prodottoService.getProductById(dettaglio.idProdotto).subscribe({
-          next: (product) => {
-            if (product) {
-              this.prodotti.set(dettaglio.idProdotto, product);
-            }
+          next: (prodotto) => {
+            this.prodottiOrdine.set(dettaglio.idProdotto, prodotto);
             resolve();
           },
-          error: (err) => {
-            console.error(`Errore caricamento prodotto ${dettaglio.idProdotto}`, err);
-            resolve(); // Risolvi comunque per non bloccare gli altri prodotti
+          error: () => {
+            // Se fallisce il caricamento di un prodotto, continuiamo comunque
+            resolve();
           }
         });
       });
     });
 
-    // Quando tutti i prodotti sono caricati
-    Promise.all(productPromises)
-      .then(() => {
-        this.calculateTotals();
-      })
-      .catch(err => {
-        console.error('Errore nel caricamento dei prodotti', err);
-      });
-  }
-
-  // Carica i dettagli del metodo di pagamento
-  loadPaymentMethod(paymentId: number): void {
-    if (!paymentId) {
-      console.warn('ID metodo di pagamento non valido');
-      this.metodoPagamento = { titolare: 'Non disponibile', tipoCarta: 'Non disponibile' };
-      return;
-    }
-
-    this.metodoPagamentoService.getMetodoPagamentoByID(paymentId).subscribe({
-      next: (data) => {
-        console.log('Metodo di pagamento caricato:', data);
-        this.metodoPagamento = data;
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento del metodo di pagamento', err);
-        // Imposta un valore di fallback per una migliore esperienza utente
-        this.metodoPagamento = { titolare: 'Non disponibile', tipoCarta: 'Non disponibile' };
-      }
+    // Quando tutti i prodotti sono stati caricati
+    Promise.all(promises).then(() => {
+      // Rendering completato
     });
   }
 
-  // Metodi helper per vista dettaglio
+  // Ottieni un prodotto dal Map usando l'ID
   getProdotto(idProdotto: number): Prodotto | undefined {
-    return this.prodotti.get(idProdotto);
+    return this.prodottiOrdine.get(idProdotto);
   }
 
-  calcolaTotaleRiga(dettaglio: DettagliOrdini): number {
-    const prodotto = this.getProdotto(dettaglio.idProdotto);
-    if (prodotto) {
-      return prodotto.prezzo * dettaglio.quantita;
+  // Calcola il subtotale di una linea dell'ordine
+  calcolaSubtotale(dettaglio: DettagliOrdini): number {
+    const prodotto = this.prodottiOrdine.get(dettaglio.idProdotto);
+    if (!prodotto || !dettaglio || !dettaglio.quantita) return 0;
+
+    return prodotto.prezzo * dettaglio.quantita;
+  }
+
+  // Formatta il numero della carta per mostrare solo gli ultimi 4 numeri
+  mascheraNumeroCarta(numeroCarta: string | undefined): string {
+    if (!numeroCarta) return '****';
+
+    // Se la lunghezza è inferiore a 4, mostriamo asterischi
+    if (numeroCarta.length <= 4) return '**** **** **** ' + numeroCarta;
+
+    // Altrimenti mostriamo solo gli ultimi 4 numeri
+    const ultimi4 = numeroCarta.slice(-4);
+    return '**** **** **** ' + ultimi4;
+  }
+
+  // Formatta una data in formato leggibile
+  formattaData(dataStr: string | undefined): string {
+    if (!dataStr) return '';
+
+    try {
+      const data = new Date(dataStr);
+      return data.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return dataStr; // In caso di errore, mostriamo la stringa originale
     }
-    return 0;
   }
 
-  getStatusClass(stato: string): string {
-    switch (stato) {
-      case 'IN_ELABORAZIONE': return 'bg-primary';
-      case 'SPEDITO': return 'bg-warning text-dark';
-      case 'CONSEGNATO': return 'bg-success';
-      case 'ANNULLATO': return 'bg-danger';
-      default: return 'bg-secondary';
-    }
-  }
-
-  // Navigazione
-  viewOrderDetails(orderId: number): void {
-    this.router.navigate(['/ordini', orderId]);
-  }
-
-  backToOrders(): void {
-    this.router.navigate(['/profilo'], { queryParams: { tab: 'orders' } });
-  }
-
-  getProductPrice(idProdotto: number): string {
-    const prodotto = this.getProdotto(idProdotto);
-    if (prodotto && prodotto.prezzo !== undefined) {
-      return prodotto.prezzo.toFixed(2);
-    }
-    return '0.00';
+  // Torna alla lista degli ordini
+  tornaAllaLista(): void {
+    this.router.navigate(['/profilo/ordini']);
   }
 }

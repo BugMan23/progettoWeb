@@ -41,16 +41,14 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Errore nel recupero dei metodi di pagamento: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
         return metodiDiPagamento;
     }
 
     @Override
     public boolean addMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento, int utenteId) {
-        String query = "INSERT INTO MetodoDiPagamento (tipoPagamento, titolare, tipoCarta, numeroCarta, dataScadenza, cvv, idUtente) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO MetodoDiPagamento (tipoPagamento, titolare, tipoCarta, numeroCarta, dataScadenza, cvv, idUtente) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -64,23 +62,21 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
             int rowsUpdated = ps.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Errore nell'aggiunta del metodo di pagamento: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public MetodoDiPagamento findById(int id) {
+        MetodoDiPagamento metodoDiPagamento = null;
         String query = "SELECT * FROM metodoDiPagamento WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
-            System.out.println("Esecuzione query per metodo di pagamento con ID: " + id);
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    System.out.println("MetodoDiPagamento trovato con ID: " + id);
-                    MetodoDiPagamento metodoDiPagamento = new MetodoDiPagamento(
+                if(rs.next()) {
+                    metodoDiPagamento = new MetodoDiPagamento(
                             rs.getInt("id"),
                             rs.getString("tipoPagamento"),
                             rs.getString("titolare"),
@@ -90,16 +86,47 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
                             rs.getString("cvv"),
                             rs.getInt("idUtente")
                     );
-                    return metodoDiPagamento;
-                } else {
-                    System.out.println("Nessun metodo di pagamento trovato con ID: " + id);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Errore SQL durante il recupero del metodo di pagamento: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Errore nel recupero del metodo di pagamento: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
-        return null;
+        return metodoDiPagamento;
+    }
+
+    @Override
+    public boolean updateMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento) {
+        String query = "UPDATE MetodoDiPagamento SET tipoPagamento = ?, titolare = ?, tipoCarta = ?, numeroCarta = ?, dataScadenza = ?, cvv = ? WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, metodoDiPagamento.getTipoPagamento());
+            ps.setString(2, metodoDiPagamento.getTitolare());
+            ps.setString(3, metodoDiPagamento.getTipoCarta());
+            ps.setString(4, metodoDiPagamento.getNumeroCarta());
+            ps.setString(5, metodoDiPagamento.getDataScadenza());
+            ps.setString(6, metodoDiPagamento.getCvv());
+            ps.setInt(7, metodoDiPagamento.getId());
+
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteMetodoDiPagamento(int id) {
+        String query = "DELETE FROM MetodoDiPagamento WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+
+            int rowsDeleted = ps.executeUpdate();
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

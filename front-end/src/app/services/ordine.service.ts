@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {Observable, of} from 'rxjs';
-import { Ordine } from '../Models/ordine';
-import { DettagliOrdini } from '../Models/dettagli-ordini';
+import { Ordine } from '../models/ordine';
+import { DettagliOrdini } from '../models/dettagli-ordini';
 import {catchError, tap} from 'rxjs/operators';
 
 @Injectable({

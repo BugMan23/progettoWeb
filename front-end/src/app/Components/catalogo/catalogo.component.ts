@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ProdottoService } from '../../services/prodotto.service';
 import { CategoriaService } from '../../services/categoria.service';
-import { Prodotto } from '../../Models/prodotto';
-import { Categoria } from '../../Models/categoria';
+import { Prodotto } from '../../models/prodotto';
+import { Categoria } from '../../models/categoria';
 
 @Component({
   selector: 'app-catalogo',

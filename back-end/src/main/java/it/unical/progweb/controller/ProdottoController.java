@@ -38,10 +38,11 @@ public class ProdottoController {
     public ResponseEntity<?> getProductById(@PathVariable int id) {
         try {
             Prodotto prodotto = prodottoService.getProductById(id);
-            List<Recensione> recensioni = recensioneService.getProductReviews(id);
-            return ResponseEntity.ok(new ProductDetailResponse(prodotto, recensioni));
+            return ResponseEntity.ok(prodotto);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nel recupero del prodotto");
         }
     }
 

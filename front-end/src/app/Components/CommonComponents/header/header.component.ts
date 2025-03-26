@@ -6,7 +6,7 @@ import { CategoriaService } from '../../../services/categoria.service';
 import { CarrelloService } from '../../../services/carrello.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
-import { Prodotto } from '../../../Models/prodotto';
+import { Prodotto } from '../../../models/prodotto';
 
 @Component({
   selector: 'app-header',

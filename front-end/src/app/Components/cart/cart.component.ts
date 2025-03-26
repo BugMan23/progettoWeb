@@ -5,8 +5,8 @@ import { RouterModule, Router } from '@angular/router';
 import { CarrelloService } from '../../services/carrello.service';
 import { ProdottoService } from '../../services/prodotto.service';
 import { DisponibilitaService } from '../../services/disponibilita.service';
-import { Prodotto } from '../../Models/prodotto';
-import { Disponibilita } from '../../Models/disponibilita';
+import { Prodotto } from '../../models/prodotto';
+import { Disponibilita } from '../../models/disponibilita';
 
 @Component({
   selector: 'app-cart',
