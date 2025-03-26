@@ -3,8 +3,10 @@ package it.unical.progweb;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = {"it.unical.progweb", "it.unical.progweb.services"})
+@EnableScheduling
 public class ProgWebApplication {
     public static void main(String[] args) {
         System.out.println("\n\n✅✅✅ Avvio di Spring Boot... ✅✅✅\n\n");

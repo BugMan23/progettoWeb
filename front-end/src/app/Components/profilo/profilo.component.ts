@@ -101,80 +101,9 @@ export class ProfiloComponent implements OnInit {
         console.error('Error loading payment methods:', err);
       }
     });
-
-    // Load orders
-    this.ordineService.getUserOrders(this.userId).subscribe({
-      next: (data) => {
-        this.ordini = data;
-      },
-      error: (err) => {
-        console.error('Error loading orders:', err);
-      }
-    });
   }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
-  }
-
-  loadDettagliOrdine(ordineId: number): void {
-    if (this.dettagliOrdini[ordineId]) return;
-
-    this.loadingDetails[ordineId] = true;
-
-    this.ordineService.getOrderItems(ordineId).subscribe({
-      next: (data) => {
-        this.dettagliOrdini[ordineId] = data;
-
-        // Load products information for order items
-        data.forEach(dettaglio => {
-          this.loadProdottoInfo(dettaglio.idProdotto);
-        });
-
-        this.loadingDetails[ordineId] = false;
-      },
-      error: (err) => {
-        console.error(`Error loading order details for order ${ordineId}:`, err);
-        this.loadingDetails[ordineId] = false;
-      }
-    });
-  }
-
-  loadProdottoInfo(prodottoId: number): void {
-    if (this.prodotti[prodottoId]) return;
-
-    this.prodottoService.getProductById(prodottoId).subscribe({
-      next: (data) => {
-        this.prodotti[prodottoId] = data;
-      },
-      error: (err) => {
-        console.error(`Error loading product info for product ${prodottoId}:`, err);
-      }
-    });
-  }
-
-  getNomeProdotto(prodottoId: number): string {
-    return this.prodotti[prodottoId]?.nome || `Prodotto #${prodottoId}`;
-  }
-
-  getPrezzoUnitario(prodottoId: number): number {
-    return this.prodotti[prodottoId]?.prezzo || 0;
-  }
-
-  getIndirizzoOrdine(ordineId: number): Indirizzo | null {
-    const ordine = this.ordini.find(o => o.id === ordineId);
-    if (!ordine) return null;
-
-    // In a real application, you would have the address ID stored in the order
-    // For now, we just return the first address
-    return this.indirizzi.length > 0 ? this.indirizzi[0] : null;
-  }
-
-  getMetodoPagamentoOrdine(ordineId: number): MetodoPagamento | null {
-    const ordine = this.ordini.find(o => o.id === ordineId);
-    if (!ordine) return null;
-
-    // Find payment method by ID (assuming the order has a payment method ID)
-    return this.metodiPagamento.find(mp => mp.id === ordine.idMetodoPagamento) || null;
   }
 }

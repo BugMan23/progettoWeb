@@ -34,6 +34,9 @@ export class OrdiniComponent implements OnInit {
   errore: string | null = null;
   visualizzaDettaglio = false;
 
+  filtroAttivo: string = 'tutti';
+  ordiniNonFiltrati: Ordine[] = [];
+
   constructor(
     private ordineService: OrdineService,
     private prodottoService: ProdottoService,
@@ -74,6 +77,7 @@ export class OrdiniComponent implements OnInit {
     this.ordineService.getUserOrders(this.userId).subscribe({
       next: (ordini) => {
         this.ordini = ordini || [];
+        this.ordiniNonFiltrati = [...this.ordini];  // Salva anche la lista non filtrata
         this.caricamento = false;
       },
       error: (err) => {
@@ -234,5 +238,135 @@ export class OrdiniComponent implements OnInit {
   // Torna alla lista degli ordini
   tornaAllaLista(): void {
     this.router.navigate(['/profilo/ordini']);
+  }
+
+
+// Determina se un punto di stato è attivo
+  isStatoAttivo(stato: string): boolean {
+    if (!this.ordineSelezionato) return false;
+
+    const statoOrdine = this.ordineSelezionato.stato;
+
+    switch (stato) {
+      case 'CONFERMATO':
+        return true; // Sempre attivo
+      case 'IN_PREPARAZIONE':
+        return statoOrdine === 'IN_PREPARAZIONE' || statoOrdine === 'SPEDITO' || statoOrdine === 'CONSEGNATO';
+      case 'SPEDITO':
+        return statoOrdine === 'SPEDITO' || statoOrdine === 'CONSEGNATO';
+      case 'CONSEGNATO':
+        return statoOrdine === 'CONSEGNATO';
+      default:
+        return false;
+    }
+  }
+
+// Restituisce una descrizione leggibile dello stato
+  getStatoDescrizione(stato: string): string {
+    switch (stato) {
+      case 'IN_ELABORAZIONE':
+        return 'Ordine ricevuto';
+      case 'IN_PREPARAZIONE':
+        return 'In preparazione';
+      case 'SPEDITO':
+        return 'Spedito';
+      case 'CONSEGNATO':
+        return 'Consegnato';
+      default:
+        return stato;
+    }
+  }
+
+// Calcola la data stimata di consegna
+  calcolaDataConsegnaStimata(dataOrdine: string): string {
+    if (!dataOrdine) return 'Data non disponibile';
+
+    try {
+      const data = new Date(dataOrdine);
+      if (isNaN(data.getTime())) return 'Data non valida';
+
+      // Aggiungi 5 giorni lavorativi (approssimati a 7 giorni di calendario)
+      data.setDate(data.getDate() + 7);
+
+      return data.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return 'Data non calcolabile';
+    }
+  }
+
+// Calcola la percentuale di progresso dell'ordine
+  calcolaProgressoOrdine(): number {
+    if (!this.ordineSelezionato) return 0;
+
+    const statoOrdine = this.ordineSelezionato.stato;
+
+    switch (statoOrdine) {
+      case 'IN_ELABORAZIONE':
+        return 25;
+      case 'IN_PREPARAZIONE':
+        return 50;
+      case 'SPEDITO':
+        return 75;
+      case 'CONSEGNATO':
+        return 100;
+      default:
+        return 0;
+    }
+  }
+
+  applicaFiltro(filtro: string): void {
+    this.filtroAttivo = filtro;
+
+    // Salva la lista completa se non l'abbiamo già salvata
+    if (this.ordiniNonFiltrati.length === 0 && this.ordini.length > 0) {
+      this.ordiniNonFiltrati = [...this.ordini];
+    }
+
+    if (filtro === 'tutti') {
+      this.ordini = this.ordiniNonFiltrati;
+      return;
+    }
+
+    // Filtra gli ordini in base al criterio selezionato
+    switch (filtro) {
+      case 'ultimi30giorni':
+        this.filtrarPerData(30);
+        break;
+      case 'ultimi6mesi':
+        this.filtrarPerData(180);
+        break;
+      case 'inElaborazione':
+        this.filtrarPerStato(['IN_ELABORAZIONE', 'IN_PREPARAZIONE', 'SPEDITO']);
+        break;
+      default:
+        this.ordini = this.ordiniNonFiltrati;
+    }
+  }
+
+// Filtra per data (giorni indietro)
+  private filtrarPerData(giorni: number): void {
+    const oggi = new Date();
+    const dataLimite = new Date();
+    dataLimite.setDate(oggi.getDate() - giorni);
+
+    this.ordini = this.ordiniNonFiltrati.filter(ordine => {
+      try {
+        const dataOrdine = new Date(ordine.data);
+        return dataOrdine >= dataLimite;
+      } catch (e) {
+        return false;
+      }
+    });
+  }
+
+// Filtra per stato
+  private filtrarPerStato(stati: string[]): void {
+    this.ordini = this.ordiniNonFiltrati.filter(ordine =>
+      stati.includes(ordine.stato)
+    );
   }
 }

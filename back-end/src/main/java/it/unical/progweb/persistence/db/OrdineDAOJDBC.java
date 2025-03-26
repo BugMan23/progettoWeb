@@ -156,4 +156,29 @@ public class OrdineDAOJDBC implements OrdineDAO {
             throw new RuntimeException("Errore nell'aggiornamento dello stato dell'ordine: " + e.getMessage(), e);
         }
     }
+
+
+    @Override
+    public List<Ordine> findAll() {
+        List<Ordine> ordini = new ArrayList<>();
+        String query = "SELECT * FROM ordine";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ordini.add(new Ordine(
+                        rs.getInt("id"),
+                        rs.getInt("idutente"),
+                        rs.getString("dataoridne"),
+                        rs.getString("stato"),
+                        rs.getInt("totaledapagare"),
+                        rs.getInt("idmetodopagamento")
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return ordini;
+    }
 }

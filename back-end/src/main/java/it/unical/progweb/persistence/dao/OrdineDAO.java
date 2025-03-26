@@ -10,6 +10,6 @@ public interface OrdineDAO {
     List<Ordine> getOrdiniByIdUtente(int userId);
     Ordine findById(int id);
     List<Ordine> findByUserId(int userId);
-
+    List<Ordine> findAll();
     boolean updateStatus(int orderId, String nuovoStato);
 }

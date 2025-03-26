@@ -53,4 +53,8 @@ public class Ordine {
     public void setId(int ordineId) {
         this.id = ordineId;
     }
+
+    public void setStato(String nuovoStato) {
+        this.stato = nuovoStato;
+    }
 }

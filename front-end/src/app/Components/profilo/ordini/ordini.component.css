@@ -80,3 +80,18 @@
     padding: 0.5rem;
   }
 }
+
+.status-icon {
+  min-width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-secondary {
+  color: #6c757d !important;
+}
