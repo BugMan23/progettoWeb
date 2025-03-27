@@ -115,4 +115,21 @@ public class OrdineService {
         }
         return dettagli;
     }
+
+    public boolean haUserPurchasedProduct(int userId, int productId) {
+        // Ottieni tutti gli ordini dell'utente
+        List<Ordine> ordini = ordineDAO.findByUserId(userId);
+
+        // Per ogni ordine, verifica i dettagli ordine per il prodotto
+        for (Ordine ordine : ordini) {
+            List<DettagliOrdini> dettagliOrdini = dettagliOrdineDAO.findByOrderId(ordine.getId());
+            for (DettagliOrdini dettaglio : dettagliOrdini) {
+                if (dettaglio.getIdProdotto() == productId) {
+                    return true; // Prodotto trovato negli ordini
+                }
+            }
+        }
+
+        return false; // Prodotto non trovato negli ordini dell'utente
+    }
 }

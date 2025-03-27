@@ -69,4 +69,8 @@ export class OrdineService {
   updateOrderStatus(orderId: number, status: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/${orderId}/status`, { status });
   }
+
+  isProdottoAcquistato(userId: number, prodottoId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/utente/${userId}/prodotto/${prodottoId}/acquistato`);
+  }
 }

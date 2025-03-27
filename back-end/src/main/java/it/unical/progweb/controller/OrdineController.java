@@ -65,6 +65,12 @@ public class OrdineController {
         }
     }
 
+    @GetMapping("/utente/{userId}/prodotto/{prodottoId}/acquistato")
+    public ResponseEntity<Boolean> isProdottoAcquistato(@PathVariable int userId, @PathVariable int prodottoId) {
+        boolean acquistato = ordineService.haUserPurchasedProduct(userId, prodottoId);
+        return ResponseEntity.ok(acquistato);
+    }
+
     // Classe per la risposta con dettagli ordine
     public static class OrderDetailResponse {
         private Ordine ordine;

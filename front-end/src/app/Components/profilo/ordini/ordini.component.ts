@@ -17,10 +17,7 @@ import { MetodoPagamento} from '../../../models/metodo-pagamento';
   styleUrls: ['./ordini.component.css']
 })
 export class OrdiniComponent implements OnInit {
-  // Dati dell'utente
   userId: number | null = null;
-
-  // Lista degli ordini per la visualizzazione nel profilo
   ordini: Ordine[] = [];
 
   // Dettaglio di un singolo ordine
