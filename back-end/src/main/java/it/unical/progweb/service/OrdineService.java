@@ -7,10 +7,13 @@ import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.persistence.dao.DettagliOrdineDAO;
 import it.unical.progweb.persistence.dao.OrdineDAO;
 import it.unical.progweb.persistence.dao.ProdottoDAO;
+import it.unical.progweb.utility.OrdineStatusCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -28,64 +31,108 @@ public class OrdineService {
     }
 
     /**
-     * Crea un nuovo ordine e ne restituisce l'ID
+     * Crea un nuovo ordine e restituisce l'ID dell'ordine creato
      */
-    // Nel file back-end/src/main/java/it/unical/progweb/service/OrdineService.java
     public int createOrder(int userId, int idMetodoPagamento, List<DettagliOrdini> articoliCarrello) {
+        // Validazione degli articoli nel carrello
         validazioneArticoliNelCarrello(articoliCarrello);
+
+        // Calcolo del totale da pagare
         int totaleDaPagare = calcolaTotale(articoliCarrello);
 
+        // Genera la data attuale in formato dd/MM/yyyy HH:mm
+        LocalDateTime now = LocalDateTime.now();
+        String currentDate = now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+        // Creazione dell'oggetto ordine
         Ordine ordine = new Ordine(
-                0,
+                0, // ID sarà generato dal database
                 userId,
-                LocalDate.now().toString(),
-                "IN_ELABORAZIONE",
+                currentDate, // Data formattata
+                OrdineStatusCalculator.STATO_CONFERMATO, // Stato iniziale
                 totaleDaPagare,
                 idMetodoPagamento
         );
 
+        // Salva l'ordine nel database e ottieni l'ID generato
         int ordineId = ordineDAO.creaOrdine(ordine);
+
+        // Log l'ID dell'ordine creato
+        System.out.println("Ordine creato con ID: " + ordineId);
+
+        // Imposta l'ID nell'oggetto ordine
         ordine.setId(ordineId);
 
+        // Salva gli articoli dell'ordine
         for (DettagliOrdini item : articoliCarrello) {
-            dettagliOrdineDAO.addArticoliOrdine(ordine.getId(), item.getIdProdotto(), item.getQuantita());
+            dettagliOrdineDAO.addArticoliOrdine(ordineId, item.getIdProdotto(), item.getQuantita());
         }
 
-        return ordineId;  // Ritorna l'ID dell'ordine
-    }
-    /**
-     * Restituisce tutti gli ordini di un utente
-     */
-    public List<Ordine> getUserOrders(int userId) {
-        return ordineDAO.getOrdiniByIdUtente(userId);
+        // Restituisci l'ID dell'ordine creato
+        return ordineId;
     }
 
     /**
-     * Restituisce i dettagli di un ordine specifico
+     * Ottiene gli ordini di un utente
+     */
+    public List<Ordine> getUserOrders(int userId) {
+        // Recupera gli ordini dell'utente dal database
+        List<Ordine> ordini = ordineDAO.findByUserId(userId);
+
+        // Log per debug
+        System.out.println("Trovati " + ordini.size() + " ordini per l'utente " + userId);
+
+        // Aggiorna lo stato di ogni ordine in base alla data
+        for (Ordine ordine : ordini) {
+            String statoOriginale = ordine.getStato();
+
+            // Calcola lo stato aggiornato dell'ordine
+            String statoAggiornato = OrdineStatusCalculator.calcolaStatoOrdine(ordine);
+            ordine.setStato(statoAggiornato);
+
+            // Log per debug
+            System.out.println("Ordine #" + ordine.getId() +
+                    " - Data: " + ordine.getData() +
+                    " - Stato: " + statoOriginale + " → " + statoAggiornato);
+        }
+
+        return ordini;
+    }
+
+    /**
+     * Ottiene un ordine specifico per ID
      */
     public Ordine getOrderById(int orderId) {
         Ordine ordine = ordineDAO.findById(orderId);
         if (ordine == null) {
             throw new NotFoundException("Ordine non trovato con ID: " + orderId);
         }
+
+        // Calcola lo stato aggiornato dell'ordine
+        String statoOriginale = ordine.getStato();
+        String statoAggiornato = OrdineStatusCalculator.calcolaStatoOrdine(ordine);
+        ordine.setStato(statoAggiornato);
+
+        // Log per debug
+        System.out.println("Ordine #" + ordine.getId() +
+                " - Data: " + ordine.getData() +
+                " - Stato: " + statoOriginale + " → " + statoAggiornato);
+
         return ordine;
     }
 
     /**
-     * Verifica la validità degli articoli nel carrello
+     * Valida gli articoli nel carrello
      */
     private void validazioneArticoliNelCarrello(List<DettagliOrdini> items) {
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("Il carrello è vuoto");
         }
 
-        // Verifica che tutti gli articoli abbiano un ID prodotto valido
+        // Validazione opzionale: verifica che ogni articolo abbia una quantità positiva
         for (DettagliOrdini item : items) {
-            if (item.getIdProdotto() <= 0) {
-                throw new IllegalArgumentException("ID prodotto non valido: " + item.getIdProdotto());
-            }
             if (item.getQuantita() <= 0) {
-                throw new IllegalArgumentException("Quantità non valida per il prodotto: " + item.getIdProdotto());
+                throw new IllegalArgumentException("La quantità deve essere maggiore di zero");
             }
         }
     }
@@ -111,21 +158,26 @@ public class OrdineService {
     public List<DettagliOrdini> getOrderDetails(int orderId) {
         List<DettagliOrdini> dettagli = dettagliOrdineDAO.findByOrderId(orderId);
         if (dettagli.isEmpty()) {
-            throw new NotFoundException("Nessun dettaglio trovato per l'ordine con ID: " + orderId);
+            System.out.println("Nessun dettaglio trovato per l'ordine ID: " + orderId);
+        } else {
+            System.out.println("Trovati " + dettagli.size() + " dettagli per l'ordine ID: " + orderId);
         }
         return dettagli;
     }
 
+    /**
+     * Verifica se un utente ha acquistato un prodotto
+     */
     public boolean haUserPurchasedProduct(int userId, int productId) {
         // Ottieni tutti gli ordini dell'utente
         List<Ordine> ordini = ordineDAO.findByUserId(userId);
 
-        // Per ogni ordine, verifica i dettagli ordine per il prodotto
+        // Per ogni ordine, verifica i dettagli per il prodotto
         for (Ordine ordine : ordini) {
             List<DettagliOrdini> dettagliOrdini = dettagliOrdineDAO.findByOrderId(ordine.getId());
             for (DettagliOrdini dettaglio : dettagliOrdini) {
                 if (dettaglio.getIdProdotto() == productId) {
-                    return true; // Prodotto trovato negli ordini
+                    return true; // Prodotto trovato negli ordini dell'utente
                 }
             }
         }

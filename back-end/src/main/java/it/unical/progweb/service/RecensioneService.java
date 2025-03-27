@@ -47,10 +47,7 @@ public class RecensioneService {
 
     // Ottiene le recensioni di un utente per un prodotto specifico
     public List<Recensione> getUserProductReviews(int userId, int productId) {
-        List<Recensione> userReviews = recensioneDAO.findByUserId(userId);
-        return userReviews.stream()
-                .filter(review -> review.getIdProdotto() == productId)
-                .collect(Collectors.toList());
+        return recensioneDAO.findByUserAndProduct(userId, productId);
     }
 
     // Elimina una recensione

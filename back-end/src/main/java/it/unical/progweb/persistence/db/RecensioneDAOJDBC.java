@@ -99,4 +99,32 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         }
         return recensioni;
     }
+
+    // In RecensioneDAOJDBC.java
+    @Override
+    public List<Recensione> findByUserAndProduct(int userId, int productId) {
+        List<Recensione> recensioni = new ArrayList<>();
+        String query = "SELECT * FROM recensione WHERE idUtente = ? AND idProdotto = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    recensioni.add(new Recensione(
+                            rs.getInt("id"),
+                            rs.getInt("idprodotto"),
+                            rs.getInt("idutente"),
+                            rs.getInt("valutazione"),
+                            rs.getString("testo"),
+                            rs.getString("data")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return recensioni;
+    }
 }

@@ -47,13 +47,8 @@ public class RecensioneController {
 
     @GetMapping("/user/{userId}/product/{productId}")
     public ResponseEntity<List<Recensione>> getUserProductReview(@PathVariable int userId, @PathVariable int productId) {
-        try {
-            List<Recensione> recensioni = recensioneService.getUserProductReviews(userId, productId);
-            return ResponseEntity.ok(recensioni);
-        } catch (Exception e) {
-            System.err.println("Errore in getUserProductReview: " + e.getMessage());
-            return ResponseEntity.ok(Collections.emptyList());
-        }
+        List<Recensione> recensioni = recensioneService.getUserProductReviews(userId, productId);
+        return ResponseEntity.ok(recensioni);
     }
 
     // Recupero recensioni di un utente

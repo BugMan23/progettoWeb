@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,9 @@ public class OrdineController {
     @Autowired
     private OrdineService ordineService;
 
+    /**
+     * Crea un nuovo ordine
+     */
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrdineRequest orderRequest) {
         try {
@@ -29,65 +33,131 @@ public class OrdineController {
                     orderRequest.getIdMetodoPagamento(),
                     orderRequest.getArticoliCarrello()
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", ordineId, "message", "Ordine creato con successo"));
+
+            // Restituisci una risposta JSON con l'ID dell'ordine creato e un messaggio di successo
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", ordineId);
+            response.put("message", "Ordine creato con successo");
+            response.put("success", true);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            // Errore nei dati forniti
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("success", false);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (NotFoundException e) {
+            // Risorsa non trovata (ad es. prodotto non trovato)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("success", false);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (Exception e) {
+            // Error generico
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Si è verificato un errore durante la creazione dell'ordine");
+            errorResponse.put("error", e.getMessage());
+            errorResponse.put("success", false);
+
+            // Log dell'errore per il debug
+            e.printStackTrace();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
-    // Recupero ordini utente
+    /**
+     * Recupera gli ordini di un utente
+     */
     @GetMapping("/utente/{userId}")
-    public ResponseEntity<List<Ordine>> getUserOrders(@PathVariable int userId) {
-        List<Ordine> ordini = ordineService.getUserOrders(userId);
-        return ResponseEntity.ok(ordini);
+    public ResponseEntity<?> getUserOrders(@PathVariable int userId) {
+        try {
+            List<Ordine> ordini = ordineService.getUserOrders(userId);
+            return ResponseEntity.ok(ordini);
+        } catch (Exception e) {
+            // Log dell'errore per il debug
+            e.printStackTrace();
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Errore nel recupero degli ordini dell'utente");
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
-    // Dettaglio singolo ordine
+    /**
+     * Recupera i dettagli di un singolo ordine
+     */
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderDetails(@PathVariable int orderId) {
         try {
             Ordine ordine = ordineService.getOrderById(orderId);
             List<DettagliOrdini> dettagli = ordineService.getOrderDetails(orderId);
-            return ResponseEntity.ok(new OrderDetailResponse(ordine, dettagli));
+
+            // Crea una risposta con l'ordine e i suoi dettagli
+            Map<String, Object> response = new HashMap<>();
+            response.put("ordine", ordine);
+            response.put("dettagli", dettagli);
+
+            return ResponseEntity.ok(response);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (Exception e) {
+            // Log dell'errore per il debug
+            e.printStackTrace();
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Errore nel recupero dei dettagli dell'ordine");
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
-    // Endpoint mancante: Ottiene solo gli articoli dell'ordine
+    /**
+     * Verifica se un utente ha acquistato un prodotto specifico
+     */
+    @GetMapping("/verifica-acquisto")
+    public ResponseEntity<?> hasUserPurchasedProduct(
+            @RequestParam int userId,
+            @RequestParam int productId) {
+        try {
+            boolean hasProductPurchased = ordineService.haUserPurchasedProduct(userId, productId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("hasPurchased", hasProductPurchased);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Errore nella verifica dell'acquisto");
+            errorResponse.put("error", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Ottieni i dettagli degli articoli di un ordine specifico
+     */
     @GetMapping("/{orderId}/items")
-    public ResponseEntity<List<DettagliOrdini>> getOrderItems(@PathVariable int orderId) {
+    public ResponseEntity<?> getOrderItems(@PathVariable int orderId) {
         try {
             List<DettagliOrdini> dettagli = ordineService.getOrderDetails(orderId);
             return ResponseEntity.ok(dettagli);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Errore nel recupero degli articoli dell'ordine");
+            errorResponse.put("error", e.getMessage());
 
-    @GetMapping("/utente/{userId}/prodotto/{prodottoId}/acquistato")
-    public ResponseEntity<Boolean> isProdottoAcquistato(@PathVariable int userId, @PathVariable int prodottoId) {
-        boolean acquistato = ordineService.haUserPurchasedProduct(userId, prodottoId);
-        return ResponseEntity.ok(acquistato);
-    }
-
-    // Classe per la risposta con dettagli ordine
-    public static class OrderDetailResponse {
-        private Ordine ordine;
-        private List<DettagliOrdini> dettagli;
-
-        public OrderDetailResponse(Ordine ordine, List<DettagliOrdini> dettagli) {
-            this.ordine = ordine;
-            this.dettagli = dettagli;
-        }
-
-        // Getter necessari per la serializzazione JSON
-        public Ordine getOrdine() {
-            return ordine;
-        }
-
-        public List<DettagliOrdini> getDettagli() {
-            return dettagli;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

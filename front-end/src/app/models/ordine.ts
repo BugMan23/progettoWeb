@@ -5,4 +5,8 @@ export interface Ordine {
   stato: string;
   totalePagare: number;
   idMetodoPagamento: number;
+
+  statoCalcolato?: string;
+  progressoPercentuale?: number;
+  dataConsegnaPrevista?: string;
 }

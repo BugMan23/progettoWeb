@@ -47,6 +47,12 @@ export class OrdiniComponent implements OnInit {
   submittingReview = false;
   successMessage: string | null = null;
 
+  // Costanti per gli stati degli ordini
+  readonly STATO_CONFERMATO = "Confermato";
+  readonly STATO_IN_PREPARAZIONE = "In Preparazione";
+  readonly STATO_SPEDITO = "Spedito";
+  readonly STATO_CONSEGNATO = "Consegnato";
+
   constructor(
     private ordineService: OrdineService,
     private prodottoService: ProdottoService,
@@ -94,8 +100,9 @@ export class OrdiniComponent implements OnInit {
     this.caricamento = true;
     this.ordineService.getUserOrders(this.userId).subscribe({
       next: (ordini) => {
+        console.log('Ordini ricevuti dal server:', ordini);
         this.ordini = ordini || [];
-        this.ordiniNonFiltrati = [...this.ordini];  // Salva anche la lista non filtrata
+        this.ordiniNonFiltrati = [...this.ordini];
         this.caricamento = false;
       },
       error: (err) => {
@@ -208,7 +215,7 @@ export class OrdiniComponent implements OnInit {
     }, 100);
   }
 
-// Aggiungi questo metodo per nascondere il form
+  // Aggiungi questo metodo per nascondere il form
   hideReviewForm(): void {
     this.selectedProductId = null;
     this.selectedProduct = null;
@@ -344,44 +351,51 @@ export class OrdiniComponent implements OnInit {
     this.router.navigate(['/profilo/ordini']);
   }
 
-
-// Determina se un punto di stato è attivo
+  // Determina se un punto di stato è attivo
   isStatoAttivo(stato: string): boolean {
-    if (!this.ordineSelezionato) return false;
+    if (!this.ordineSelezionato) {
+      console.log(`isStatoAttivo: ordineSelezionato è null, stato ${stato} non attivo`);
+      return false;
+    }
 
     const statoOrdine = this.ordineSelezionato.stato;
+    console.log(`isStatoAttivo: Controllando se "${stato}" è attivo. Stato corrente dell'ordine: "${statoOrdine}"`);
 
-    switch (stato) {
-      case 'CONFERMATO':
-        return true; // Sempre attivo
-      case 'IN_PREPARAZIONE':
-        return statoOrdine === 'IN_PREPARAZIONE' || statoOrdine === 'SPEDITO' || statoOrdine === 'CONSEGNATO';
-      case 'SPEDITO':
-        return statoOrdine === 'SPEDITO' || statoOrdine === 'CONSEGNATO';
-      case 'CONSEGNATO':
-        return statoOrdine === 'CONSEGNATO';
-      default:
-        return false;
-    }
+    // Array degli stati nell'ordine corretto
+    const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
+
+    // Ottieni gli indici dello stato corrente e di quello da verificare
+    const indiceStatoCorrente = stati.indexOf(statoOrdine);
+    const indiceStatoVerifica = stati.indexOf(stato);
+
+    console.log(`isStatoAttivo: Indice stato corrente "${statoOrdine}": ${indiceStatoCorrente}, Indice stato da verificare "${stato}": ${indiceStatoVerifica}`);
+
+    // Lo stato è attivo se il suo indice è minore o uguale all'indice dello stato corrente
+    const isAttivo = indiceStatoCorrente >= 0 && indiceStatoVerifica >= 0 && indiceStatoCorrente >= indiceStatoVerifica;
+    console.log(`isStatoAttivo: Risultato per "${stato}": ${isAttivo}`);
+
+    return isAttivo;
   }
 
-// Restituisce una descrizione leggibile dello stato
+  // Restituisce una descrizione leggibile dello stato
   getStatoDescrizione(stato: string): string {
     switch (stato) {
+      case this.STATO_CONFERMATO:
+        return 'Ordine confermato';
+      case this.STATO_IN_PREPARAZIONE:
+        return 'In preparazione';
+      case this.STATO_SPEDITO:
+        return 'Spedito';
+      case this.STATO_CONSEGNATO:
+        return 'Consegnato';
       case 'IN_ELABORAZIONE':
         return 'Ordine ricevuto';
-      case 'IN_PREPARAZIONE':
-        return 'In preparazione';
-      case 'SPEDITO':
-        return 'Spedito';
-      case 'CONSEGNATO':
-        return 'Consegnato';
       default:
         return stato;
     }
   }
 
-// Calcola la data stimata di consegna
+  // Calcola la data stimata di consegna
   calcolaDataConsegnaStimata(dataOrdine: string): string {
     if (!dataOrdine) return 'Data non disponibile';
 
@@ -402,24 +416,22 @@ export class OrdiniComponent implements OnInit {
     }
   }
 
-// Calcola la percentuale di progresso dell'ordine
+  // Calcola la percentuale di progresso dell'ordine
   calcolaProgressoOrdine(): number {
     if (!this.ordineSelezionato) return 0;
 
     const statoOrdine = this.ordineSelezionato.stato;
 
-    switch (statoOrdine) {
-      case 'IN_ELABORAZIONE':
-        return 25;
-      case 'IN_PREPARAZIONE':
-        return 50;
-      case 'SPEDITO':
-        return 75;
-      case 'CONSEGNATO':
-        return 100;
-      default:
-        return 0;
-    }
+    // Array degli stati nell'ordine corretto
+    const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
+
+    // Indice dello stato attuale
+    const indiceStatoCorrente = stati.indexOf(statoOrdine);
+
+    if (indiceStatoCorrente < 0) return 0;
+
+    // Calcola la percentuale di progresso (0%, 33%, 66%, 100%)
+    return Math.round((indiceStatoCorrente / (stati.length - 1)) * 100);
   }
 
   applicaFiltro(filtro: string): void {
@@ -444,14 +456,14 @@ export class OrdiniComponent implements OnInit {
         this.filtrarPerData(180);
         break;
       case 'inElaborazione':
-        this.filtrarPerStato(['IN_ELABORAZIONE', 'IN_PREPARAZIONE', 'SPEDITO']);
+        this.filtrarPerStato([this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO]);
         break;
       default:
         this.ordini = this.ordiniNonFiltrati;
     }
   }
 
-// Filtra per data (giorni indietro)
+  // Filtra per data (giorni indietro)
   private filtrarPerData(giorni: number): void {
     const oggi = new Date();
     const dataLimite = new Date();
@@ -467,7 +479,7 @@ export class OrdiniComponent implements OnInit {
     });
   }
 
-// Filtra per stato
+  // Filtra per stato
   private filtrarPerStato(stati: string[]): void {
     this.ordini = this.ordiniNonFiltrati.filter(ordine =>
       stati.includes(ordine.stato)

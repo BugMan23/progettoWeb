@@ -13,4 +13,5 @@ public interface RecensioneDAO {
 
     // Nuovo metodo per trovare recensioni per utente
     List<Recensione> findByUserId(int userId);
+    List<Recensione> findByUserAndProduct(int userId, int productId);
 }
