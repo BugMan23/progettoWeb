@@ -1,7 +1,6 @@
 package it.unical.progweb.persistence.db;
 
 import it.unical.progweb.model.Recensione;
-import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.dao.RecensioneDAO;
 
 import javax.sql.DataSource;
@@ -36,7 +35,6 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         }
     }
 
-    // todo: da rivedere
     @Override
     public void deleteRecensione(int recensioneId) {
         String query = "DELETE FROM recensione WHERE id = ?";
@@ -58,6 +56,32 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, prodottoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    recensioni.add(new Recensione(
+                            rs.getInt("id"),
+                            rs.getInt("idprodotto"),
+                            rs.getInt("idutente"),
+                            rs.getInt("valutazione"),
+                            rs.getString("testo"),
+                            rs.getString("data")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return recensioni;
+    }
+
+    @Override
+    public List<Recensione> findByUserId(int userId) {
+        List<Recensione> recensioni = new ArrayList<>();
+        String query = "SELECT * FROM recensione WHERE idUtente = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     recensioni.add(new Recensione(

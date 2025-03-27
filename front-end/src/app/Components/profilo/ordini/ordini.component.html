@@ -10,6 +10,12 @@
   <!-- Errore -->
   <div *ngIf="errore" class="alert alert-danger">{{ errore }}</div>
 
+  <!-- Messaggio di successo -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
+  </div>
+
   <!-- Vista dettaglio ordine -->
   <div *ngIf="!caricamento && !errore && visualizzaDettaglio && ordineSelezionato">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -64,6 +70,7 @@
                   <th>Prezzo</th>
                   <th>Quantità</th>
                   <th class="text-end">Totale</th>
+                  <th>Azioni</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -89,16 +96,102 @@
                   <td class="text-end">
                     €{{ (calcolaSubtotale(dettaglio) || 0).toFixed(2) }}
                   </td>
+                  <td>
+                    <!-- Pulsante recensione -->
+                    <button
+                      class="btn btn-sm btn-outline-success"
+                      (click)="showReviewForm(dettaglio.idProdotto)">
+                      <i class="bi bi-star me-1"></i>Recensisci
+                    </button>
+
+                    <span
+                      *ngIf="ordineSelezionato.stato === 'CONSEGNATO' && hasReviewed[dettaglio.idProdotto]"
+                      class="badge bg-success">
+                      <i class="bi bi-check-circle me-1"></i>Recensito
+                    </span>
+                  </td>
                 </tr>
                 </tbody>
                 <tfoot>
                 <tr>
                   <td colspan="3" class="text-end fw-bold">Totale Ordine:</td>
                   <td class="text-end fw-bold">€{{ (ordineSelezionato.totalePagare || 0).toFixed(2) }}</td>
+                  <td></td>
                 </tr>
                 </tfoot>
               </table>
             </div>
+          </div>
+        </div>
+
+        <!-- Form di recensione inline (compare quando si clicca su Recensisci) -->
+        <div *ngIf="selectedProductId && selectedProduct" class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center" id="reviewFormHeader">
+            <h5 class="mb-0">Scrivi una recensione</h5>
+            <button type="button" class="btn-close" (click)="hideReviewForm()"></button>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <img [src]="selectedProduct.urlImage || 'assets/images/placeholder.jpg'"
+                   [alt]="selectedProduct.nome"
+                   class="me-3" style="width: 60px; height: 60px; object-fit: cover;">
+              <div>
+                <h6 class="mb-0">{{ selectedProduct.nome }}</h6>
+                <span class="text-muted">{{ selectedProduct.marca }}</span>
+              </div>
+            </div>
+
+            <!-- Form recensione -->
+            <form [formGroup]="reviewForm">
+              <div class="mb-3">
+                <label class="form-label">Valutazione:</label>
+                <div class="star-rating">
+                  <span *ngFor="let star of [1, 2, 3, 4, 5]"
+                        (click)="setRating(star)"
+                        (mouseenter)="hoverRating = star"
+                        (mouseleave)="hoverRating = 0"
+                        class="star-icon">
+                    <i class="bi"
+                       [ngClass]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? 'bi-star-fill' : 'bi-star'"
+                       [style.color]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? '#ffc107' : '#ced4da'"></i>
+                  </span>
+                </div>
+                <div *ngIf="reviewForm.get('valutazione')?.touched && reviewForm.get('valutazione')?.invalid"
+                     class="text-danger small mt-1">
+                  La valutazione è obbligatoria
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="reviewText" class="form-label">La tua recensione:</label>
+                <textarea class="form-control"
+                          id="reviewText"
+                          formControlName="testo"
+                          rows="4"
+                          placeholder="Condividi la tua esperienza con questo prodotto..."></textarea>
+                <div *ngIf="reviewForm.get('testo')?.touched && reviewForm.get('testo')?.errors?.['required']"
+                     class="text-danger small mt-1">
+                  Il testo della recensione è obbligatorio
+                </div>
+                <div *ngIf="reviewForm.get('testo')?.touched && reviewForm.get('testo')?.errors?.['minlength']"
+                     class="text-danger small mt-1">
+                  La recensione deve contenere almeno 10 caratteri
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-secondary me-2" (click)="hideReviewForm()">
+                  Annulla
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        [disabled]="reviewForm.invalid || submittingReview"
+                        (click)="submitReview()">
+                  <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Pubblica recensione
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

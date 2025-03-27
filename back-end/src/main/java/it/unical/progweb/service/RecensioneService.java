@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RecensioneService {
@@ -37,6 +38,24 @@ public class RecensioneService {
     // Ottiene le recensioni di un prodotto
     public List<Recensione> getProductReviews(int productId) {
         return recensioneDAO.findByProdottoId(productId);
+    }
+
+    // Ottiene le recensioni di un utente
+    public List<Recensione> getUserReviews(int userId) {
+        return recensioneDAO.findByUserId(userId);
+    }
+
+    // Ottiene le recensioni di un utente per un prodotto specifico
+    public List<Recensione> getUserProductReviews(int userId, int productId) {
+        List<Recensione> userReviews = recensioneDAO.findByUserId(userId);
+        return userReviews.stream()
+                .filter(review -> review.getIdProdotto() == productId)
+                .collect(Collectors.toList());
+    }
+
+    // Elimina una recensione
+    public void deleteReview(int reviewId) {
+        recensioneDAO.deleteRecensione(reviewId);
     }
 
     private void validateReview(Recensione recensione) {
