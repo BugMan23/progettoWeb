@@ -17,14 +17,11 @@ export class OrdineService {
    * Crea un nuovo ordine
    */
   createOrder(userId: number, idMetodoPagamento: number, articoliCarrello: any[]): Observable<any> {
-    // Assicuriamoci che la struttura corrisponda esattamente a OrdineRequest.java
-    const orderData = {
-      userId: userId,
-      idMetodoPagamento: idMetodoPagamento,
-      articoliCarrello: articoliCarrello
-    };
-    console.log('Invio ordine al server:', orderData);
-    return this.http.post(this.apiUrl, orderData);
+    return this.http.post(this.apiUrl, {
+      userId,
+      idMetodoPagamento,
+      articoliCarrello
+    });
   }
 
   /**

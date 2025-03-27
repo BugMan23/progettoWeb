@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -20,18 +21,17 @@ public class OrdineController {
     @Autowired
     private OrdineService ordineService;
 
-    // Creazione ordine
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrdineRequest orderRequest) {
         try {
-            ordineService.createOrder(
+            int ordineId = ordineService.createOrder(
                     orderRequest.getUserId(),
                     orderRequest.getIdMetodoPagamento(),
                     orderRequest.getArticoliCarrello()
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body("Ordine creato con successo");
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", ordineId, "message", "Ordine creato con successo"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

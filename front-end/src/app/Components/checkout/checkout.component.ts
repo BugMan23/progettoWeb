@@ -383,44 +383,29 @@ export class CheckoutComponent implements OnInit {
 
     this.processingOrder = true;
 
-    // Prepara articoli carrello per l'ordine con tipi corretti
+    // Prepara articoli carrello per l'ordine
     const articoliCarrello = this.prodottiCarrello.map(prodotto => {
       return {
-        id: 0,
-        idOrdine: 0,
         idProdotto: prodotto.id,
-        quantita: this.getQuantita(prodotto)
+        quantita: this.getQuantita(prodotto),
+        id: 0,
+        idOrdine: 0
       };
     });
 
-    // Log del payload prima dell'invio per debugging
-    const payload = {
-      userId: this.userId,
-      idMetodoPagamento: this.selectedMetodoPagamentoId,
-      articoliCarrello: articoliCarrello
-    };
-    console.log('Payload ordine:', payload);
-
-    // Crea ordine con la struttura esatta attesa dal backend
     this.ordineService.createOrder(
       this.userId,
       this.selectedMetodoPagamentoId,
       articoliCarrello
     ).subscribe({
       next: (response) => {
-        console.log('Ordine creato con successo:', response);
-        // Ordine completato con successo
         this.processingOrder = false;
         this.ordineCompletato = true;
-        this.ordineId = response && response.id ? response.id : null;
-
-        // Gestione migliorata dello svuotamento del carrello
-        console.log('Tentativo di svuotamento carrello per utente:', this.userId);
+        this.ordineId = response.id || null;
 
         // Svuota il carrello
         this.carrelloService.clearCart(this.userId!).subscribe({
-          next: (clearResponse) => {
-            console.log('Carrello svuotato con successo', clearResponse);
+          next: () => {
             // Notifica che il carrello è cambiato
             this.carrelloService.cartChanged.next();
 
@@ -431,26 +416,14 @@ export class CheckoutComponent implements OnInit {
             localStorage.removeItem('checkout_sconto');
           },
           error: (err) => {
-            // Non vogliamo che un errore durante lo svuotamento del carrello
-            // comprometta l'esperienza utente dopo un ordine riuscito
             console.error('Errore nello svuotamento del carrello', err);
-            // Continua comunque a completare l'ordine
-            this.carrelloService.cartChanged.next();
-            localStorage.removeItem('checkout_totale');
-            localStorage.removeItem('checkout_subtotale');
-            localStorage.removeItem('checkout_spedizione');
-            localStorage.removeItem('checkout_sconto');
           }
         });
       },
       error: (err) => {
         this.processingOrder = false;
         console.error('Errore nella creazione dell\'ordine', err);
-        if (err.error && typeof err.error === 'string') {
-          this.error = 'Errore: ' + err.error;
-        } else {
-          this.error = 'Impossibile completare l\'ordine. Riprova più tardi.';
-        }
+        this.error = 'Impossibile completare l\'ordine. Riprova più tardi.';
         setTimeout(() => this.error = null, 5000);
       }
     });

@@ -94,7 +94,7 @@ export class CarrelloService {
         catchError(error => {
           // Se l'errore ha status 200, trattalo come successo
           if (error.status === 200) {
-            console.log('Respuesta vacía tratada como éxito');
+            console.log('ordine successo');
             return of({success: true, message: 'Carrello svuotato'});
           }
           console.error('Errore nello svuotamento del carrello', error);

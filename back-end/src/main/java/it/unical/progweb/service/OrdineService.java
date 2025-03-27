@@ -10,6 +10,7 @@ import it.unical.progweb.persistence.dao.ProdottoDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -29,33 +30,29 @@ public class OrdineService {
     /**
      * Crea un nuovo ordine e ne restituisce l'ID
      */
+    // Nel file back-end/src/main/java/it/unical/progweb/service/OrdineService.java
     public int createOrder(int userId, int idMetodoPagamento, List<DettagliOrdini> articoliCarrello) {
         validazioneArticoliNelCarrello(articoliCarrello);
         int totaleDaPagare = calcolaTotale(articoliCarrello);
 
-        // Crea un ordine senza specificare la data (la imposterà il DB)
         Ordine ordine = new Ordine(
-                0,  // id temporaneo che verrà sostituito dal DB
+                0,
                 userId,
-                "IN_ELABORAZIONE",  // stato iniziale
+                LocalDate.now().toString(),
+                "IN_ELABORAZIONE",
                 totaleDaPagare,
                 idMetodoPagamento
         );
 
         int ordineId = ordineDAO.creaOrdine(ordine);
-        if (ordineId <= 0) {
-            throw new RuntimeException("Errore nella creazione dell'ordine");
-        }
-
         ordine.setId(ordineId);
 
         for (DettagliOrdini item : articoliCarrello) {
             dettagliOrdineDAO.addArticoliOrdine(ordine.getId(), item.getIdProdotto(), item.getQuantita());
         }
 
-        return ordineId;
+        return ordineId;  // Ritorna l'ID dell'ordine
     }
-
     /**
      * Restituisce tutti gli ordini di un utente
      */
