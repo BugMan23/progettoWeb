@@ -17,13 +17,18 @@ export class CarrelloService {
   /**
    * Aggiunge un prodotto al carrello dell'utente
    */
+  // Modifica in front-end/src/app/services/carrello.service.ts
   addToCart(request: {
     userId: number;
     productId: number;
     quantity: number;
     taglia: string;
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/add`, request);
+    const requestWithDefaults = {
+      ...request,
+      taglia: request.taglia || 'M'
+    };
+    return this.http.post(`${this.apiUrl}/add`, requestWithDefaults);
   }
 
   /**

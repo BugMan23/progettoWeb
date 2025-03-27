@@ -130,7 +130,7 @@ export class CheckoutComponent implements OnInit {
         this.carrelloService.getCartDetails(this.userId as number).subscribe({
           next: (dettagli) => {
             dettagli.forEach(item => {
-              this.prodottiQuantita.set(item.idProdotto, parseInt(item.quantita));
+              this.prodottiQuantita.set(item.idProdotto, item.quantita);
               this.prodottiTaglie.set(item.idProdotto, item.taglia || 'M');
             });
 

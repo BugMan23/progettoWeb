@@ -1,22 +1,24 @@
 package it.unical.progweb.model;
-
 public class Carrello {
     public int id;
     public int idUtente;
     public int idProdotto;
-    public String quantita;
+    public int quantita;  // Cambiato da String a int
+    public String taglia;
     public Boolean isOrdinato;
-    public Boolean rimosso;  // Nuovo campo
+    public Boolean rimosso;  // Aggiunto l'attributo rimosso
 
-    public Carrello(int id, int idUtente, int idProdotto, String quantita, Boolean isOrdinato, Boolean rimosso) {
+    public Carrello(int id, int idUtente, int idProdotto, int quantita, String taglia, Boolean isOrdinato, Boolean rimosso) {
         this.id = id;
         this.idUtente = idUtente;
         this.idProdotto = idProdotto;
         this.quantita = quantita;
+        this.taglia = taglia;
         this.isOrdinato = isOrdinato;
         this.rimosso = rimosso;
     }
 
+    // Getter e setter aggiornati
     public int getId() {
         return id;
     }
@@ -29,19 +31,15 @@ public class Carrello {
         return idProdotto;
     }
 
-    public String getQuantita() {
+    public int getQuantita() {
         return quantita;
+    }
+
+    public String getTaglia() {
+        return taglia;
     }
 
     public Boolean getOrdinato() {
         return isOrdinato;
-    }
-
-    public Boolean getRimosso() {
-        return rimosso;
-    }
-
-    public void setRimosso(Boolean rimosso) {
-        this.rimosso = rimosso;
     }
 }

@@ -71,7 +71,7 @@ export class CartComponent implements OnInit {
           next: (dettagli) => {
             if (dettagli && dettagli.length > 0) {
               dettagli.forEach(item => {
-                this.itemsQuantita.set(item.idProdotto, parseInt(item.quantita));
+                this.itemsQuantita.set(item.idProdotto, item.quantita);
                 this.itemsTaglie.set(item.idProdotto, item.taglia || 'M');
 
                 // Carica la disponibilità per ogni prodotto
@@ -133,9 +133,21 @@ export class CartComponent implements OnInit {
     this.totale = subtotale + this.costoSpedizione;
   }
 
-  // Aggiorna la quantità di un prodotto
+  // Correzione in front-end/src/app/Components/cart/cart.component.ts
   updateQuantita(prodotto: Prodotto, nuovaQuantita: number): void {
     if (nuovaQuantita < 1) return;
+
+    // Verifica la disponibilità
+    const taglia = this.itemsTaglie.get(prodotto.id) || 'M';
+    const disponibilitaProdotto = this.disponibilitaProdotti.get(prodotto.id);
+    if (disponibilitaProdotto) {
+      const disponibilitaTaglia = disponibilitaProdotto.find(d => d.taglia === taglia);
+      if (disponibilitaTaglia && disponibilitaTaglia.quantita < nuovaQuantita) {
+        this.error = `Disponibilità massima per taglia ${taglia}: ${disponibilitaTaglia.quantita}`;
+        setTimeout(() => this.error = null, 3000);
+        return;
+      }
+    }
 
     // Salva la vecchia quantità
     const vecchiaQuantita = this.itemsQuantita.get(prodotto.id) || 1;
@@ -145,8 +157,6 @@ export class CartComponent implements OnInit {
 
     // Aggiorna sul server
     if (this.userId) {
-      const taglia = this.itemsTaglie.get(prodotto.id) || 'M';
-
       this.carrelloService.updateCartItem(this.userId, prodotto.id, nuovaQuantita, taglia).subscribe({
         next: () => {
           this.calcolaTotale();
@@ -155,21 +165,12 @@ export class CartComponent implements OnInit {
           this.carrelloService.cartChanged.next();
         },
         error: (err) => {
-          console.error('Errore nell\'aggiornamento della quantità', err);
-
-          // Gestisci comunque l'operazione come se fosse andata a buon fine
-          this.calcolaTotale();
-          this.successMessage = 'Quantità aggiornata';
-          setTimeout(() => this.successMessage = null, 2000);
-          this.carrelloService.cartChanged.next();
-
-          // Oppure ripristina la vecchia quantità per essere più conservativo
-          /*
+          // In caso di errore, ripristina la vecchia quantità
           this.itemsQuantita.set(prodotto.id, vecchiaQuantita);
           this.calcolaTotale();
           this.error = 'Impossibile aggiornare la quantità';
           setTimeout(() => this.error = null, 3000);
-          */
+          console.error('Errore nell\'aggiornamento della quantità', err);
         }
       });
     }

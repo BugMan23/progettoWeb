@@ -24,10 +24,25 @@ public class CarrelloService {
     }
 
     public void addAlCarrello(int userId, int productId, int quantity, String taglia) {
+        // Validazione input
+        if (userId <= 0 || productId <= 0 || quantity <= 0) {
+            throw new IllegalArgumentException("Parametri non validi");
+        }
+
+        // Garantisci che la taglia abbia sempre un valore
+        if (taglia == null || taglia.trim().isEmpty()) {
+            taglia = "M";
+        }
+
         // Verifica disponibilità
         List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
-
         boolean disponibile = false;
+
+        // Se non ci sono record di disponibilità, consideriamo il prodotto non disponibile
+        if (disponibilita.isEmpty()) {
+            throw new NotFoundException("Prodotto non disponibile");
+        }
+
         for (Disponibilita d : disponibilita) {
             if (d.getTaglia().equals(taglia) && d.getQuantita() >= quantity) {
                 disponibile = true;
@@ -36,7 +51,7 @@ public class CarrelloService {
         }
 
         if (!disponibile) {
-            throw new NotFoundException("Quantità non disponibile");
+            throw new NotFoundException("Quantità o taglia non disponibile");
         }
 
         carrelloDAO.addAlCarrello(userId, productId, quantity);
@@ -61,9 +76,17 @@ public class CarrelloService {
 
     public int getCartTotal(int userId) {
         List<Prodotto> carrello = carrelloDAO.getCarrello(userId);
+        List<Carrello> dettagli = carrelloDAO.getCartDetails(userId);
+
         int total = 0;
         for (Prodotto prodotto : carrello) {
-            total += prodotto.getPrezzo();
+            int quantity = dettagli.stream()
+                    .filter(d -> d.getIdProdotto() == prodotto.getId())
+                    .findFirst()
+                    .map(Carrello::getQuantita)
+                    .orElse(1);
+
+            total += prodotto.getPrezzo() * quantity;
         }
         return total;
     }

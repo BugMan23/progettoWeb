@@ -1,8 +1,9 @@
 export interface Carrello {
-  taglia: string;
   id: number;
   idUtente: number;
   idProdotto: number;
-  quantita: string;
+  quantita: number;
+  taglia: string;
   isOrdinato: boolean;
+  rimosso: boolean;
 }

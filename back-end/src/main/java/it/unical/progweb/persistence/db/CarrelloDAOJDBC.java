@@ -19,8 +19,11 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
         this.dataSource = dataSource;
     }
 
+    @Override
     public void addAlCarrello(int userId, int prodottoId, int quantita) {
+        // Controlla se il prodotto è già nel carrello
         String checkQuery = "SELECT quantita FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = false";
+        String updateRemovedQuery = "UPDATE carrello SET quantita = ?, rimosso = false WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = true";
         String insertQuery = "INSERT INTO carrello (idutente, idprodotto, quantita, taglia, isordinato, rimosso) VALUES (?, ?, ?, ?, false, false)";
         String updateQuery = "UPDATE carrello SET quantita = ? WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = false";
 
@@ -42,18 +45,38 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                         updatePs.executeUpdate();
                     }
                 } else {
-                    // Prodotto non nel carrello, inserisci nuovo
-                    try (PreparedStatement insertPs = connection.prepareStatement(insertQuery)) {
-                        insertPs.setInt(1, userId);
-                        insertPs.setInt(2, prodottoId);
-                        insertPs.setInt(3, quantita);
-                        insertPs.setString(4, "M"); // Default taglia
-                        insertPs.executeUpdate();
+                    // Controlla se esiste come rimosso
+                    String checkRemovedQuery = "SELECT id, quantita FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = true";
+                    try (PreparedStatement checkRemovedPs = connection.prepareStatement(checkRemovedQuery)) {
+                        checkRemovedPs.setInt(1, userId);
+                        checkRemovedPs.setInt(2, prodottoId);
+
+                        try (ResultSet removedRs = checkRemovedPs.executeQuery()) {
+                            if (removedRs.next()) {
+                                // Prodotto era nel carrello ma rimosso, lo ripristiniamo
+                                try (PreparedStatement updateRemovedPs = connection.prepareStatement(updateRemovedQuery)) {
+                                    updateRemovedPs.setInt(1, quantita);
+                                    updateRemovedPs.setInt(2, userId);
+                                    updateRemovedPs.setInt(3, prodottoId);
+                                    updateRemovedPs.executeUpdate();
+                                }
+                            } else {
+                                // Prodotto mai stato nel carrello, inserisci nuovo
+                                try (PreparedStatement insertPs = connection.prepareStatement(insertQuery)) {
+                                    insertPs.setInt(1, userId);
+                                    insertPs.setInt(2, prodottoId);
+                                    insertPs.setInt(3, quantita);
+                                    insertPs.setString(4, "M"); // Default taglia
+                                    insertPs.executeUpdate();
+                                }
+                            }
+                        }
                     }
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Errore nell'aggiunta al carrello: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -91,6 +114,7 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
     public List<Carrello> getCartDetails(int userId) {
         List<Carrello> dettagli = new ArrayList<>();
         String query = "SELECT * FROM carrello WHERE idutente = ? AND isordinato = false AND rimosso = false";
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
@@ -100,7 +124,8 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                             rs.getInt("id"),
                             rs.getInt("idutente"),
                             rs.getInt("idprodotto"),
-                            rs.getString("quantita"),
+                            rs.getInt("quantita"),
+                            rs.getString("taglia"),
                             rs.getBoolean("isordinato"),
                             rs.getBoolean("rimosso")
                     ));
@@ -114,35 +139,26 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
 
     @Override
     public void clear(int userId) {
-        // Invece di eliminare i record, impostiamo isordinato = true
-        String updateQuery = "UPDATE carrello SET isordinato = true WHERE idutente = ? AND isordinato = false";
+        String deleteQuery = "UPDATE carrello SET rimosso = true WHERE idutente = ? AND isordinato = false";
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(updateQuery)) {
+             PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
             ps.setInt(1, userId);
-            int rowsAffected = ps.executeUpdate();
-            System.out.println("Carrello contrassegnato come ordinato per l'utente " + userId + ", righe aggiornate: " + rowsAffected);
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Errore SQL durante l'aggiornamento del carrello: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Errore durante l'aggiornamento del carrello: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
-
     @Override
     public void removeFromCart(int userId, int productId) {
-        String query = "UPDATE carrello SET rimosso = true WHERE idutente = ? AND idprodotto = ? AND rimosso = false";
+        String query = "UPDATE carrello SET rimosso = true WHERE idutente = ? AND idprodotto = ? AND isordinato = false";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             ps.setInt(2, productId);
-            int rowsAffected = ps.executeUpdate();
-            System.out.println("Prodotto " + productId + " contrassegnato come rimosso dal carrello dell'utente " + userId +
-                    ", righe aggiornate: " + rowsAffected);
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Errore SQL nella rimozione del prodotto dal carrello: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

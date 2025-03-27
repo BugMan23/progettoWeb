@@ -5,6 +5,7 @@ import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.request.CarrelloRequest;
 import it.unical.progweb.service.CarrelloService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,19 +20,34 @@ public class CarrelloController {
     @Autowired
     private CarrelloService carrelloService;
 
-    // Aggiunta prodotto al carrello
+    // Modifica in back-end/src/main/java/it/unical/progweb/controller/CarrelloController.java
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody CarrelloRequest cartRequest) {
         try {
+            // Aggiungi controlli di validazione
+            if (cartRequest.getUserId() <= 0 || cartRequest.getProductId() <= 0 || cartRequest.getQuantity() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Parametri non validi"));
+            }
+
+            // Garantisci che la taglia abbia sempre un valore predefinito
+            String taglia = cartRequest.getTaglia();
+            if (taglia == null || taglia.trim().isEmpty()) {
+                taglia = "M";
+            }
+
             carrelloService.addAlCarrello(
                     cartRequest.getUserId(),
                     cartRequest.getProductId(),
                     cartRequest.getQuantity(),
-                    cartRequest.getTaglia()
+                    taglia
             );
-            return ResponseEntity.ok("Prodotto aggiunto al carrello");
+            return ResponseEntity.ok(Map.of("message", "Prodotto aggiunto al carrello"));
         } catch (NotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Errore interno durante l'aggiunta al carrello"));
         }
     }
 
@@ -42,7 +58,6 @@ public class CarrelloController {
         return ResponseEntity.ok(carrello);
     }
 
-    // Recupero dettagli prodotti nel carrello (quantità, taglia)
     @GetMapping("/details/{userId}")
     public ResponseEntity<List<Carrello>> getCartDetails(@PathVariable int userId) {
         List<Carrello> dettagli = carrelloService.getCartDetails(userId);
