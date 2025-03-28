@@ -26,7 +26,7 @@
       <!-- Immagine prodotto -->
       <div class="col-md-6 mb-4">
         <div class="product-image-container">
-          <img [src]="prodotto.urlImage" [alt]="prodotto.nome" (error)="handleImageError($event)">
+          <img [src]="'assets/images/logoprodotti.png'" [alt]="prodotto.nome" class="img-fluid">
           <div *ngIf="prodotto.scontato" class="badge bg-danger position-absolute top-0 end-0 m-3">SCONTO</div>
         </div>
       </div>

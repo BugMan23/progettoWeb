@@ -48,8 +48,9 @@
               <!-- Mostra solo i primi 2 articoli -->
               <div *ngFor="let item of cartItems.slice(0, 2)" class="cart-preview-item">
                 <div class="item-image">
-                  <img [src]="item.urlImage || 'assets/images/placeholder.jpg'" [alt]="item.nome">
-                </div>
+                  <div class="item-image">
+                    <img [src]="'assets/images/logoprodotti.png'" [alt]="item.nome">
+                  </div></div>
                 <div class="item-details">
                   <div class="item-name">{{ item.nome }}</div>
                   <div class="item-price">€{{ item.prezzo.toFixed(2) }}</div>

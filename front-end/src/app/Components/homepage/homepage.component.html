@@ -15,8 +15,7 @@
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
     <div class="col" *ngFor="let prodotto of nuoviArrivi">
       <div class="card product-card h-100">
-        <img [src]="prodotto.urlImage" class="card-img-top" [alt]="prodotto.nome">
-        <div class="card-body">
+        <img [src]="'assets/images/logoprodotti.png'" class="card-img-top" [alt]="prodotto.nome"><div class="card-body">
           <h5 class="card-title">{{prodotto.nome}}</h5>
           <p class="card-text brand-name">{{prodotto.marca}}</p>
           <p class="card-text price">€{{prodotto.prezzo}}</p>
@@ -42,8 +41,7 @@
     <div class="col" *ngFor="let prodotto of prodottiScontati">
       <div class="card product-card h-100">
         <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
-        <img [src]="prodotto.urlImage" class="card-img-top" [alt]="prodotto.nome">
-        <div class="card-body">
+        <img [src]="'assets/images/logoprodotti.png'" [alt]="prodotto.nome" class="img-fluid"><div class="card-body">
           <h5 class="card-title">{{prodotto.nome}}</h5>
           <p class="card-text brand-name">{{prodotto.marca}}</p>
           <div class="d-flex align-items-center gap-2">

@@ -47,10 +47,11 @@
               <div class="row align-items-center">
                 <!-- Immagine prodotto -->
                 <div class="col-md-2 mb-2 mb-md-0">
-                  <img [src]="prodotto.urlImage || 'assets/images/placeholder.jpg'"
-                       [alt]="prodotto.nome"
-                       class="img-fluid rounded"
-                       style="max-height: 80px; object-fit: contain;">
+                  <div class="product-img-container">
+                    <img [src]="'assets/images/logoprodotti.png'"
+                         [alt]="prodotto.nome"
+                         class="img-fluid rounded"
+                         style="max-height: 80px; object-fit: contain;"></div>
                 </div>
 
                 <!-- Dettagli prodotto -->
