@@ -7,11 +7,12 @@ import { CarrelloService } from '../../../services/carrello.service';
 import { AuthService } from '../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
 import { Prodotto } from '../../../models/prodotto';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, LoginComponent, RouterModule],
+  imports: [CommonModule, LoginComponent, RouterModule, FormsModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -37,7 +38,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showPopup: boolean = false;
   userRole: string | null = null;
 
-  // Subscriptions
+  searchTerm: string = '';
+  private readonly MAX_RECENT_SEARCHES = 5;
+
   private cartSub!: Subscription;
   private cartItemsSub!: Subscription;
 
@@ -46,10 +49,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     protected authService: AuthService,
     private categoriaService: CategoriaService,
     private cartService: CarrelloService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
-    // Sottoscrivi agli stati di autenticazione
     this.authService.isAuthenticatedUser().subscribe(
       isAuthenticated => this.isLoggedIn = isAuthenticated
     );
@@ -61,7 +64,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.checkAuthState();
     this.loadCategories();
 
-    // Iscriviti agli aggiornamenti del carrello
     this.cartSub = this.cartService.cartChanged.subscribe(() => {
       if (this.isLoggedIn) {
         this.loadCartData();
@@ -93,7 +95,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    // Carica il conteggio e i prodotti nel carrello
     this.cartService.getUserCart(parseInt(userId)).subscribe({
       next: (items) => {
         this.cartItems = items;
@@ -105,7 +106,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   calculateCartTotal(): void {
-    // Semplice calcolo del totale - in un caso reale dovresti tenere conto delle quantità
     this.cartTotal = this.cartItems.reduce((total, item) => total + item.prezzo, 0);
   }
 
@@ -168,9 +168,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showPopup = false;
   }
 
-  // Questo metodo può essere chiamato dal componente login quando l'autenticazione ha successo
   onLoginSuccess(): void {
     this.showPopup = false;
     this.checkAuthState();
   }
+
+  search(): void {
+    if (this.searchTerm && this.searchTerm.trim().length > 0) {
+      this.router.navigate(['/catalogo'], {
+        queryParams: { q: this.searchTerm.trim() }
+      });
+      this.searchTerm = '';
+    }
+  }
+
+
+  onSearchKeyUp(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.search();
+    }
+  }
+
 }

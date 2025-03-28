@@ -46,15 +46,11 @@ export class CatalogoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Prima carica i dati base (prodotti e categorie)
     this.loadData();
 
-    // Poi ascolta i cambiamenti nei parametri dell'URL
     this.route.queryParams.subscribe(params => {
-      // Reset dei filtri
-      this.resetFilters(false); // Non ricaricare ancora i prodotti
+      this.resetFilters(false);
 
-      // Leggi i parametri dalla URL
       const categoriaId = params['categoria'] ? parseInt(params['categoria']) : null;
       const scontati = params['scontati'] === 'true';
       const nuovi = params['nuovi'] === 'true';
@@ -64,10 +60,8 @@ export class CatalogoComponent implements OnInit {
       const maxPrezzo = params['maxPrezzo'] ? parseInt(params['maxPrezzo']) : null;
       const query = params['q'];
 
-      // Imposta i filtri in base ai parametri
       if (categoriaId) {
         this.filtroCategoria = categoriaId;
-        // Aggiorna il titolo se c'è una categoria
         this.updateTitleByCategory(categoriaId);
       }
 
@@ -95,14 +89,11 @@ export class CatalogoComponent implements OnInit {
       if (query) {
         this.ricerca = query;
         this.titoloPagina = `Risultati per: ${query}`;
+        this.applyFilters();
       }
-
-      // Applica i filtri
-      this.applyFilters();
     });
   }
 
-  // Aggiorna il titolo in base alla categoria selezionata
   private updateTitleByCategory(categoriaId: number) {
     const categoria = this.categorie.find(c => c.id === categoriaId);
     if (categoria) {
@@ -111,11 +102,9 @@ export class CatalogoComponent implements OnInit {
   }
 
   loadData() {
-    // Carica categorie
     this.categoriaService.getAllCategories().subscribe({
       next: (data) => {
         this.categorie = data;
-        // Aggiorna titolo se necessario (nel caso in cui i parametri URL siano già stati elaborati)
         if (this.filtroCategoria) {
           this.updateTitleByCategory(this.filtroCategoria);
         }
@@ -131,7 +120,7 @@ export class CatalogoComponent implements OnInit {
       next: (data) => {
         this.prodotti = data;
         this.extractFilters();
-        this.applyFilters(); // Applica filtri dopo che i dati sono stati caricati
+        this.applyFilters();
         this.loading = false;
       },
       error: (err) => {
@@ -144,16 +133,13 @@ export class CatalogoComponent implements OnInit {
 
   // Estrai valori unici per filtri
   extractFilters() {
-    // Estrai marche uniche
     this.marche = [...new Set(this.prodotti.map(p => p.marca))];
 
-    // Estrai colori unici
     this.colori = [...new Set(this.prodotti.map(p => p.colore))];
   }
 
   // Applica filtri
   applyFilters() {
-    // Inizia con tutti i prodotti
     let prodottiFiltrati = [...this.prodotti];
 
     // Filtro categoria
@@ -161,14 +147,11 @@ export class CatalogoComponent implements OnInit {
       prodottiFiltrati = prodottiFiltrati.filter(p => p.idCategoria === this.filtroCategoria);
     }
 
-    // Filtro prodotti scontati
     if (this.filtroScontati) {
       prodottiFiltrati = prodottiFiltrati.filter(p => p.scontato);
     }
 
-    // Filtro nuovi arrivi (implementazione di esempio - nella realtà dovresti avere un campo per determinare i nuovi arrivi)
     if (this.filtroNuovi) {
-      // Ordina per ID in ordine decrescente (assumendo che gli ID più alti siano i prodotti più recenti)
       prodottiFiltrati = prodottiFiltrati.sort((a, b) => b.id - a.id).slice(0, 10);
     }
 
@@ -203,7 +186,6 @@ export class CatalogoComponent implements OnInit {
 
     this.filteredProdotti = prodottiFiltrati;
 
-    // Aggiorna l'URL con i filtri (opzionale, ma utile per condividere link filtrati)
     this.updateUrlWithFilters();
   }
 
@@ -226,7 +208,6 @@ export class CatalogoComponent implements OnInit {
     }
   }
 
-  // Aggiorna l'URL con i filtri correnti
   updateUrlWithFilters() {
     const queryParams: any = {};
 

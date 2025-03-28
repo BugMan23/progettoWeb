@@ -99,6 +99,7 @@
                   <td>
                     <!-- Pulsante recensione -->
                     <button
+                      *ngIf="ordineSelezionato?.stato === 'CONSEGNATO' || ordineSelezionato?.stato === 'CONFERMATO' && !hasReviewed[dettaglio.idProdotto]"
                       class="btn btn-sm btn-outline-success"
                       (click)="showReviewForm(dettaglio.idProdotto)">
                       <i class="bi bi-star me-1"></i>Recensisci

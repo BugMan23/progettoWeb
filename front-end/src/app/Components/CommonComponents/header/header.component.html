@@ -5,13 +5,19 @@
       <!-- Logo -->
       <a class="navbar-brand text-light" routerLink="/" (click)="goHomepage()">CAESARZON</a>
 
-      <!-- Barra di ricerca -->
       <div class="search-container">
-        <input type="text" placeholder="Cerca..." class="form-control search-input">
-        <button class="btn search-btn">
+        <input
+          type="text"
+          placeholder="Cerca..."
+          class="form-control search-input"
+          [(ngModel)]="searchTerm"
+          (keyup)="onSearchKeyUp($event)"
+          autocomplete="off">
+        <button class="btn search-btn" (click)="search()">
           <i class="bi bi-search"></i>
         </button>
       </div>
+
 
       <!-- Navigazione -->
       <div class="nav-links d-none d-md-flex">
