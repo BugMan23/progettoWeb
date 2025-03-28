@@ -95,3 +95,121 @@
 .text-secondary {
   color: #6c757d !important;
 }
+
+/* Stili per gli ordini */
+
+/* Stile per il cerchio di stato */
+.status-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Stile per lo stato attivo */
+.status-circle.active {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+/* Linea verticale che collega i cerchi di stato */
+.status-line {
+  width: 2px;
+  height: 50px;
+  background-color: #dee2e6;
+  margin-left: 19px; /* Centro della linea allineato con il centro del cerchio */
+  margin-bottom: -2px; /* Sovrapponi leggermente la fine della linea con il prossimo cerchio */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Linea attiva quando lo stato è raggiunto */
+.status-line.active {
+  background-color: #28a745;
+}
+
+/* Stile per la card dell'ordine */
+.card {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  font-weight: 500;
+}
+
+/* Stili responsive */
+@media (max-width: 768px) {
+  .status-circle {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .status-line {
+    margin-left: 17px;
+    height: 40px;
+  }
+}
+
+/* Stile per animazione */
+.status-circle, .status-line {
+  transition: background-color 0.5s, border-color 0.5s;
+}
+
+/* Aggiunta animazione per i check icon */
+.status-circle i {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Stili per la lista ordini */
+.badge {
+  padding: 0.5em 0.8em;
+  font-weight: 500;
+}
+
+.order-status-timeline {
+  padding: 0.5rem 1rem;
+}
+
+/* Stile per l'effetto hover sulle righe della tabella */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Stile per i bottoni */
+.btn-outline-primary {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Assicura che il contenuto del componente abbia uno spazio minimo */
+.container {
+  min-height: 60vh;
+}

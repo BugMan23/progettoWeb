@@ -11,6 +11,7 @@ import { DettagliOrdini} from '../../../models/dettagli-ordini';
 import { Prodotto} from '../../../models/prodotto';
 import { MetodoPagamento} from '../../../models/metodo-pagamento';
 import { Recensione } from '../../../models/recensione';
+import {DateConsegna} from '../../../models/DataConsegna';
 
 
 @Component({
@@ -484,5 +485,97 @@ export class OrdiniComponent implements OnInit {
     this.ordini = this.ordiniNonFiltrati.filter(ordine =>
       stati.includes(ordine.stato)
     );
+  }
+
+  /**
+   * Calcola le date stimate per ogni fase dell'ordine
+   */
+  calcolaDateConsegna(): DateConsegna {
+    if (!this.ordineSelezionato || !this.ordineSelezionato.data) {
+      return {
+        confermato: '',
+        inPreparazione: '',
+        spedito: '',
+        consegnato: ''
+      };
+    }
+
+    try {
+      // Converti la data dell'ordine in un oggetto Date
+      let dataOrdine: Date | null = null;
+
+      try {
+        // Parse della data in vari formati possibili
+        if (this.ordineSelezionato.data.includes(':')) {
+          // Formato con ora (es. 23/03/2025 22:18)
+          const parts = this.ordineSelezionato.data.split(' ')[0].split('/');
+          if (parts.length === 3) {
+            dataOrdine = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          }
+        } else if (this.ordineSelezionato.data.includes('/')) {
+          // Formato solo data (es. 23/03/2025)
+          const parts = this.ordineSelezionato.data.split('/');
+          if (parts.length === 3) {
+            dataOrdine = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          }
+        } else if (this.ordineSelezionato.data.includes('-')) {
+          // Formato ISO (es. 2025-03-23)
+          dataOrdine = new Date(this.ordineSelezionato.data);
+        }
+      } catch (e) {
+        console.error('Errore nel parsing della data:', e);
+      }
+
+      // Se il parsing è fallito, prova con il costruttore Date standard
+      if (!dataOrdine || isNaN(dataOrdine.getTime())) {
+        dataOrdine = new Date(this.ordineSelezionato.data);
+      }
+
+      // Verifica se la data è valida
+      if (!dataOrdine || isNaN(dataOrdine.getTime())) {
+        console.error('Data ordine non valida:', this.ordineSelezionato.data);
+        // Usa la data corrente come fallback
+        dataOrdine = new Date();
+      }
+
+      // Formatta le date per ogni stato
+      const formatDate = (date: Date): string => {
+        return date.toLocaleDateString('it-IT', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      };
+
+      // Data conferma (la data dell'ordine)
+      const dataConfermato = formatDate(dataOrdine);
+
+      // Data in preparazione (1 giorno dopo)
+      const dataPreparazione = new Date(dataOrdine);
+      dataPreparazione.setDate(dataPreparazione.getDate() + 1);
+
+      // Data spedizione (3 giorni dopo)
+      const dataSpedizione = new Date(dataOrdine);
+      dataSpedizione.setDate(dataSpedizione.getDate() + 3);
+
+      // Data consegna (7 giorni dopo)
+      const dataConsegna = new Date(dataOrdine);
+      dataConsegna.setDate(dataConsegna.getDate() + 7);
+
+      return {
+        confermato: dataConfermato,
+        inPreparazione: formatDate(dataPreparazione),
+        spedito: formatDate(dataSpedizione),
+        consegnato: formatDate(dataConsegna)
+      };
+    } catch (e) {
+      console.error('Errore nel calcolo delle date di consegna', e);
+      return {
+        confermato: '',
+        inPreparazione: '',
+        spedito: '',
+        consegnato: ''
+      };
+    }
   }
 }

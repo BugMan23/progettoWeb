@@ -207,7 +207,7 @@
               <div class="d-flex justify-content-between mb-3">
                 <div>
                   <span>Ordine Confermato</span>
-                  <div class="text-muted small">{{ formattaData(ordineSelezionato.data) }}</div>
+                  <div class="text-muted small">{{ calcolaDateConsegna().confermato }}</div>
                 </div>
                 <div class="status-icon">
                   <i class="bi bi-check-circle-fill text-success"></i>
@@ -218,7 +218,7 @@
                 <div>
                   <span>In Preparazione</span>
                   <div class="text-muted small" *ngIf="isStatoAttivo(STATO_IN_PREPARAZIONE)">
-                    Preparazione in corso
+                    {{ calcolaDateConsegna().inPreparazione }}
                   </div>
                 </div>
                 <div class="status-icon">
@@ -230,7 +230,7 @@
                 <div>
                   <span>Spedito</span>
                   <div class="text-muted small" *ngIf="isStatoAttivo(STATO_SPEDITO)">
-                    In viaggio
+                    {{ calcolaDateConsegna().spedito }}
                   </div>
                 </div>
                 <div class="status-icon">
@@ -242,10 +242,10 @@
                 <div>
                   <span>Consegnato</span>
                   <div class="text-muted small" *ngIf="!isStatoAttivo(STATO_CONSEGNATO)">
-                    Consegna prevista {{ calcolaDataConsegnaStimata(ordineSelezionato.data) }}
+                    Consegna prevista {{ calcolaDateConsegna().consegnato }}
                   </div>
                   <div class="text-muted small" *ngIf="isStatoAttivo(STATO_CONSEGNATO)">
-                    Consegnato il {{ formattaData(ordineSelezionato.data) }}
+                    {{ calcolaDateConsegna().consegnato }}
                   </div>
                 </div>
                 <div class="status-icon">
