@@ -204,16 +204,21 @@
           </div>
           <div class="card-body">
             <div class="mb-4">
+              <!-- Ordine Confermato -->
               <div class="d-flex justify-content-between mb-3">
                 <div>
                   <span>Ordine Confermato</span>
                   <div class="text-muted small">{{ calcolaDateConsegna().confermato }}</div>
                 </div>
                 <div class="status-icon">
-                  <i class="bi bi-check-circle-fill text-success"></i>
+                  <i class="bi" [ngClass]="{
+            'bi-check-circle-fill text-success': isStatoCompleto(STATO_CONFERMATO) || isStatoAttuale(STATO_CONFERMATO),
+            'bi-circle text-secondary': !isStatoAttivo(STATO_CONFERMATO)
+          }"></i>
                 </div>
               </div>
 
+              <!-- In Preparazione -->
               <div class="d-flex justify-content-between mb-3">
                 <div>
                   <span>In Preparazione</span>
@@ -222,10 +227,15 @@
                   </div>
                 </div>
                 <div class="status-icon">
-                  <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': isStatoAttivo(STATO_IN_PREPARAZIONE), 'bi-circle text-secondary': !isStatoAttivo(STATO_IN_PREPARAZIONE)}"></i>
+                  <i class="bi" [ngClass]="{
+            'bi-check-circle-fill text-success': isStatoCompleto(STATO_IN_PREPARAZIONE),
+            'bi-circle-fill text-primary': isStatoAttuale(STATO_IN_PREPARAZIONE),
+            'bi-circle text-secondary': !isStatoAttivo(STATO_IN_PREPARAZIONE)
+          }"></i>
                 </div>
               </div>
 
+              <!-- Spedito -->
               <div class="d-flex justify-content-between mb-3">
                 <div>
                   <span>Spedito</span>
@@ -234,10 +244,15 @@
                   </div>
                 </div>
                 <div class="status-icon">
-                  <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': isStatoAttivo(STATO_SPEDITO), 'bi-circle text-secondary': !isStatoAttivo(STATO_SPEDITO)}"></i>
+                  <i class="bi" [ngClass]="{
+            'bi-check-circle-fill text-success': isStatoCompleto(STATO_SPEDITO),
+            'bi-circle-fill text-primary': isStatoAttuale(STATO_SPEDITO),
+            'bi-circle text-secondary': !isStatoAttivo(STATO_SPEDITO)
+          }"></i>
                 </div>
               </div>
 
+              <!-- Consegnato -->
               <div class="d-flex justify-content-between">
                 <div>
                   <span>Consegnato</span>
@@ -249,11 +264,15 @@
                   </div>
                 </div>
                 <div class="status-icon">
-                  <i class="bi" [ngClass]="{'bi-check-circle-fill text-success': isStatoAttivo(STATO_CONSEGNATO), 'bi-circle text-secondary': !isStatoAttivo(STATO_CONSEGNATO)}"></i>
+                  <i class="bi" [ngClass]="{
+            'bi-check-circle-fill text-success': isStatoAttuale(STATO_CONSEGNATO),
+            'bi-circle text-secondary': !isStatoAttivo(STATO_CONSEGNATO)
+          }"></i>
                 </div>
               </div>
             </div>
 
+            <!-- Barra di avanzamento -->
             <div class="progress mb-4" style="height: 6px;">
               <div class="progress-bar bg-success" role="progressbar"
                    [style.width]="calcolaProgressoOrdine() + '%'"

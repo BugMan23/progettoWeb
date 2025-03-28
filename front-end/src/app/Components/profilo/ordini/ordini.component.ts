@@ -352,32 +352,6 @@ export class OrdiniComponent implements OnInit {
     this.router.navigate(['/profilo/ordini']);
   }
 
-  // Determina se un punto di stato è attivo
-  isStatoAttivo(stato: string): boolean {
-    if (!this.ordineSelezionato) {
-      console.log(`isStatoAttivo: ordineSelezionato è null, stato ${stato} non attivo`);
-      return false;
-    }
-
-    const statoOrdine = this.ordineSelezionato.stato;
-    console.log(`isStatoAttivo: Controllando se "${stato}" è attivo. Stato corrente dell'ordine: "${statoOrdine}"`);
-
-    // Array degli stati nell'ordine corretto
-    const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
-
-    // Ottieni gli indici dello stato corrente e di quello da verificare
-    const indiceStatoCorrente = stati.indexOf(statoOrdine);
-    const indiceStatoVerifica = stati.indexOf(stato);
-
-    console.log(`isStatoAttivo: Indice stato corrente "${statoOrdine}": ${indiceStatoCorrente}, Indice stato da verificare "${stato}": ${indiceStatoVerifica}`);
-
-    // Lo stato è attivo se il suo indice è minore o uguale all'indice dello stato corrente
-    const isAttivo = indiceStatoCorrente >= 0 && indiceStatoVerifica >= 0 && indiceStatoCorrente >= indiceStatoVerifica;
-    console.log(`isStatoAttivo: Risultato per "${stato}": ${isAttivo}`);
-
-    return isAttivo;
-  }
-
   // Restituisce una descrizione leggibile dello stato
   getStatoDescrizione(stato: string): string {
     switch (stato) {
@@ -418,20 +392,22 @@ export class OrdiniComponent implements OnInit {
   }
 
   // Calcola la percentuale di progresso dell'ordine
+  // Calcola la percentuale di progresso dell'ordine
   calcolaProgressoOrdine(): number {
     if (!this.ordineSelezionato) return 0;
 
     const statoOrdine = this.ordineSelezionato.stato;
-
-    // Array degli stati nell'ordine corretto
     const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
-
-    // Indice dello stato attuale
     const indiceStatoCorrente = stati.indexOf(statoOrdine);
 
-    if (indiceStatoCorrente < 0) return 0;
+    if (indiceStatoCorrente < 0) {
+      if (statoOrdine === 'CONSEGNATO') return 100;
+      if (statoOrdine === 'SPEDITO') return 67;
+      if (statoOrdine === 'IN_PREPARAZIONE' || statoOrdine === 'In Preparazione') return 33;
+      return 25;
+    }
 
-    // Calcola la percentuale di progresso (0%, 33%, 66%, 100%)
+    // Calcola la percentuale di progresso (0%, 33%, 67%, 100%)
     return Math.round((indiceStatoCorrente / (stati.length - 1)) * 100);
   }
 
@@ -577,5 +553,52 @@ export class OrdiniComponent implements OnInit {
         consegnato: ''
       };
     }
+  }
+
+  isStatoCompleto(stato: string): boolean {
+    if (!this.ordineSelezionato) return false;
+
+    const statoOrdine = this.ordineSelezionato.stato;
+    const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
+
+    const indiceStatoCorrente = stati.indexOf(statoOrdine);
+    const indiceStatoVerifica = stati.indexOf(stato);
+
+    return indiceStatoCorrente > indiceStatoVerifica;
+  }
+
+  isStatoAttuale(stato: string): boolean {
+    if (!this.ordineSelezionato) return false;
+
+    return this.ordineSelezionato.stato === stato;
+  }
+
+  // Normalizza lo stato per confronti coerenti
+  normalizzaStato(stato: string): string {
+    if (!stato) return '';
+
+    const statoUpper = stato.toUpperCase();
+
+    // Mappatura degli stati dal database ai tuoi stati costanti
+    if (statoUpper === 'CONSEGNATO') return this.STATO_CONSEGNATO;
+    if (statoUpper === 'SPEDITO') return this.STATO_SPEDITO;
+    if (statoUpper === 'IN_PREPARAZIONE' || statoUpper === 'IN PREPARAZIONE') return this.STATO_IN_PREPARAZIONE;
+    if (statoUpper === 'CONFERMATO' || statoUpper === 'IN_ELABORAZIONE' || statoUpper === 'RICEVUTO') return this.STATO_CONFERMATO;
+
+    return stato; // Ritorna lo stato originale se non trovato
+  }
+
+isStatoAttivo(stato: string): boolean {
+    if (!this.ordineSelezionato) return false;
+
+    const statoOrdine = this.normalizzaStato(this.ordineSelezionato.stato);
+    const statoNormalizzato = this.normalizzaStato(stato);
+
+    const stati = [this.STATO_CONFERMATO, this.STATO_IN_PREPARAZIONE, this.STATO_SPEDITO, this.STATO_CONSEGNATO];
+
+    const indiceStatoCorrente = stati.indexOf(statoNormalizzato);
+    const indiceStatoVerifica = stati.indexOf(statoOrdine);
+
+    return indiceStatoCorrente >= 0 && indiceStatoVerifica >= 0 && indiceStatoVerifica >= indiceStatoCorrente;
   }
 }
