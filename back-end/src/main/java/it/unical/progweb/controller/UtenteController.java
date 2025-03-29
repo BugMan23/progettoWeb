@@ -1,9 +1,7 @@
 package it.unical.progweb.controller;
 
-import it.unical.progweb.eccezioni.AuthenticationException;
 import it.unical.progweb.eccezioni.NotFoundException;
 import it.unical.progweb.model.*;
-import it.unical.progweb.model.request.LoginRequest;
 import it.unical.progweb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,28 +20,6 @@ public class UtenteController {
 
     @Autowired
     private UserService userService;
-
-    @PostMapping("/registrazione")
-    public ResponseEntity<String> registerUser(@RequestBody Utente utente) {
-        try {
-            utente.setRuolo(false); // Imposta ruolo di default
-            userService.registraUtente(utente);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Utente registrato con successo");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la registrazione");
-        }
-    }
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-        try {
-            Utente utente = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
-            return ResponseEntity.ok(new LoginResponse(utente.getId(), utente.getNome(), utente.getRuolo()));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
 
     @GetMapping("/admin")
     public ResponseEntity<?> getAdminUsers() {

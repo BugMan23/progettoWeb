@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule, FormGroup, Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -16,13 +16,14 @@ import { User } from '../../models/user';
   standalone: true,
   styleUrls: ['./login.component.css', '../../../styles.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit{
   @Output() close = new EventEmitter<void>();
   @Output() loginSuccess = new EventEmitter<void>();
 
   authForm!: FormGroup;
   isLoginMode = true;
   showLoginPopup: boolean = true;
+  isSubmitting = false;
 
 
   constructor(
@@ -32,13 +33,11 @@ export class LoginComponent {
   ) {}
 
   ngOnInit(): void {
-    // Inizialmente (login) creiamo un form con i soli campi necessari
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       ruolo: [false]
     });
-    // Se preferisci, assegna la larghezza "login"
     this.cambiaLarghezza(this.isLoginMode);
   }
 
@@ -47,7 +46,6 @@ export class LoginComponent {
     this.cambiaLarghezza(this.isLoginMode);
 
     if (!this.isLoginMode) {
-      // Passiamo a registrazione: aggiungiamo i campi
       this.authForm.addControl(
         'nome',
         this.fb.control('', Validators.required)
@@ -61,7 +59,6 @@ export class LoginComponent {
         this.fb.control('', Validators.required)
       );
     } else {
-      // Torniamo a login: rimuoviamo i campi
       this.authForm.removeControl('nome');
       this.authForm.removeControl('cognome');
       this.authForm.removeControl('confirmPassword');
@@ -71,10 +68,17 @@ export class LoginComponent {
   authenticate() {
     const { nome, cognome, email, password, confirmPassword, ruolo } = this.authForm.value;
 
+    if (this.authForm.invalid) {
+      return;
+    }
+
+
     if (!this.isLoginMode && password !== confirmPassword) {
       alert('Le password non coincidono!');
       return;
     }
+
+    this.isSubmitting = true;
 
     if (this.isLoginMode) {
       this.authService.loginWithJWT(email, password).subscribe({
@@ -99,16 +103,25 @@ export class LoginComponent {
         }
       });
     } else {
-      const newUser = new User(nome, cognome, email, password, ruolo);
+      const newUser = new User(nome, cognome, email, password, false);
       this.authService.register(newUser).subscribe({
         next: () => {
           alert('Registrazione avvenuta con successo!');
+          this.isSubmitting = false;
           this.toggleMode();
-          this.closePopup();
         },
         error: (error) => {
-          console.error(error);
-          alert('Errore durante la registrazione: ' + JSON.stringify(error));
+          console.error('REGISTRATION ERROR:', error);
+          this.isSubmitting = false;
+
+          let errorMessage = 'Errore durante la registrazione';
+          if (error.error && typeof error.error === 'string') {
+            errorMessage += ': ' + error.error;
+          } else if (error.status === 403) {
+            errorMessage += ': Accesso negato';
+          }
+
+          alert(errorMessage);
         }
       });
     }
@@ -126,7 +139,6 @@ export class LoginComponent {
   }
 
   closePopup() {
-    this.showLoginPopup = false;
     this.close.emit();
   }
 }

@@ -1,4 +1,3 @@
-// auth.interceptor.ts (crea questo file in src/app/interceptors)
 import { Injectable } from '@angular/core';
 import {
   HttpRequest,

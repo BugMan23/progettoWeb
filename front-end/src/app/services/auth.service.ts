@@ -25,28 +25,6 @@ export class AuthService {
     private router: Router
   ) { }
 
-  // Implementazione login di Sofia
-  /*login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { email, password })
-      .pipe(
-        tap((response: any) => {
-          // Salviamo i dati dell'utente nel localStorage
-          localStorage.setItem('userId', response.id.toString());
-          localStorage.setItem('userName', response.nome);
-          localStorage.setItem('isAdmin', response.isAdmin.toString());
-
-          // Flag di autenticazione
-          localStorage.setItem('authenticated', 'true');
-
-          // Aggiorniamo lo stato di autenticazione
-          this.isAuthenticated.next(true);
-          this.userRole.next(response.isAdmin);
-          this.userName.next(response.nome);
-        })
-      );
-  }*/
-
-  // Implementazione login di Alberto usando JWT (alternativa)
   loginWithJWT(email: string, password: string): Observable<any> {
     console.log('Attempting login with:', { email, password });
 
@@ -102,25 +80,15 @@ export class AuthService {
       );
   }
 
-// Metodo aggiuntivo per recuperare l'ID utente se non presente nel token
   private getUserIdByEmail(email: string): Observable<number> {
-    // Siccome l'endpoint non esiste, è meglio disabilitare questo metodo
     console.error('getUserIdByEmail called, but endpoint is not available');
-    return of(-1); // Ritorna un Observable con un valore dummy
+    return of(-1);
   }
 
-  // Registrazione utente comune a entrambe le implementazioni
   register(user: User): Observable<string> {
-    return this.http.post(`${this.baseUrl}/registrazione`, user, {
-      responseType: 'text' // Specifica che ti aspetti una risposta di testo
-    });
-  }
-
-
-  // Registrazione alternativa di Alberto
-  registerWithJWT(user: User): Observable<string> {
     return this.http.post(`${this.apiUrl}/register`, user, { responseType: 'text' });
   }
+
 
   // Logout combinato
   logout(): void {
@@ -130,7 +98,6 @@ export class AuthService {
     localStorage.removeItem('isAdmin');
     localStorage.removeItem('authenticated');
 
-    // Rimuovi anche dal sessionStorage (Alberto)
     sessionStorage.removeItem('token');
 
     // Aggiorniamo lo stato di autenticazione
