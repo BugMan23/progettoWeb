@@ -16,7 +16,6 @@ export class IndirizzoService {
     return this.http.get<Indirizzo[]>(`${this.apiUrl}/utente/${utenteId}`);
   }
 
-  // indirizzo.service.ts
   addIndirizzo(indirizzo: Indirizzo, idUtente: number): Observable<any> {
     console.log('Frontend: Invio nuovo indirizzo per utente ID:', idUtente);
     console.log('Frontend: Dati indirizzo:', indirizzo);
@@ -29,5 +28,9 @@ export class IndirizzoService {
     return this.http.post(this.apiUrl, indirizzoConUtente, {
       responseType: 'text'
     });
+  }
+
+  disattivaIndirizzo(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/disattiva/${id}`, {});
   }
 }

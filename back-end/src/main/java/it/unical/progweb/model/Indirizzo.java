@@ -9,8 +9,10 @@ public class Indirizzo {
     public String provincia;
     public String regione;
     public int idUtente;
+    public boolean attivo;
 
-    public Indirizzo(int id, String nomeVia, String civico, String citta, String cap, String provincia, String regione, int idUtente) {
+    public Indirizzo(int id, String nomeVia, String civico, String citta, String cap,
+                     String provincia, String regione, int idUtente, boolean attivo) {
         this.id = id;
         this.nomeVia = nomeVia;
         this.civico = civico;
@@ -19,6 +21,7 @@ public class Indirizzo {
         this.provincia = provincia;
         this.regione = regione;
         this.idUtente = idUtente;
+        this.attivo = attivo;
     }
 
     public int getId() {
@@ -84,4 +87,13 @@ public class Indirizzo {
     public void setIdUtente(int idUtente) {
         this.idUtente = idUtente;
     }
+
+    public boolean isAttivo() {
+        return attivo;
+    }
+
+    public void setAttivo(boolean attivo) {
+        this.attivo = attivo;
+    }
+
 }

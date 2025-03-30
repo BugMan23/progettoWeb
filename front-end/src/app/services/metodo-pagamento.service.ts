@@ -27,8 +27,6 @@ export class MetodoPagamentoService {
   salvaMetodoPagamento(metodoPagamento: MetodoPagamento, userId: number): Observable<any> {
     console.log('Frontend service: Inviando metodo di pagamento al server per utente ID:', userId);
     console.log('Frontend service: Dati metodo di pagamento:', metodoPagamento);
-
-    // Assicurati che l'ID utente sia impostato nell'oggetto
     const metodoPagamentoConUtente = {
       ...metodoPagamento,
       idUtente: userId
@@ -41,10 +39,14 @@ export class MetodoPagamentoService {
     });
 
     return this.http.post(this.apiUrl, metodoPagamentoConUtente, {
-      responseType: 'text'  // Imposta il tipo di risposta a 'text' invece di 'json'
+      responseType: 'text'
     }).pipe(
       catchError(this.handleError)
     );
+  }
+
+  disattivaMetodoPagamento(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/disattiva/${id}`, {});
   }
 
   private handleError(error: any) {

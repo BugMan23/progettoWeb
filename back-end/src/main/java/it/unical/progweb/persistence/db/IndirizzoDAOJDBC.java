@@ -21,7 +21,7 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
     @Override
     public List<Indirizzo> findByUtenteId(int utenteId) {
         List<Indirizzo> indirizzi = new ArrayList<>();
-        String query = "SELECT * FROM indirizzo WHERE idUtente = ?";
+        String query = "SELECT * FROM indirizzo WHERE idUtente = ? AND attivo = true";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -38,12 +38,13 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
                             rs.getString("cap"),
                             rs.getString("provincia"),
                             rs.getString("regione"),
-                            rs.getInt("idUtente")
+                            rs.getInt("idUtente"),
+                            rs.getBoolean("attivo")
                     ));
                 }
             }
 
-            System.out.println("DAO: Trovati " + indirizzi.size() + " indirizzi");
+            System.out.println("DAO: Trovati " + indirizzi.size() + " indirizzi attivi");
         } catch (SQLException e) {
             System.err.println("DAO: Errore SQL: " + e.getMessage());
             throw new RuntimeException(e);
@@ -70,6 +71,23 @@ public class IndirizzoDAOJDBC implements IndirizzoDAO {
             System.out.println("DAO: Righe inserite: " + rowsAffected);
         } catch (SQLException e) {
             System.err.println("DAO: Errore SQL nell'inserimento: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void disattivaIndirizzo(int indirizzoId) {
+        String query = "UPDATE indirizzo SET attivo = false WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, indirizzoId);
+
+            System.out.println("DAO: Disattivazione indirizzo con ID=" + indirizzoId);
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("DAO: Righe aggiornate: " + rowsAffected);
+        } catch (SQLException e) {
+            System.err.println("DAO: Errore SQL nella disattivazione: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

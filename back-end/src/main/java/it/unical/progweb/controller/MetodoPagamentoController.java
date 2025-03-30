@@ -58,26 +58,23 @@ public class MetodoPagamentoController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateMetodoPagamento(@PathVariable int id, @RequestBody MetodoDiPagamento metodoPagamento) {
-        try {
-            if (metodoPagamento.getId() != id) {
-                metodoPagamento.setId(id);
-            }
-            metodoDiPagamentoService.updateMetodoDiPagamento(metodoPagamento);
-            return ResponseEntity.ok("Metodo di pagamento aggiornato con successo");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteMetodoPagamento(@PathVariable int id) {
+    @PutMapping("/disattiva/{id}")
+    public ResponseEntity<?> disattivaMetodoPagamento(@PathVariable int id) {
         try {
-            metodoDiPagamentoService.deleteMetodoDiPagamento(id);
-            return ResponseEntity.ok("Metodo di pagamento eliminato con successo");
+            metodoDiPagamentoService.disattivaMetodoDiPagamento(id);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Metodo di pagamento rimosso con successo");
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Errore nella rimozione del metodo di pagamento: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

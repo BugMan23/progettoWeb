@@ -61,27 +61,10 @@ public class MetodoDiPagamentoService {
         return method;
     }
 
-    public void updateMetodoDiPagamento(MetodoDiPagamento metodoPagamento) {
-        // Verifica che il metodo di pagamento esista
-        MetodoDiPagamento esistente = getMetodoDiPagamentoByID(metodoPagamento.getId());
 
-        // Valida i dati
-        validaMetodoPagamento(metodoPagamento);
-
-        // Aggiorna
-        if (!metodoDiPagamentoDAO.updateMetodoDiPagamento(metodoPagamento)) {
-            throw new RuntimeException("Errore nell'aggiornamento del metodo di pagamento");
-        }
-    }
-
-    public void deleteMetodoDiPagamento(int id) {
-        // Verifica che il metodo di pagamento esista
-        MetodoDiPagamento esistente = getMetodoDiPagamentoByID(id);
-
-        // Elimina
-        if (!metodoDiPagamentoDAO.deleteMetodoDiPagamento(id)) {
-            throw new RuntimeException("Errore nell'eliminazione del metodo di pagamento");
-        }
+    public void disattivaMetodoDiPagamento(int id) {
+        System.out.println("Service: Disattivazione metodo di pagamento con ID " + id);
+        metodoDiPagamentoDAO.disattivaMetodoDiPagamento(id);
     }
 
     private void validaMetodoPagamento(MetodoDiPagamento method) {

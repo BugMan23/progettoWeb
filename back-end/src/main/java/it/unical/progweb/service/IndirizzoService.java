@@ -29,4 +29,9 @@ public class IndirizzoService {
         System.out.println("Service: Dettagli indirizzo: " + indirizzo.getNomeVia() + ", " + indirizzo.getCitta());
         indirizzoDAO.addIndirizzo(indirizzo, utenteId);
     }
+
+    public void disattivaIndirizzo(int indirizzoId) {
+        System.out.println("Service: Disattivazione indirizzo con ID " + indirizzoId);
+        indirizzoDAO.disattivaIndirizzo(indirizzoId);
+    }
 }

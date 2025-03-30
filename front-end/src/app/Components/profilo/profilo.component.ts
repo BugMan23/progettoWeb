@@ -43,6 +43,9 @@ export class ProfiloComponent implements OnInit {
   loadingDetails: { [orderId: number]: boolean } = {};
   prodotti: { [prodottoId: number]: Prodotto } = {};
 
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
+
   constructor(
     private router: Router,
     private userService: UserService,
@@ -69,7 +72,7 @@ export class ProfiloComponent implements OnInit {
 
     this.loading = true;
 
-    // Load user profile data
+    // Carica dati del profilo
     this.userService.getUserProfile(this.userId).subscribe({
       next: (data) => {
         this.user = data;
@@ -82,7 +85,7 @@ export class ProfiloComponent implements OnInit {
       }
     });
 
-    // Load user addresses
+    // Carica indirizzi
     this.indirizzoService.findByUtenteId(this.userId).subscribe({
       next: (data) => {
         this.indirizzi = data;
@@ -92,18 +95,81 @@ export class ProfiloComponent implements OnInit {
       }
     });
 
-    // Load payment methods
+    // Carica metodi di pagamento
     this.metodoPagamentoService.getMetodiPagamentoUtente(this.userId).subscribe({
       next: (data) => {
+        console.log('Metodi di pagamento ricevuti:', data);
         this.metodiPagamento = data;
       },
-      error: (err) => {
-        console.error('Error loading payment methods:', err);
+      error: (error) => {
+        console.error('Errore nel caricamento dei metodi di pagamento:', error);
       }
     });
   }
 
   setActiveTab(tab: string): void {
+    console.log('Cambio tab a:', tab);
     this.activeTab = tab;
   }
+
+  removeAddress(addressId: number): void {
+    if (!confirm('Sei sicuro di voler rimuovere questo indirizzo?')) {
+      return;
+    }
+
+    this.indirizzoService.disattivaIndirizzo(addressId).subscribe({
+      next: (response) => {
+        console.log('Indirizzo rimosso con successo:', response);
+        this.successMessage = 'Indirizzo rimosso con successo';
+
+        // Rimuovi l'indirizzo dalla lista locale
+        this.indirizzi = this.indirizzi.filter(addr => addr.id !== addressId);
+
+        // Nascondi il messaggio dopo 3 secondi
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('Errore durante la rimozione dell\'indirizzo:', error);
+        this.errorMessage = 'Errore durante la rimozione dell\'indirizzo';
+
+        // Nascondi il messaggio dopo 3 secondi
+        setTimeout(() => {
+          this.errorMessage = null;
+        }, 3000);
+      }
+    });
+  }
+
+  removePaymentMethod(methodId: number): void {
+    if (!confirm('Sei sicuro di voler rimuovere questo metodo di pagamento?')) {
+      return;
+    }
+
+    this.metodoPagamentoService.disattivaMetodoPagamento(methodId).subscribe({
+      next: (response) => {
+        console.log('Metodo di pagamento rimosso con successo:', response);
+        this.successMessage = 'Metodo di pagamento rimosso con successo';
+
+        // Rimuovi il metodo di pagamento dalla lista locale
+        this.metodiPagamento = this.metodiPagamento.filter(method => method.id !== methodId);
+
+        // Nascondi il messaggio dopo 3 secondi
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+      },
+      error: (error) => {
+        console.error('Errore durante la rimozione del metodo di pagamento:', error);
+        this.errorMessage = 'Errore durante la rimozione del metodo di pagamento';
+
+        // Nascondi il messaggio dopo 3 secondi
+        setTimeout(() => {
+          this.errorMessage = null;
+        }, 3000);
+      }
+    });
+  }
+
 }

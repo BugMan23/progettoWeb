@@ -18,39 +18,6 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
         this.dataSource = dataSource;
     }
 
-    @Override
-    public List<MetodoDiPagamento> findByUtenteId(int utenteId) {
-        List<MetodoDiPagamento> metodiDiPagamento = new ArrayList<>();
-        String query = "SELECT * FROM metododiPagamento WHERE idUtente = ?";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, utenteId);
-            System.out.println("DAO: Esecuzione query findByUtenteId con ID: " + utenteId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    metodiDiPagamento.add(new MetodoDiPagamento(
-                            rs.getInt("id"),
-                            rs.getString("tipoPagamento"),
-                            rs.getString("titolare"),
-                            rs.getString("tipoCarta"),
-                            rs.getString("numCarta"),
-                            rs.getString("dataScadenza"),
-                            rs.getString("cvv"),
-                            rs.getInt("idUtente")
-                    ));
-                }
-            }
-
-            System.out.println("DAO: Trovati " + metodiDiPagamento.size() + " metodi di pagamento");
-        } catch (SQLException e) {
-            System.err.println("DAO: Errore SQL in findByUtenteId: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        return metodiDiPagamento;
-    }
 
     @Override
     public boolean addMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento, int utenteId) {
@@ -107,7 +74,8 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
                             rs.getString("numCarta"),
                             rs.getString("dataScadenza"),
                             rs.getString("cvv"),
-                            rs.getInt("idUtente")
+                            rs.getInt("idUtente"),
+                            rs.getBoolean("attivo")
                     );
                 }
             }
@@ -118,38 +86,55 @@ public class MetodoDiPagamentoDAOJDBC implements MetodoDiPagamentoDAO {
     }
 
     @Override
-    public boolean updateMetodoDiPagamento(MetodoDiPagamento metodoDiPagamento) {
-        String query = "UPDATE metodoDiPagamento SET tipoPagamento = ?, titolare = ?, tipoCarta = ?, numCarta = ?, dataScadenza = ?, cvv = ? WHERE id = ?";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setString(1, metodoDiPagamento.getTipoPagamento());
-            ps.setString(2, metodoDiPagamento.getTitolare());
-            ps.setString(3, metodoDiPagamento.getTipoCarta());
-            ps.setString(4, metodoDiPagamento.getNumeroCarta());
-            ps.setString(5, metodoDiPagamento.getDataScadenza());
-            ps.setString(6, metodoDiPagamento.getCvv());
-            ps.setInt(7, metodoDiPagamento.getId());
-
-            int rowsUpdated = ps.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean deleteMetodoDiPagamento(int id) {
-        String query = "DELETE FROM metodoDiPagamento WHERE id = ?";
+    public void disattivaMetodoDiPagamento(int id) {
+        String query = "UPDATE metodoDiPagamento SET attivo = false WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
 
-            int rowsDeleted = ps.executeUpdate();
-            return rowsDeleted > 0;
+            System.out.println("DAO: Disattivazione metodo di pagamento con ID=" + id);
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("DAO: Righe aggiornate: " + rowsAffected);
         } catch (SQLException e) {
+            System.err.println("DAO: Errore SQL nella disattivazione: " + e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<MetodoDiPagamento> findByUtenteId(int utenteId) {
+        List<MetodoDiPagamento> metodiDiPagamento = new ArrayList<>();
+        String query = "SELECT * FROM metododiPagamento WHERE idUtente = ? AND attivo = true";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, utenteId);
+            System.out.println("DAO: Esecuzione query findByUtenteId con ID: " + utenteId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String dataScadenza = rs.getString("dataScadenza");
+
+                    metodiDiPagamento.add(new MetodoDiPagamento(
+                            rs.getInt("id"),
+                            rs.getString("tipoPagamento"),
+                            rs.getString("titolare"),
+                            rs.getString("tipoCarta"),
+                            rs.getString("numCarta"),
+                            dataScadenza,
+                            rs.getString("cvv"),
+                            rs.getInt("idUtente"),
+                            rs.getBoolean("attivo")
+                    ));
+                }
+            }
+
+            System.out.println("DAO: Trovati " + metodiDiPagamento.size() + " metodi di pagamento attivi");
+        } catch (SQLException e) {
+            System.err.println("DAO: Errore SQL in findByUtenteId: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return metodiDiPagamento;
     }
 }

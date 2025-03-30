@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -36,15 +38,22 @@ public class IndirizzoController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateIndirizzo(@PathVariable int id, @RequestBody Indirizzo indirizzo) {
-        // Implementa l'aggiornamento
-        return ResponseEntity.ok("Indirizzo aggiornato");
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteIndirizzo(@PathVariable int id) {
-        // Implementa l'eliminazione
-        return ResponseEntity.ok("Indirizzo eliminato");
+    @PutMapping("/disattiva/{id}")
+    public ResponseEntity<?> disattivaIndirizzo(@PathVariable int id) {
+        try {
+            indirizzoService.disattivaIndirizzo(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Indirizzo rimosso con successo");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Errore nella rimozione dell'indirizzo: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

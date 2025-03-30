@@ -65,25 +65,26 @@
       </div>
 
       <!-- Indirizzi -->
-      <div *ngIf="activeTab === 'addresses' && !loading" class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-          <h4 class="mb-0">I miei indirizzi</h4>
+      <div *ngIf="activeTab === 'addresses'" class="card">
+        <div class="card-header">
+          <h4>I miei indirizzi</h4>
         </div>
         <div class="card-body">
-          <div *ngIf="indirizzi.length === 0" class="text-center py-4">
-            <i class="bi bi-geo-alt-fill text-muted" style="font-size: 3rem;"></i>
-            <p class="mt-3 mb-0">Non hai ancora salvato nessun indirizzo.</p>
+          <div *ngIf="indirizzi.length === 0" class="alert alert-info">
+            Non hai ancora indirizzi salvati.
           </div>
-
-          <div class="row g-4" *ngIf="indirizzi.length > 0">
-            <div class="col-md-6" *ngFor="let indirizzo of indirizzi">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h5 class="card-title">{{ indirizzo.nomeVia }}, {{ indirizzo.civico }}</h5>
-                  <p class="card-text">
-                    {{ indirizzo.citta }}, {{ indirizzo.cap }}<br>
-                    {{ indirizzo.provincia }}, {{ indirizzo.regione }}
-                  </p>
+          <div *ngFor="let address of indirizzi" class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5>{{ address.nomeVia }}, {{ address.civico }}</h5>
+                  <p>{{ address.citta }}, {{ address.cap }}</p>
+                  <p>{{ address.provincia }}, {{ address.regione }}</p>
+                </div>
+                <div>
+                  <button class="btn btn-outline-danger" (click)="removeAddress(address.id)">
+                    <i class="bi bi-trash"></i> Rimuovi
+                  </button>
                 </div>
               </div>
             </div>
@@ -92,40 +93,26 @@
       </div>
 
       <!-- Metodi di pagamento -->
-      <div *ngIf="activeTab === 'payments' && !loading" class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-          <h4 class="mb-0">Metodi di pagamento</h4>
-        </div>
-        <div class="card-body">
-          <div *ngIf="metodiPagamento.length === 0" class="text-center py-4">
-            <i class="bi bi-credit-card-fill text-muted" style="font-size: 3rem;"></i>
-            <p class="mt-3 mb-0">Non hai ancora salvato nessun metodo di pagamento.</p>
+      <div *ngIf="activeTab === 'payments'" class="card">
+          <div class="card-header">
+            <h4>Metodi di pagamento</h4>
           </div>
-
-          <div class="row g-4" *ngIf="metodiPagamento.length > 0">
-            <div class="col-md-6" *ngFor="let metodo of metodiPagamento">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="d-flex align-items-center mb-3">
-                    <i class="bi" [ngClass]="{
-                      'bi-credit-card-fill': metodo.tipoCarta === 'VISA',
-                      'bi-credit-card-2-front-fill': metodo.tipoCarta === 'MASTERCARD',
-                      'bi-credit-card-2-back-fill': metodo.tipoCarta === 'AMEX'
-                    }" style="font-size: 1.5rem; margin-right: 10px;"></i>
-                    <div>
-                      <h5 class="card-title mb-0">{{ metodo.tipoCarta }}</h5>
-                      <p class="text-muted mb-0">**** **** **** {{ metodo.numeroCarta.slice(-4) }}</p>
-                    </div>
+          <div class="card-body">
+            <div *ngIf="metodiPagamento.length === 0" class="alert alert-info">
+              Non hai ancora metodi di pagamento salvati.
+            </div>
+            <div *ngFor="let method of metodiPagamento" class="card mb-3">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5>{{ method.tipoCarta }} - **** **** **** {{ method.numeroCarta.substring(12) }}</h5>
+                    <p>Titolare: {{ method.titolare }}</p>
+                    <p>Scadenza: {{ method.dataScadenza }}</p>
                   </div>
-                  <div class="row">
-                    <div class="col-6">
-                      <p class="small text-muted mb-0">Titolare</p>
-                      <p>{{ metodo.titolare }}</p>
-                    </div>
-                    <div class="col-6">
-                      <p class="small text-muted mb-0">Scadenza</p>
-                      <p>{{ metodo.dataScadenza }}</p>
-                    </div>
+                  <div>
+                    <button class="btn btn-outline-danger" (click)="removePaymentMethod(method.id)">
+                      <i class="bi bi-trash"></i> Rimuovi
+                    </button>
                   </div>
                 </div>
               </div>
@@ -133,6 +120,5 @@
           </div>
         </div>
       </div>
-    </div>
   </div>
 </div>

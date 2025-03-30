@@ -9,8 +9,11 @@ public class MetodoDiPagamento {
     public String dataScadenza;
     public String cvv;
     public int idUtente;
+    public boolean attivo;
 
-    public MetodoDiPagamento(int id, String tipoPagamento, String titolare, String tipoCarta, String numeroCarta, String dataScadenza, String cvv, int idUtente) {
+    public MetodoDiPagamento(int id, String tipoPagamento, String titolare,
+                             String tipoCarta, String numeroCarta, String dataScadenza,
+                             String cvv, int idUtente, boolean attivo) {
         this.id = id;
         this.tipoPagamento = tipoPagamento;
         this.titolare = titolare;
@@ -19,6 +22,7 @@ public class MetodoDiPagamento {
         this.dataScadenza = dataScadenza;
         this.cvv = cvv;
         this.idUtente = idUtente;
+        this.attivo = attivo;
     }
 
     public int getId() {
@@ -83,5 +87,13 @@ public class MetodoDiPagamento {
 
     public void setIdUtente(int idUtente) {
         this.idUtente = idUtente;
+    }
+
+    public boolean isAttivo() {
+        return attivo;
+    }
+
+    public void setAttivo(boolean attivo) {
+        this.attivo = attivo;
     }
 }

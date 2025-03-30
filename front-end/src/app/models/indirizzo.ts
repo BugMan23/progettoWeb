@@ -7,4 +7,5 @@ export interface Indirizzo {
   provincia: string;
   regione: string;
   idUtente: number;
+  attivo?:boolean;
 }

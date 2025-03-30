@@ -7,4 +7,5 @@ import java.util.List;
 public interface IndirizzoDAO {
     List<Indirizzo> findByUtenteId(int utenteId);
     void addIndirizzo(Indirizzo indirizzo, int utenteId);
+    void disattivaIndirizzo(int indirizzoId);
 }

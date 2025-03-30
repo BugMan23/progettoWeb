@@ -7,4 +7,5 @@ export interface MetodoPagamento {
   dataScadenza: string;
   cvv: string;
   idUtente: number;
+  attivo?:boolean;
 }
