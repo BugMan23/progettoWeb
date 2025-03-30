@@ -111,6 +111,7 @@ public class CarrelloController {
             carrelloService.updateCartItem(userId, productId, quantity, taglia);
             return ResponseEntity.ok("Articolo aggiornato");
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -56,30 +56,39 @@ export class CarrelloService {
    * Aggiorna la quantità di un prodotto nel carrello
    */
   updateCartItem(userId: number, productId: number, quantity: number, taglia: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update`, {
+    const payload = {
       userId,
       productId,
       quantity,
       taglia
-    });
+    };
+
+    console.log('Payload updateCartItem:', payload);
+
+    return this.http.put(`${this.apiUrl}/update`, payload, { responseType: 'text' });
   }
 
   /**
    * Aggiorna solo la taglia di un prodotto nel carrello
    */
   updateCartItemTaglia(userId: number, productId: number, taglia: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/update-taglia`, {
+    const payload = {
       userId,
       productId,
       taglia
-    });
+    };
+
+    console.log('Payload updateCartItemTaglia:', payload);
+    return this.http.put(`${this.apiUrl}/update-taglia`, payload, { responseType: 'text' });
   }
 
   /**
    * Rimuove un prodotto dal carrello
    */
   removeFromCart(userId: number, productId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`);
+    return this.http.delete(`${this.apiUrl}/${userId}/product/${productId}`, {
+      responseType: 'text'
+    });
   }
 
   /**

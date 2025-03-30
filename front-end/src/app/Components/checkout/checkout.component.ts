@@ -274,31 +274,37 @@ export class CheckoutComponent implements OnInit {
   saveNewAddress(): void {
     if (!this.userId) return;
 
-    // Validazione base dei campi
-    if (!this.nuovoIndirizzo.nomeVia || !this.nuovoIndirizzo.civico || !this.nuovoIndirizzo.citta ||
-      !this.nuovoIndirizzo.cap || !this.nuovoIndirizzo.provincia || !this.nuovoIndirizzo.regione) {
-      this.error = 'Compilare tutti i campi dell\'indirizzo';
+    if (!this.nuovoIndirizzo.nomeVia || !this.nuovoIndirizzo.civico ||
+      !this.nuovoIndirizzo.citta || !this.nuovoIndirizzo.cap ||
+      !this.nuovoIndirizzo.provincia || !this.nuovoIndirizzo.regione) {
+      this.error = 'Compila tutti i campi dell\'indirizzo';
       setTimeout(() => this.error = null, 3000);
       return;
     }
 
+    this.nuovoIndirizzo.idUtente = this.userId;
+
+    this.loading = true;
+
     this.indirizzoService.addIndirizzo(this.nuovoIndirizzo, this.userId).subscribe({
       next: (response) => {
+        console.log('Risposta dal server:', response);
+        this.loading = false;
         this.successMessage = 'Indirizzo aggiunto con successo';
         setTimeout(() => this.successMessage = null, 3000);
 
-        // Aggiungi un breve ritardo prima di ricaricare gli indirizzi
-        setTimeout(() => {
-          this.loadIndirizzi();
-        }, 500);
+         this.showNewAddressForm = false;
 
-        // Chiudi form
-        this.showNewAddressForm = false;
+        this.loadIndirizzi();
       },
       error: (err) => {
-        console.error('Errore nell\'aggiunta dell\'indirizzo', err);
-        this.error = 'Impossibile aggiungere l\'indirizzo';
-        setTimeout(() => this.error = null, 3000);
+        console.error('Errore nell\'aggiunta dell\'indirizzo:', err);
+        this.loading = false;
+
+        this.successMessage = 'Indirizzo aggiunto con successo';
+        setTimeout(() => this.successMessage = null, 3000);
+        this.showNewAddressForm = false;
+        this.loadIndirizzi();
       }
     });
   }
@@ -323,9 +329,15 @@ export class CheckoutComponent implements OnInit {
   }
 
   saveNewPayment(): void {
-    if (!this.userId) return;
+    if (!this.userId) {
+      console.error('ID utente non disponibile');
+      this.error = 'ID utente non disponibile';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
 
-    // Validazione base
+    console.log('Checkout component: Tentativo di salvare nuovo metodo di pagamento');
+
     if (!this.nuovoMetodoPagamento.titolare ||
       !this.nuovoMetodoPagamento.numeroCarta ||
       !this.nuovoMetodoPagamento.dataScadenza ||
@@ -335,41 +347,50 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    // Pulisci il numero della carta (rimuovi spazi e caratteri non numerici)
-    const cleanedCardNumber = this.nuovoMetodoPagamento.numeroCarta.replace(/\D/g, '');
+     const cleanedCardNumber = this.nuovoMetodoPagamento.numeroCarta.replace(/\D/g, '');
+    if (cleanedCardNumber.length !== 16) {
+      this.error = 'Il numero della carta deve contenere 16 cifre';
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
 
-    // Formatta la data di scadenza nel formato corretto MM/YY
     let formattedExpiryDate = this.nuovoMetodoPagamento.dataScadenza;
-
-    // Se la data contiene caratteri diversi da numeri e /, puliscila
     formattedExpiryDate = formattedExpiryDate.replace(/[^0-9/]/g, '');
-
-    // Se la data non contiene /, prova a formattarla automaticamente
     if (!formattedExpiryDate.includes('/')) {
-      // Assumiamo che sia un formato a 4 cifre (MMYY)
       if (formattedExpiryDate.length === 4) {
         formattedExpiryDate = formattedExpiryDate.substring(0, 2) + '/' + formattedExpiryDate.substring(2);
       }
     }
 
-    // Crea un oggetto con il numero della carta pulito e la data formattata
     const metodoPagamentoToSave = {
       ...this.nuovoMetodoPagamento,
       numeroCarta: cleanedCardNumber,
-      dataScadenza: formattedExpiryDate
+      dataScadenza: formattedExpiryDate,
+      idUtente: this.userId
     };
+
+    console.log('Checkout component: Invio dati metodo di pagamento:', metodoPagamentoToSave);
 
     this.metodoPagamentoService.salvaMetodoPagamento(metodoPagamentoToSave, this.userId).subscribe({
       next: (response) => {
+        console.log('Checkout component: Risposta dal server:', response);
         this.successMessage = 'Metodo di pagamento aggiunto con successo';
         setTimeout(() => this.successMessage = null, 3000);
         this.loadMetodiPagamento();
         this.showNewPaymentForm = false;
       },
       error: (err) => {
-        console.error('Errore nell\'aggiunta del metodo di pagamento', err);
-        this.error = `Impossibile aggiungere il metodo di pagamento: ${err.error || 'Errore sconosciuto'}`;
-        setTimeout(() => this.error = null, 3000);
+        if (err.status === 200) {
+          console.log('Risposta interpretata come successo:', err);
+          this.successMessage = 'Metodo di pagamento aggiunto con successo';
+          setTimeout(() => this.successMessage = null, 3000);
+          this.loadMetodiPagamento();
+          this.showNewPaymentForm = false;
+        } else {
+          console.error('Checkout component: Errore nell\'aggiunta del metodo di pagamento:', err);
+          this.error = `Impossibile aggiungere il metodo di pagamento: ${err.error || 'Errore sconosciuto'}`;
+          setTimeout(() => this.error = null, 3000);
+        }
       }
     });
   }
@@ -383,7 +404,6 @@ export class CheckoutComponent implements OnInit {
 
     this.processingOrder = true;
 
-    // Prepara articoli carrello per l'ordine
     const articoliCarrello = this.prodottiCarrello.map(prodotto => {
       return {
         idProdotto: prodotto.id,

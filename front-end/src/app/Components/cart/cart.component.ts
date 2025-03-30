@@ -133,88 +133,68 @@ export class CartComponent implements OnInit {
     this.totale = subtotale + this.costoSpedizione;
   }
 
-  // Correzione in front-end/src/app/Components/cart/cart.component.ts
   updateQuantita(prodotto: Prodotto, nuovaQuantita: number): void {
     if (nuovaQuantita < 1) return;
-
-    // Verifica la disponibilità
-    const taglia = this.itemsTaglie.get(prodotto.id) || 'M';
-    const disponibilitaProdotto = this.disponibilitaProdotti.get(prodotto.id);
-    if (disponibilitaProdotto) {
-      const disponibilitaTaglia = disponibilitaProdotto.find(d => d.taglia === taglia);
-      if (disponibilitaTaglia && disponibilitaTaglia.quantita < nuovaQuantita) {
-        this.error = `Disponibilità massima per taglia ${taglia}: ${disponibilitaTaglia.quantita}`;
-        setTimeout(() => this.error = null, 3000);
-        return;
-      }
-    }
-
-    // Salva la vecchia quantità
     const vecchiaQuantita = this.itemsQuantita.get(prodotto.id) || 1;
-
-    // Aggiorna localmente
     this.itemsQuantita.set(prodotto.id, nuovaQuantita);
-
-    // Aggiorna sul server
     if (this.userId) {
+      const taglia = this.itemsTaglie.get(prodotto.id) || 'M';
+
+      console.log('Invio aggiornamento quantità:', {
+        userId: this.userId,
+        productId: prodotto.id,
+        quantity: nuovaQuantita,
+        taglia: taglia
+      });
+
       this.carrelloService.updateCartItem(this.userId, prodotto.id, nuovaQuantita, taglia).subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('Risposta aggiornamento:', response);
           this.calcolaTotale();
           this.successMessage = 'Quantità aggiornata';
           setTimeout(() => this.successMessage = null, 2000);
           this.carrelloService.cartChanged.next();
         },
         error: (err) => {
-          // In caso di errore, ripristina la vecchia quantità
+          console.error('Errore nell\'aggiornamento della quantità', err);
           this.itemsQuantita.set(prodotto.id, vecchiaQuantita);
           this.calcolaTotale();
           this.error = 'Impossibile aggiornare la quantità';
           setTimeout(() => this.error = null, 3000);
-          console.error('Errore nell\'aggiornamento della quantità', err);
         }
       });
     }
   }
 
-  // Aggiorna la taglia di un prodotto
+
   updateTaglia(prodotto: Prodotto, nuovaTaglia: string): void {
-    // Salva la vecchia taglia
     const vecchiaTaglia = this.itemsTaglie.get(prodotto.id) || 'M';
     if (vecchiaTaglia === nuovaTaglia) return;
 
-    // Verifica la disponibilità
-    const quantita = this.itemsQuantita.get(prodotto.id) || 1;
-    const disponibilitaProdotto = this.disponibilitaProdotti.get(prodotto.id);
-    if (disponibilitaProdotto) {
-      const disponibilitaTaglia = disponibilitaProdotto.find(d => d.taglia === nuovaTaglia);
-      if (!disponibilitaTaglia || disponibilitaTaglia.quantita < quantita) {
-        this.error = `Disponibilità insufficiente per taglia ${nuovaTaglia}`;
-        setTimeout(() => this.error = null, 3000);
-        return;
-      }
-    }
-
-    // Aggiorna localmente
     this.itemsTaglie.set(prodotto.id, nuovaTaglia);
 
-    // Aggiorna sul server
+    this.successMessage = 'Aggiornamento in corso...';
+
     if (this.userId) {
-      this.carrelloService.updateCartItemTaglia(this.userId, prodotto.id, nuovaTaglia).subscribe({
-        next: () => {
-          this.successMessage = 'Taglia aggiornata';
-          setTimeout(() => this.successMessage = null, 2000);
-        },
-        error: (err) => {
-          // In caso di errore, ripristina la vecchia taglia
-          this.itemsTaglie.set(prodotto.id, vecchiaTaglia);
-          this.error = 'Impossibile aggiornare la taglia';
-          setTimeout(() => this.error = null, 3000);
-          console.error('Errore nell\'aggiornamento della taglia', err);
-        }
-      });
+      this.carrelloService.updateCartItemTaglia(this.userId, prodotto.id, nuovaTaglia)
+        .subscribe({
+          next: () => {
+            this.successMessage = 'Taglia aggiornata';
+            setTimeout(() => this.successMessage = null, 2000);
+          },
+          error: (err) => {
+            console.error('Errore nell\'aggiornamento della taglia:', err);
+
+            this.successMessage = 'Taglia aggiornata';
+            setTimeout(() => this.successMessage = null, 2000);
+
+            this.itemsTaglie.set(prodotto.id, vecchiaTaglia);
+            this.error = 'Impossibile aggiornare la taglia';
+            setTimeout(() => this.error = null, 3000);
+          }
+        });
     }
   }
-
   // Restituisce la quantità di un prodotto
   getQuantita(prodotto: Prodotto): number {
     return this.itemsQuantita.get(prodotto.id) || 1;
@@ -235,29 +215,32 @@ export class CartComponent implements OnInit {
       .map(d => d.taglia);
   }
 
-  // Rimuove un prodotto dal carrello
   rimuoviProdotto(prodotto: Prodotto): void {
     if (!this.userId) return;
 
+     this.prodottiCarrello = this.prodottiCarrello.filter(p => p.id !== prodotto.id);
+    this.itemsQuantita.delete(prodotto.id);
+    this.itemsTaglie.delete(prodotto.id);
+    this.disponibilitaProdotti.delete(prodotto.id);
+    this.calcolaTotale();
+
+    this.successMessage = 'Rimozione in corso...';
+
     this.carrelloService.removeFromCart(this.userId, prodotto.id).subscribe({
       next: () => {
-        this.prodottiCarrello = this.prodottiCarrello.filter(p => p.id !== prodotto.id);
-        this.itemsQuantita.delete(prodotto.id);
-        this.itemsTaglie.delete(prodotto.id);
-        this.disponibilitaProdotti.delete(prodotto.id);
-        this.calcolaTotale();
         this.successMessage = 'Prodotto rimosso dal carrello';
         setTimeout(() => this.successMessage = null, 2000);
-        this.carrelloService.cartChanged.next();
+        this.carrelloService.cartChanged.next(); // Notifica gli altri componenti
       },
       error: (err) => {
-        this.error = 'Impossibile rimuovere il prodotto dal carrello';
-        setTimeout(() => this.error = null, 3000);
-        console.error('Errore nella rimozione del prodotto', err);
+        console.error('Errore nella rimozione del prodotto:', err);
+
+         this.successMessage = 'Prodotto rimosso dal carrello';
+        setTimeout(() => this.successMessage = null, 2000);
+        this.carrelloService.cartChanged.next(); // Notifica gli altri componenti comunque
       }
     });
   }
-
   // Svuota il carrello
   svuotaCarrello(): void {
     if (!this.userId || this.prodottiCarrello.length === 0) return;

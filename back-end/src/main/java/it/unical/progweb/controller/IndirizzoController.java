@@ -26,6 +26,9 @@ public class IndirizzoController {
     @PostMapping
     public ResponseEntity<?> saveIndirizzo(@RequestBody Indirizzo indirizzo) {
         try {
+            if (indirizzo.getIdUtente() <= 0) {
+                return ResponseEntity.badRequest().body("ID utente mancante o non valido");
+            }
             indirizzoService.addIndirizzo(indirizzo, indirizzo.getIdUtente());
             return ResponseEntity.status(HttpStatus.CREATED).body("Indirizzo salvato con successo");
         } catch (Exception e) {
