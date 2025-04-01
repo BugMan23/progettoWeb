@@ -8,8 +8,8 @@ public interface UtenteDAO {
     Utente findById(int id);
     List<Utente> findAll();
     boolean save(Utente utente);
-    void delete(int id);
     Utente validateUser(String email, String password);
-
+    void updateRuolo(Utente utente);
+    void elimina(int id);
     Utente findByEmail(String email);
 }

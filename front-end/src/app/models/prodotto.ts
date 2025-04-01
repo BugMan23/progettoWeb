@@ -6,6 +6,7 @@ export interface Prodotto {
   prezzo: number;
   descrizione: string;
   scontato: boolean;
+  percentualeSconto?: number;
   urlImage: string;
   idCategoria: number;
 }

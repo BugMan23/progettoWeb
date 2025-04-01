@@ -112,6 +112,32 @@ export class ProdottoService {
   }
 
   /**
+   * Crea un nuovo prodotto
+   */
+  createProduct(prodotto: Prodotto): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin`, prodotto)
+      .pipe(catchError(this.handleError));
+  }
+
+
+  /**
+   * Aggiorna un prodotto esistente
+   */
+  updateProduct(prodotto: Prodotto): Observable<Prodotto> {
+    return this.http.put<Prodotto>(`${this.apiUrl}/${prodotto.id}`, prodotto)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Elimina un prodotto per ID
+   */
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+
+
+  /**
    * Gestione degli errori HTTP
    */
   private handleError(error: HttpErrorResponse) {

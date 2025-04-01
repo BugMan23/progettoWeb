@@ -112,4 +112,23 @@ public class UserService {
         return ind;
     }
 
+    public void eliminaUtente(int id) {
+        Utente utente = findById(id);
+        if (utente == null) {
+            throw new NotFoundException("Utente non trovato");
+        }
+        utenteDAO.elimina(id);
+    }
+
+    public void promuoviAAdmin(int id) {
+        Utente utente = findById(id);
+        if (utente == null) {
+            throw new NotFoundException("Utente non trovato");
+        }
+        utente.setRuolo(true);
+        utenteDAO.updateRuolo(utente);
+    }
+
+
+
 }

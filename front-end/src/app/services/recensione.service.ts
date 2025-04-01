@@ -37,7 +37,7 @@ export class RecensioneService {
   }
 
   // Ottiene tutte le recensioni di un utente
-  getUserReviews(userId: number): Observable<Recensione[]> {
+  getUserReviews(userId: number | undefined): Observable<Recensione[]> {
     return this.http.get<Recensione[]>(`${this.apiUrl}/user/${userId}`);
   }
 }

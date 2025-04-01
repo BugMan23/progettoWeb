@@ -1,0 +1,184 @@
+/* Variabili colori */
+:root {
+  --primary: #634080;
+  --primary-light: #7e5a9b;
+  --primary-dark: #4a2d62;
+  --accent: #FF9C00;
+  --accent-hover: #e68a00;
+}
+
+/* Stili generali */
+.card {
+  border-radius: 0.5rem;
+  border: none;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Sidebar/Tabs */
+.list-group-item {
+  border-left: 3px solid transparent;
+  padding: 0.75rem 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.list-group-item.active {
+  background-color: #0d6efd; /* blu bootstrap moderno */
+  border-color: #0d6efd;
+  color: white;
+}
+
+
+
+.list-group-item:not(.active):hover {
+  background-color: #e6f0ff; /* blu chiaro */
+  border-left-color: #b3d7ff;
+}
+
+
+/* Badges */
+.badge {
+  padding: 0.5em 0.8em;
+  font-weight: 500;
+}
+
+/* Forms */
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Card grids */
+.card-title {
+  font-weight: 600;
+}
+
+.card-footer {
+  border-top: 1px solid rgba(0,0,0,.125);
+  padding: 0.75rem 1.25rem;
+}
+
+/* Table styling */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 600;
+  background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .list-group {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Profile component styles */
+
+.list-group-item {
+  border-radius: 0;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.list-group-item:last-child {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.25rem 1.5rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+h6.text-muted {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.accordion-item {
+  border: none;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.accordion-button {
+  background-color: #fff;
+  box-shadow: none;
+  padding: 1.25rem 1.5rem;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #212529;
+  box-shadow: none;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: rgba(0, 0, 0, 0.125);
+}
+
+.accordion-body {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+}
+
+.table th {
+  font-weight: 600;
+  border-top: none;
+}
+
+/* Status badges */
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529;
+}
+
+.badge.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.badge.bg-success {
+  background-color: #198754 !important;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}

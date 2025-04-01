@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {User} from '../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +50,19 @@ export class UserService {
   /*deletePaymentMethod(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/pagamenti/${id}`);
   }*/
+
+  getCustomers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/customers`);
+  }
+
+  deactivateUser(id: number | undefined): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/admin/${id}`);
+  }
+
+  promuoviAAdmin(userId: number | undefined): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${userId}/promuovi`, null);
+  }
+
+
 
 }

@@ -82,11 +82,37 @@ public class ProdottoController {
     public ResponseEntity<?> addProduct(@RequestBody Prodotto prodotto) {
         try {
             prodottoService.addProduct(prodotto);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Prodotto aggiunto");
+            return ResponseEntity.status(HttpStatus.CREATED).body(prodotto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Prodotto prodotto) {
+        try {
+            prodottoService.updateProduct(prodotto);
+            return ResponseEntity.ok("Prodotto aggiornato con successo");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nell'aggiornamento del prodotto");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
+        try {
+            prodottoService.deleteProduct(id);
+            return ResponseEntity.noContent().build(); // HTTP 204 - nessun corpo
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
     public static class ProductDetailResponse {
         private Prodotto prodotto;

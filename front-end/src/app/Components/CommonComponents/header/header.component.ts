@@ -170,6 +170,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onLoginSuccess(): void {
     this.showPopup = false;
+    console.log('isAdmin from localStorage:', this.isAdmin);
     this.checkAuthState();
   }
 

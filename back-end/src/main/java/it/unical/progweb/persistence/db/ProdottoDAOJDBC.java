@@ -38,9 +38,83 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     }
 
     @Override
-    public void deleteProdotto(int id) {
-        // todo: aggiungere un campo nella tab prodotto
+    public void updateProdotto(Prodotto prodotto) {
+        String query = "UPDATE prodotto SET nome = ?, marca = ?, colore = ?, prezzo = ?, descrizione = ?, scontato = ?, image = ?, idcategoria = ? WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ps.setString(1, prodotto.getNome());
+            ps.setString(2, prodotto.getMarca());
+            ps.setString(3, prodotto.getColore());
+            ps.setInt(4, prodotto.getPrezzo());
+            ps.setString(5, prodotto.getDescrizione());
+            ps.setBoolean(6, prodotto.getScontato());
+            ps.setString(7, prodotto.getUrlImage());
+            ps.setInt(8, prodotto.getIdCategoria());
+            ps.setInt(9, prodotto.getId());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'aggiornamento del prodotto", e);
+        }
     }
+
+
+    @Override
+    public void deleteProdotto(int id) {
+        try (Connection connection = dataSource.getConnection()) {
+
+            // 1. Elimina da disponibilita
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM disponibilita WHERE idprodotto = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Errore eliminando da disponibilita: " + e.getMessage());
+            }
+
+            // 1. Elimina recensioni collegate
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM recensione WHERE idprodotto = ?")) {
+                System.out.println("Eliminazione da recensione...");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Errore eliminando da recensione: " + e.getMessage());
+            }
+
+            // 2. Elimina dettagli ordini collegati
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM dettagliordini WHERE idprodotto = ?")) {
+                System.out.println("Eliminazione da dettagli_ordini...");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Errore eliminando da dettagli_ordini: " + e.getMessage());
+            }
+
+            // 3. Elimina dal carrello
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM carrello WHERE idprodotto = ?")) {
+                System.out.println("Eliminazione da carrello...");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("Errore eliminando da carrello: " + e.getMessage());
+            }
+
+            // 4. Infine, elimina il prodotto
+            try (PreparedStatement ps = connection.prepareStatement("DELETE FROM prodotto WHERE id = ?")) {
+                System.out.println("Eliminazione da prodotto...");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Errore durante l'eliminazione del prodotto", e);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'eliminazione del prodotto e delle sue dipendenze", e);
+        }
+    }
+
 
     @Override
     public List<Prodotto> findProdottiByCategoria(String categoria) {

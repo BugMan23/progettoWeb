@@ -8,6 +8,7 @@ public interface ProdottoDAO {
     // admin
     void addProdotto(Prodotto prodotto);
     void deleteProdotto(int id);
+    void updateProdotto(Prodotto prodotto);
 
     List<Prodotto> findProdottiByCategoria(String categoria);
     Prodotto findById(int id);

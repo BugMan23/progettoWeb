@@ -152,9 +152,31 @@ public class UtenteDAOJDBC implements UtenteDAO {
         return null;
     }
 
+    @Override
+    public void elimina(int id) {
+        String query = "DELETE FROM utente WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'eliminazione dell'utente", e);
+        }
+    }
+
 
     @Override
-    public void delete(int id) {
+    public void updateRuolo(Utente utente) {
+        String query = "UPDATE utente SET ruolo = ? WHERE id = ?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setBoolean(1, utente.getRuolo());
+            ps.setInt(2, utente.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante l'aggiornamento del ruolo utente", e);
+        }
     }
 }

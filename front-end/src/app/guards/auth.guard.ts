@@ -8,23 +8,19 @@ export class AuthGuard {
   constructor(private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    // Verifica se l'utente è loggato
     const userId = localStorage.getItem('userId');
 
     if (!userId) {
-      // Utente non loggato, redirect al login
       this.router.navigate(['/login'], {
         queryParams: { returnUrl: state.url }
       });
       return false;
     }
 
-    // Verifica se la rotta richiede i privilegi di admin
     if (route.data['requiresAdmin']) {
-      const isAdmin = localStorage.getItem('userRole') === 'admin';
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
       if (!isAdmin) {
-        // Utente non è admin, redirect alla home
         this.router.navigate(['/']);
         return false;
       }

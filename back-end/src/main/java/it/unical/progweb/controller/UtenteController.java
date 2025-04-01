@@ -96,4 +96,30 @@ public class UtenteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nel recupero dell'utente");
         }
     }
+
+    @PatchMapping("/{id}/promuovi")
+    public ResponseEntity<?> promuoviUtente(@PathVariable int id) {
+        try {
+            userService.promuoviAAdmin(id);
+            return ResponseEntity.ok("Utente promosso ad amministratore con successo.");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la promozione.");
+        }
+    }
+
+
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<?> eliminaUtente(@PathVariable int id) {
+        try {
+            userService.eliminaUtente(id);
+            return ResponseEntity.ok("Utente eliminato con successo.");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'eliminazione dell'utente.");
+        }
+    }
+
 }
