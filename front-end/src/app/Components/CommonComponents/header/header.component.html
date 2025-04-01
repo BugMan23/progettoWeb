@@ -1,10 +1,12 @@
-<!-- header.component.html -->
 <header>
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar navbar-expand">
     <div class="container-fluid px-4">
       <!-- Logo -->
-      <a class="navbar-brand text-light" routerLink="/" (click)="goHomepage()">CAESARZON</a>
+      <a class="navbar-brand text-light" routerLink="/" (click)="goHomepage()">
+        <i class="bi bi-lightning-charge-fill me-1"></i>CAESARZON
+      </a>
 
+      <!-- Barra di ricerca -->
       <div class="search-container">
         <input
           type="text"
@@ -17,7 +19,6 @@
           <i class="bi bi-search"></i>
         </button>
       </div>
-
 
       <!-- Navigazione -->
       <div class="nav-links d-none d-md-flex">
@@ -48,9 +49,8 @@
               <!-- Mostra solo i primi 2 articoli -->
               <div *ngFor="let item of cartItems.slice(0, 2)" class="cart-preview-item">
                 <div class="item-image">
-                  <div class="item-image">
-                    <img [src]="'assets/images/logoprodotti.png'" [alt]="item.nome">
-                  </div></div>
+                  <img [src]="'assets/images/logoprodotti.png'" [alt]="item.nome">
+                </div>
                 <div class="item-details">
                   <div class="item-name">{{ item.nome }}</div>
                   <div class="item-price">€{{ item.prezzo.toFixed(2) }}</div>
@@ -68,7 +68,7 @@
                 <span>Totale:</span>
                 <span class="fw-bold">€{{ cartTotal.toFixed(2) }}</span>
               </div>
-              <button class="btn btn-primary btn-sm w-100" (click)="navigateToCart()">
+              <button class="btn btn-primary w-100" (click)="navigateToCart()">
                 Vai al carrello
               </button>
             </div>
@@ -103,7 +103,6 @@
             </a>
           </div>
         </div>
-
         <button *ngIf="!isLoggedIn" class="btn login-btn" (click)="openLoginPopup()">
           Accedi
         </button>
