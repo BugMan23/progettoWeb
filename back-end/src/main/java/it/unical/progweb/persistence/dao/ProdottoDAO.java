@@ -18,5 +18,8 @@ public interface ProdottoDAO {
     List<Prodotto> findByPrezzo(int prezzo);
     List<Prodotto> findByPrezzoMinEMax(int min, int max);
 
+    Prodotto findLastInserted();
+
+
 }
 

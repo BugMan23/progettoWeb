@@ -112,10 +112,14 @@ export class ProdottoService {
   }
 
   /**
-   * Crea un nuovo prodotto
+   * Crea un nuovo prodotto con le relative disponibilità
    */
-  createProduct(prodotto: Prodotto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/admin`, prodotto)
+  createProduct(data: {
+    prodotto: Prodotto,
+    disponibilita: { taglia: string, quantita: number }[]
+  }): Observable<any> {
+    console.log('Dati da inviare:', data);
+    return this.http.post(`${this.apiUrl}/admin/completo`, data)
       .pipe(catchError(this.handleError));
   }
 
@@ -141,15 +145,20 @@ export class ProdottoService {
    * Gestione degli errori HTTP
    */
   private handleError(error: HttpErrorResponse) {
+    if (error.status === 201) {
+      // Non trattarlo come errore
+      return throwError(() => null); // oppure: return of(error); se vuoi ignorarlo del tutto
+    }
+
     let errorMessage = 'Si è verificato un errore';
     if (error.error instanceof ErrorEvent) {
-      // Errore client-side
       errorMessage = error.error.message;
     } else {
-      // Errore backend
       errorMessage = `Errore: ${error.status}, ${error.error}`;
     }
+
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
   }
+
 }

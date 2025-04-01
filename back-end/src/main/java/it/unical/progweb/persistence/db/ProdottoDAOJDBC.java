@@ -21,6 +21,7 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
     public void addProdotto(Prodotto prodotto) {
         String query = "INSERT INTO prodotto (nome, marca, colore, prezzo, descrizione, scontato, image, idcategoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, prodotto.getNome());
@@ -316,4 +317,30 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
         }
         return prodotti;
     }
+
+    @Override
+    public Prodotto findLastInserted() {
+        String query = "SELECT * FROM prodotto ORDER BY id DESC LIMIT 1";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new Prodotto(
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getString("marca"),
+                        rs.getString("colore"),
+                        rs.getInt("prezzo"),
+                        rs.getString("descrizione"),
+                        rs.getBoolean("scontato"),
+                        rs.getString("image"),
+                        rs.getInt("idCategoria")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nel recupero dell'ultimo prodotto inserito", e);
+        }
+        return null;
+    }
+
 }

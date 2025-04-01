@@ -75,4 +75,22 @@ public class DisponibilitaDAOJDBC implements DisponibilitaDAO {
             System.err.println("Errore durante l'aggiornamento del nome: " + e.getMessage());
         }
     }
+
+    @Override
+    public void addDisponibilita(Disponibilita disponibilita) {
+        String query = "INSERT INTO disponibilita (idprodotto, taglia, quantita) VALUES (?, ?, ?)";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ps.setInt(1, disponibilita.getIdProdotto());
+            ps.setString(2, disponibilita.getTaglia());
+            ps.setInt(3, disponibilita.getQuantita());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore nell'inserimento disponibilità", e);
+        }
+    }
+
 }

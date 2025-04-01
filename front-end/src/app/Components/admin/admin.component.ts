@@ -37,6 +37,12 @@ export class AdminComponent implements OnInit {
   recensioniUtente: Record<number, any[]> = {};
 
 
+  nuoveDisponibilita: { taglia: string, quantita: number }[] = [];
+  tagliaTemp: string = '';
+  quantitaTemp: number = 0;
+
+
+
   loadingAdmin: boolean = false;
 
   userId: number | null = null;
@@ -160,11 +166,23 @@ export class AdminComponent implements OnInit {
   }
 
   onSubmitProduct(): void {
-    // Se il prodotto è scontato e c'è una percentuale valida, applica lo sconto
+    // Applica lo sconto se attivo
     if (this.productFormModel.scontato && this.productFormModel.percentualeSconto) {
       const sconto = (this.productFormModel.prezzo * this.productFormModel.percentualeSconto) / 100;
       this.productFormModel.prezzo = +(this.productFormModel.prezzo - sconto).toFixed(2);
     }
+
+    // Controlla che ci siano disponibilità da inviare
+    if (this.nuoveDisponibilita.length === 0) {
+      alert("Aggiungi almeno una taglia con quantità per il prodotto.");
+      return;
+    }
+
+    // Crea un oggetto unificato per il backend
+    const payload = {
+      prodotto: this.productFormModel,
+      disponibilita: this.nuoveDisponibilita
+    };
 
     if (this.editingProduct) {
       this.prodottoService.updateProduct(this.productFormModel).subscribe({
@@ -175,15 +193,37 @@ export class AdminComponent implements OnInit {
         error: (err) => console.error('Errore aggiornamento prodotto:', err)
       });
     } else {
-      this.prodottoService.createProduct(this.productFormModel).subscribe({
-        next: () => {
+      this.prodottoService.createProduct(payload).subscribe({
+        next: (res) => {
+          console.log('✅ Prodotto creato con risposta:', res);
           this.loadProducts();
           this.productFormModel = this.resetProductForm();
+          this.nuoveDisponibilita = [];
+          this.successMessage = 'Prodotto aggiunto con successo!';
+          setTimeout(() => this.successMessage = null, 3000);
         },
-        error: (err) => console.error('Errore creazione prodotto:', err)
+        error: (err) => {
+          console.error('❌ Errore creazione prodotto:', err);
+          this.errorMessage = 'Errore durante la creazione del prodotto.';
+          setTimeout(() => this.errorMessage = null, 3000);
+        }
       });
     }
   }
+
+
+
+  aggiungiDisponibilita() {
+    if (this.tagliaTemp && this.quantitaTemp > 0) {
+      this.nuoveDisponibilita.push({
+        taglia: this.tagliaTemp,
+        quantita: this.quantitaTemp
+      });
+      this.tagliaTemp = '';
+      this.quantitaTemp = 0;
+    }
+  }
+
 
 
   deleteProduct(id: number): void {

@@ -1,7 +1,9 @@
 package it.unical.progweb.service;
 
 import it.unical.progweb.eccezioni.NotFoundException;
+import it.unical.progweb.model.Disponibilita;
 import it.unical.progweb.model.Prodotto;
+import it.unical.progweb.persistence.dao.DisponibilitaDAO;
 import it.unical.progweb.persistence.dao.ProdottoDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,11 +12,13 @@ import java.util.List;
 
 @Service
 public class ProdottoService {
+    private final DisponibilitaDAO disponibilitaDAO;
 
     private final ProdottoDAO prodottoDAO;
 
     @Autowired
-    public ProdottoService(ProdottoDAO prodottoDAO) {
+    public ProdottoService(DisponibilitaDAO disponibilitaDAO, ProdottoDAO prodottoDAO) {
+        this.disponibilitaDAO = disponibilitaDAO;
         this.prodottoDAO = prodottoDAO;
     }
 
@@ -54,9 +58,16 @@ public class ProdottoService {
         return prodottoDAO.findByPrezzoMinEMax(min, max);
     }
 
-    public void addProduct(Prodotto prodotto) {
-        validateProduct(prodotto);
+    public void addProduct(Prodotto prodotto, List<Disponibilita> disponibilitaList) {
         prodottoDAO.addProdotto(prodotto);
+
+        // Dopo l'inserimento, recupera l'ID del prodotto appena creato
+        Prodotto prodottoInserito = prodottoDAO.findLastInserted(); // Oppure usa findByNomeEMarca se serve
+
+        for (Disponibilita d : disponibilitaList) {
+            d.setIdProdotto(prodottoInserito.getId()); // collega correttamente
+            disponibilitaDAO.addDisponibilita(d);
+        }
     }
 
     private void validateProduct(Prodotto prodotto) {
