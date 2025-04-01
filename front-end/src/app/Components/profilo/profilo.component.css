@@ -10,9 +10,13 @@
 /* Stili generali */
 .card {
   border-radius: 0.5rem;
+  border: none;
   overflow: hidden;
+  margin-bottom: 2rem;
   transition: box-shadow 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 
 .card:hover {
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
@@ -30,15 +34,17 @@
 }
 
 .list-group-item.active {
-  background-color: var(--primary);
-  border-color: var(--accent);
+  background-color: #0d6efd; /* blu */
+  border-color: #0d6efd;
   color: white;
 }
 
+
 .list-group-item:not(.active):hover {
-  background-color: #f8f9fa;
-  border-left-color: #e0e0e0;
+  background-color: #e6f0ff; /* blu chiaro */
+  border-left-color: #b3d7ff;
 }
+
 
 /* Badges */
 .badge {
@@ -101,22 +107,6 @@
 .list-group-item:last-child {
   border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
-}
-
-.list-group-item.active {
-  background-color: #634080;
-  border-color: #634080;
-}
-
-.list-group-item:hover:not(.active) {
-  background-color: #f5f5f5;
-}
-
-.card {
-  border-radius: 0.5rem;
-  border: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
 }
 
 .card-header {

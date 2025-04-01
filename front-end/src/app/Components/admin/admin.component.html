@@ -1,1 +1,265 @@
-<p>admin works!</p>
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="list-group shadow-sm">
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'profile'"
+                (click)="setActiveTab('profile')">
+          <i class="bi bi-person me-2"></i> Dati Personali
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'addresses'"
+                (click)="setActiveTab('addresses')">
+          <i class="bi bi-geo-alt me-2"></i> Indirizzi
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'payments'"
+                (click)="setActiveTab('payments')">
+          <i class="bi bi-credit-card me-2"></i> Metodi di pagamento
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'manage-products'"
+                (click)="setActiveTab('manage-products')">
+          <i class="bi bi-box-seam me-2"></i> Gestione Prodotti
+        </button>
+        <button class="list-group-item list-group-item-action"
+                [class.active]="activeTab === 'manage-users'"
+                (click)="setActiveTab('manage-users')">
+          <i class="bi bi-people me-2"></i> Gestione Utenti
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Caricamento...</span>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
+      </div>
+
+      <!-- Dati Personali -->
+      <div *ngIf="activeTab === 'profile' && !loading" class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h4 class="mb-0">Dati Personali</h4>
+        </div>
+        <div class="card-body">
+          <p><strong>Nome:</strong> {{ user?.nome }}</p>
+          <p><strong>Cognome:</strong> {{ user?.cognome }}</p>
+          <p><strong>Email:</strong> {{ user?.email }}</p>
+          <p><strong>Ruolo:</strong> {{ user?.ruolo ? 'Admin' : 'Utente' }}</p>
+        </div>
+      </div>
+
+      <!-- Indirizzi -->
+      <div *ngIf="activeTab === 'addresses'" class="card">
+        <div class="card-header">
+          <h4>I miei indirizzi</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="indirizzi?.length === 0" class="alert alert-info">
+            Non hai ancora indirizzi salvati.
+          </div>
+          <div *ngFor="let address of indirizzi" class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5>{{ address.nomeVia }}, {{ address.civico }}</h5>
+                  <p>{{ address.citta }}, {{ address.cap }}</p>
+                  <p>{{ address.provincia }}, {{ address.regione }}</p>
+                </div>
+                <div>
+                  <button class="btn btn-outline-danger" (click)="removeAddress(address.id)">
+                    <i class="bi bi-trash"></i> Rimuovi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metodi di pagamento -->
+      <div *ngIf="activeTab === 'payments'" class="card">
+        <div class="card-header">
+          <h4>Metodi di pagamento</h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="metodiPagamento?.length === 0" class="alert alert-info">
+            Non hai ancora metodi di pagamento salvati.
+          </div>
+          <div *ngFor="let method of metodiPagamento" class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  {{ method.tipoCarta }} - **** **** **** {{ getUltime4Cifre(method.numeroCarta) }}
+                  <p>Titolare: {{ method.titolare }}</p>
+                  <p>Scadenza: {{ method.dataScadenza }}</p>
+                </div>
+                <div>
+                  <button class="btn btn-outline-danger" (click)="removePaymentMethod(method.id)">
+                    <i class="bi bi-trash"></i> Rimuovi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestione Prodotti -->
+      <div *ngIf="activeTab === 'manage-products'">
+        <h3>Gestione Prodotti</h3>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>{{ editingProduct ? 'Modifica Prodotto' : 'Nuovo Prodotto' }}</h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="onSubmitProduct()" #productForm="ngForm" class="row g-3">
+              <div class="col-md-6">
+                <label for="nome" class="form-label">Nome</label>
+                <input [(ngModel)]="productFormModel.nome" name="nome" required class="form-control" />
+              </div>
+
+              <div class="col-md-6">
+                <label for="marca" class="form-label">Marca</label>
+                <input [(ngModel)]="productFormModel.marca" name="marca" class="form-control" />
+              </div>
+
+              <div class="col-md-6">
+                <label for="colore" class="form-label">Colore</label>
+                <input type="color" [(ngModel)]="productFormModel.colore" name="colore" class="form-control form-control-color" />
+              </div>
+
+              <div class="col-md-6">
+                <label for="prezzo" class="form-label">Prezzo</label>
+                <div class="input-group">
+                  <span class="input-group-text">€</span>
+                  <input type="number"
+                         [(ngModel)]="productFormModel.prezzo"
+                         name="prezzo"
+                         class="form-control"
+                         min="0.01"
+                         step="0.01"
+                         required />
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="descrizione" class="form-label">Descrizione</label>
+                <textarea [(ngModel)]="productFormModel.descrizione" name="descrizione" class="form-control" rows="2"></textarea>
+              </div>
+
+              <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check me-3">
+                  <input type="checkbox" class="form-check-input" id="scontato" [(ngModel)]="productFormModel.scontato" name="scontato" />
+                  <label class="form-check-label" for="scontato">Scontato</label>
+                </div>
+
+                <div class="input-group" *ngIf="productFormModel.scontato">
+                  <input type="number"
+                         class="form-control"
+                         [(ngModel)]="productFormModel.scontato"
+                         name="percentualeSconto"
+                         min="1"
+                         max="100"
+                         placeholder="Percentuale"
+                         required />
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="urlImage" class="form-label">URL Immagine</label>
+                <input [(ngModel)]="productFormModel.urlImage" name="urlImage" class="form-control" />
+              </div>
+
+              <div class="col-md-6">
+                <label for="idCategoria" class="form-label">Categoria</label>
+                <select [(ngModel)]="productFormModel.idCategoria" name="idCategoria" class="form-select">
+                  <option *ngFor="let cat of categorie" [value]="cat.id">{{ cat.nome }}</option>
+                </select>
+              </div>
+
+              <div class="col-12 mt-2">
+                <button class="btn btn-primary" type="submit">
+                  {{ editingProduct ? 'Salva Modifiche' : 'Aggiungi Prodotto' }}
+                </button>
+                <button *ngIf="editingProduct" class="btn btn-secondary ms-2" type="button" (click)="cancelEdit()">Annulla</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div *ngFor="let p of products" class="col-md-6">
+            <div class="card mb-3">
+              <img *ngIf="p.urlImage" [src]="p.urlImage" class="card-img-top" alt="{{ p.nome }}" />
+              <div class="card-body">
+                <h5>{{ p.nome }}</h5>
+                <p class="mb-1">Marca: {{ p.marca }}</p>
+                <p class="mb-1">Colore: {{ p.colore }}</p>
+                <p class="mb-1">Prezzo: € {{ p.prezzo }}</p>
+                <p class="mb-1">Scontato: {{ p.scontato ? 'Sì' : 'No' }}</p>
+                <p class="mb-1 text-muted"><small>{{ p.descrizione }}</small></p>
+                <p class="mb-1">Categoria ID: {{ p.idCategoria }}</p>
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="editProduct(p)">Modifica</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteProduct(p.id)">Elimina</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestione Utenti -->
+      <div *ngIf="activeTab === 'manage-users'">
+        <h3>Gestione Utenti</h3>
+        <div *ngIf="users?.length === 0" class="alert alert-info">
+          Nessun utente disponibile.
+        </div>
+        <div *ngFor="let u of users" class="card mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h5>{{ u.nome }} {{ u.cognome }}</h5>
+              <p class="mb-1">Email: {{ u.email }}</p>
+              <p class="mb-1">Ruolo: {{ u.ruolo ? 'Admin' : 'Utente' }}</p>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-outline-success" (click)="promuoviAAdmin(u.id)" [disabled]="u.ruolo">
+                <i class="bi bi-arrow-up-circle"></i> Promuovi
+              </button>
+              <button class="btn btn-outline-danger" (click)="bannaUtente(u.id)">
+                <i class="bi bi-person-x"></i> Banna
+              </button>
+              <button class="btn btn-outline-info" (click)="mostraRecensioni(u.id)">
+                <i class="bi bi-eye"></i> Recensioni
+              </button>
+            </div>
+          </div>
+          <div *ngIf="u.id !== undefined && recensioniUtente && recensioniUtente[u.id]" class="card-footer">
+            <ng-container *ngIf="recensioniUtente[u.id].length > 0; else noRecensioni">
+              <ul>
+                <li *ngFor="let r of recensioniUtente[u.id]">
+                  <strong>{{ r.valutazione }}/5</strong> - {{ r.commento }}
+                </li>
+              </ul>
+            </ng-container>
+            <ng-template #noRecensioni>
+              <p>Nessuna recensione trovata.</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

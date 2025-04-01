@@ -20,7 +20,7 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
 
     @Override
     public void addRecensione(Recensione recensione) {
-        String query = "INSERT INTO recensione (idProdotto, idUtente, valutazione, testo, data) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO recensione (idprodotto, idutente, valutazione, testo, data) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -51,7 +51,7 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
     @Override
     public List<Recensione> findByProdottoId(int prodottoId) {
         List<Recensione> recensioni = new ArrayList<>();
-        String query = "SELECT * FROM recensione WHERE idProdotto = ?";
+        String query = "SELECT * FROM recensione WHERE idprodotto = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -77,7 +77,7 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
     @Override
     public List<Recensione> findByUserId(int userId) {
         List<Recensione> recensioni = new ArrayList<>();
-        String query = "SELECT * FROM recensione WHERE idUtente = ?";
+        String query = "SELECT * FROM recensione WHERE idutente = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {
@@ -104,7 +104,7 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
     @Override
     public List<Recensione> findByUserAndProduct(int userId, int productId) {
         List<Recensione> recensioni = new ArrayList<>();
-        String query = "SELECT * FROM recensione WHERE idUtente = ? AND idProdotto = ?";
+        String query = "SELECT * FROM recensione WHERE idutente = ? AND idprodotto = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {

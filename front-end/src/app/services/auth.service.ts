@@ -70,6 +70,8 @@ export class AuthService {
           // Salva il ruolo admin
           localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
 
+          console.log('Admin login detected:', isAdmin);
+
           // Aggiorna gli stati
           this.isAuthenticated.next(true);
           this.userRole.next(isAdmin);

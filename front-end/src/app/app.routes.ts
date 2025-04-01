@@ -64,30 +64,7 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () => import('./Components/admin/admin.component').then(m => m.AdminComponent),
     canActivate: [AuthGuard],
-    data: { requiresAdmin: true },
-    children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./Components/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
-        path: 'prodotti',
-        loadComponent: () => import('./Components/admin/prodotti/prodotti.component').then(m => m.ProdottiComponent)
-      },
-      {
-        path: 'ordini',
-        loadComponent: () => import('./Components/admin/ordini/ordini.component').then(m => m.OrdiniComponent)
-      },
-      {
-        path: 'utenti',
-        loadComponent: () => import('./Components/admin/utenti/utenti.component').then(m => m.UtentiComponent)
-      }
-    ]
+    data: { requiresAdmin: true }
   },
 
   // Fallback per rotte non trovate

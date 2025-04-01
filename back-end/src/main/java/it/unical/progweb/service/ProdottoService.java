@@ -70,4 +70,22 @@ public class ProdottoService {
             throw new IllegalArgumentException("Marca obbligatoria");
         }
     }
+
+    public void updateProduct(Prodotto prodotto) {
+        Prodotto existing = prodottoDAO.findById(prodotto.getId());
+        if (existing == null) {
+            throw new NotFoundException("Prodotto non trovato");
+        }
+        validateProduct(prodotto);
+        prodottoDAO.updateProdotto(prodotto);
+    }
+
+    public void deleteProduct(int id) {
+        Prodotto existing = prodottoDAO.findById(id);
+        if (existing == null) {
+            throw new NotFoundException("Prodotto non trovato");
+        }
+        prodottoDAO.deleteProdotto(id);
+    }
+
 }

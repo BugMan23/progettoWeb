@@ -172,4 +172,8 @@ export class ProfiloComponent implements OnInit {
     });
   }
 
+  getUltime4Cifre(carta: string): string {
+    return carta?.slice(-4);
+  }
+
 }
