@@ -10,14 +10,10 @@ import { Carrello } from '../models/carrello';
 })
 export class CarrelloService {
   private apiUrl = 'http://localhost:8080/api/carrello';
-  public cartChanged = new Subject<void>(); // Per notificare i cambiamenti nel carrello
+  public cartChanged = new Subject<void>();
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Aggiunge un prodotto al carrello dell'utente
-   */
-  // Modifica in front-end/src/app/services/carrello.service.ts
   addToCart(request: {
     userId: number;
     productId: number;

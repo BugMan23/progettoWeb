@@ -1,32 +1,32 @@
-<div class="container mt-4 mb-5">
-  <h1 class="mb-4">Il tuo carrello</h1>
+<div class="container mt-4 cart-container">
+  <h1 class="page-title">Il tuo carrello</h1>
 
   <!-- Loader -->
-  <div *ngIf="loading" class="text-center py-5">
+  <div *ngIf="loading" class="loader-container">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <p class="mt-2">Caricamento del carrello...</p>
+    <p class="loader-text">Caricamento del carrello...</p>
   </div>
 
   <!-- Messaggi di errore e successo -->
   <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ error }}
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
     <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ successMessage }}
+    <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
     <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
   </div>
 
   <!-- Carrello vuoto -->
-  <div *ngIf="!loading && prodottiCarrello.length === 0" class="text-center my-5">
-    <i class="bi bi-cart-x fs-1 text-muted"></i>
-    <h3 class="mt-3">Il tuo carrello è vuoto</h3>
-    <p class="text-muted mb-4">Non hai ancora aggiunto prodotti al carrello</p>
-    <button (click)="continuaShopping()" class="btn btn-primary">
-      <i class="bi bi-bag-plus me-2"></i>Continua lo shopping
+  <div *ngIf="!loading && prodottiCarrello.length === 0" class="empty-cart">
+    <i class="bi bi-cart-x empty-cart-icon"></i>
+    <h3 class="empty-cart-title">Il tuo carrello è vuoto</h3>
+    <p class="empty-cart-text">Non hai ancora aggiunto prodotti al carrello</p>
+    <button (click)="continuaShopping()" class="continue-shopping-btn">
+      <i class="bi bi-bag-plus"></i>Continua lo shopping
     </button>
   </div>
 
@@ -34,82 +34,80 @@
   <div *ngIf="!loading && prodottiCarrello.length > 0" class="row">
     <div class="col-lg-8">
       <!-- Lista prodotti nel carrello -->
-      <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0">Prodotti nel carrello ({{ prodottiCarrello.length }})</h5>
-          <button class="btn btn-sm btn-outline-danger" (click)="svuotaCarrello()">
-            <i class="bi bi-trash me-1"></i>Svuota carrello
+      <div class="cart-card">
+        <div class="cart-header">
+          <h5 class="cart-title">Prodotti nel carrello <span class="cart-count">{{ prodottiCarrello.length }}</span></h5>
+          <button class="clear-cart-btn" (click)="svuotaCarrello()">
+            <i class="bi bi-trash"></i>Svuota carrello
           </button>
         </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div *ngFor="let prodotto of prodottiCarrello" class="list-group-item p-3">
-              <div class="row align-items-center">
+        <div class="cart-body">
+          <ul class="cart-items-list">
+            <li *ngFor="let prodotto of prodottiCarrello" class="cart-item">
+              <div class="cart-item-row">
                 <!-- Immagine prodotto -->
-                <div class="col-md-2 mb-2 mb-md-0">
-                  <div class="product-img-container">
-                    <img [src]="'assets/images/logoprodotti.png'"
-                         [alt]="prodotto.nome"
-                         class="img-fluid rounded"
-                         style="max-height: 80px; object-fit: contain;"></div>
-                </div>
+                <img [src]="'assets/images/logoprodotti.png'"
+                     [alt]="prodotto.nome"
+                     class="cart-item-image">
 
                 <!-- Dettagli prodotto -->
-                <div class="col-md-5 mb-2 mb-md-0">
-                  <h5 class="mb-1">{{ prodotto.nome }}</h5>
-                  <p class="text-muted small mb-1">{{ prodotto.marca }} | {{ prodotto.colore }}</p>
-                  <p class="mb-0">
-                    <span class="me-3">
-                      <strong class="text-muted small">Taglia:</strong>
-                      <select #tagliaSelect class="form-select form-select-sm d-inline-block ms-2" style="width: auto;"
-                              [ngModel]="getTaglia(prodotto)"
-                              (ngModelChange)="updateTaglia(prodotto, $event)">
-                        <option *ngFor="let taglia of getTaglieDisponibili(prodotto)" [value]="taglia">
-                          {{ taglia }}
-                        </option>
-                      </select>
-                    </span>
-                    <span>
-                      <strong class="text-muted small">Prezzo:</strong>
-                      <span class="ms-2">€{{ prodotto.prezzo.toFixed(2) }}</span>
-                    </span>
-                  </p>
+                <div class="cart-item-details">
+                  <h4 class="cart-item-title">{{ prodotto.nome }}</h4>
+                  <div class="cart-item-meta">
+                    <span><strong>Marca:</strong> {{ prodotto.marca }}</span>
+                    <span><strong>Colore:</strong> {{ prodotto.colore }}</span>
+                    <span><strong>Prezzo:</strong> €{{ prodotto.prezzo.toFixed(2) }}</span>
+                  </div>
+                  <div class="cart-item-size-selector">
+                    <label for="size-select-{{ prodotto.id }}">Taglia:</label>
+                    <select id="size-select-{{ prodotto.id }}"
+                            class="form-select cart-item-size-select"
+                            [ngModel]="getTaglia(prodotto)"
+                            (ngModelChange)="updateTaglia(prodotto, $event)">
+                      <option *ngFor="let taglia of getTaglieDisponibili(prodotto)" [value]="taglia">
+                        {{ taglia }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
 
                 <!-- Quantità -->
-                <div class="col-md-3 mb-2 mb-md-0">
-                  <div class="input-group input-group-sm">
-                    <button class="btn btn-outline-secondary" type="button"
-                            (click)="updateQuantita(prodotto, getQuantita(prodotto) - 1)">
+                <div class="cart-item-quantity">
+                  <div class="quantity-control">
+                    <button class="quantity-btn" (click)="updateQuantita(prodotto, getQuantita(prodotto) - 1)">
                       <i class="bi bi-dash"></i>
                     </button>
-                    <input type="number" class="form-control text-center" min="1" max="10"
+                    <input type="number"
+                           class="quantity-input"
+                           min="1"
+                           max="10"
                            [ngModel]="getQuantita(prodotto)"
                            (ngModelChange)="updateQuantita(prodotto, $event)">
-                    <button class="btn btn-outline-secondary" type="button"
-                            (click)="updateQuantita(prodotto, getQuantita(prodotto) + 1)">
+                    <button class="quantity-btn" (click)="updateQuantita(prodotto, getQuantita(prodotto) + 1)">
                       <i class="bi bi-plus"></i>
                     </button>
                   </div>
                 </div>
 
-                <!-- Azioni e subtotale -->
-                <div class="col-md-2 text-end">
-                  <p class="fw-bold mb-2">€{{ calcolaSubtotale(prodotto).toFixed(2) }}</p>
-                  <button class="btn btn-sm btn-outline-danger" (click)="rimuoviProdotto(prodotto)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                <!-- Subtotale -->
+                <div class="cart-item-subtotal">
+                  €{{ calcolaSubtotale(prodotto).toFixed(2) }}
                 </div>
+
+                <!-- Rimuovi -->
+                <button class="cart-item-remove" (click)="rimuoviProdotto(prodotto)">
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
-        <div class="card-footer bg-white py-3">
-          <div class="d-flex justify-content-between">
-            <button class="btn btn-outline-primary" (click)="continuaShopping()">
-              <i class="bi bi-arrow-left me-2"></i>Continua lo shopping
-            </button>
-            <button class="btn btn-primary d-md-none" (click)="procediCheckout()">
+        <div class="cart-footer">
+          <div class="cart-footer-action">
+            <a class="continue-shopping-link" (click)="continuaShopping()">
+              <i class="bi bi-arrow-left"></i>Continua lo shopping
+            </a>
+            <button class="btn checkout-btn checkout-btn-mobile d-md-none" (click)="procediCheckout()">
               Procedi al checkout
             </button>
           </div>
@@ -119,67 +117,69 @@
 
     <!-- Riepilogo ordine -->
     <div class="col-lg-4">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-          <h5 class="mb-0">Riepilogo ordine</h5>
+      <div class="order-summary-card">
+        <div class="order-summary-header">
+          <h5 class="order-summary-title">Riepilogo ordine</h5>
         </div>
-        <div class="card-body">
+        <div class="order-summary-body">
           <!-- Dettagli costi -->
-          <ul class="list-group list-group-flush mb-3">
-            <li class="list-group-item d-flex justify-content-between px-0">
-              <span>Subtotale</span>
-              <span>€{{ (totale - costoSpedizione).toFixed(2) }}</span>
+          <ul class="order-summary-list">
+            <li class="order-summary-item">
+              <span class="order-summary-label">Subtotale</span>
+              <span class="order-summary-value">€{{ (totale - costoSpedizione).toFixed(2) }}</span>
             </li>
-            <li *ngIf="scontoApplicato > 0" class="list-group-item d-flex justify-content-between px-0 text-success">
-              <span>Sconto</span>
-              <span>-€{{ scontoApplicato.toFixed(2) }}</span>
+            <li *ngIf="scontoApplicato > 0" class="order-summary-item">
+              <span class="order-summary-label">Sconto</span>
+              <span class="order-summary-value discount-value">-€{{ scontoApplicato.toFixed(2) }}</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between px-0">
-              <span>Spedizione</span>
-              <span *ngIf="costoSpedizione > 0">€{{ costoSpedizione.toFixed(2) }}</span>
-              <span *ngIf="costoSpedizione === 0" class="text-success">Gratuita</span>
+            <li class="order-summary-item">
+              <span class="order-summary-label">Spedizione</span>
+              <span *ngIf="costoSpedizione > 0" class="order-summary-value">€{{ costoSpedizione.toFixed(2) }}</span>
+              <span *ngIf="costoSpedizione === 0" class="free-shipping-value">Gratuita</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between px-0 fw-bold">
-              <span>Totale</span>
-              <span>€{{ totale.toFixed(2) }}</span>
+            <li class="order-summary-item">
+              <span class="order-summary-label">Totale</span>
+              <span class="order-summary-value order-total">€{{ totale.toFixed(2) }}</span>
             </li>
           </ul>
 
           <!-- Codice sconto -->
-          <div class="mb-3">
-            <label for="codiceScontoInput" class="form-label">Hai un codice sconto?</label>
-            <div class="input-group mb-2">
-              <input type="text" class="form-control" id="codiceScontoInput"
-                     [(ngModel)]="codiceScontoInput" placeholder="Inserisci il codice">
-              <button class="btn btn-outline-primary" type="button"
-                      (click)="applicaSconto()">Applica</button>
+          <div class="discount-code-section">
+            <label for="codiceScontoInput" class="discount-code-label">Hai un codice sconto?</label>
+            <div class="discount-code-input-group">
+              <input type="text"
+                     class="discount-code-input"
+                     id="codiceScontoInput"
+                     [(ngModel)]="codiceScontoInput"
+                     placeholder="Inserisci il codice">
+              <button class="apply-code-btn" type="button" (click)="applicaSconto()">Applica</button>
             </div>
-            <small class="text-muted">Prova con il codice "SPORT10" per ottenere il 10% di sconto</small>
+            <small class="discount-code-hint">Prova con il codice "SPORT10" per ottenere il 10% di sconto</small>
           </div>
 
           <!-- Pulsante checkout -->
-          <div class="d-grid gap-2">
-            <button class="btn btn-primary btn-lg"
+          <div class="checkout-btn-container">
+            <button class="btn checkout-btn checkout-btn-full"
                     [disabled]="processingCheckout || prodottiCarrello.length === 0"
                     (click)="procediCheckout()">
-              <span *ngIf="processingCheckout" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span *ngIf="processingCheckout" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               Procedi al checkout
             </button>
           </div>
 
           <!-- Informazioni aggiuntive -->
-          <div class="mt-3">
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-shield-check text-success me-2"></i>
-              <small>Pagamento sicuro garantito</small>
+          <div class="additional-info">
+            <div class="info-item">
+              <i class="bi bi-shield-check info-icon"></i>
+              <span class="info-text">Pagamento sicuro garantito</span>
             </div>
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-truck text-success me-2"></i>
-              <small>Spedizione gratuita per ordini superiori a €{{ spedizioneGratuita }}</small>
+            <div class="info-item">
+              <i class="bi bi-truck info-icon"></i>
+              <span class="info-text">Spedizione gratuita per ordini superiori a €{{ spedizioneGratuita }}</span>
             </div>
-            <div class="d-flex align-items-center">
-              <i class="bi bi-arrow-counterclockwise text-success me-2"></i>
-              <small>Reso gratuito entro 30 giorni</small>
+            <div class="info-item">
+              <i class="bi bi-arrow-counterclockwise info-icon"></i>
+              <span class="info-text">Reso gratuito entro 30 giorni</span>
             </div>
           </div>
         </div>

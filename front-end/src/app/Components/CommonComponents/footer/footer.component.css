@@ -1,6 +1,121 @@
 footer {
-  background-color: #352244;
-  padding: 20px 0;
+  background-color: var(--primary-dark);
+  padding: 2rem 0 1.5rem;
+  color: var(--text-light);
+  width: 100%;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+}
+
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  letter-spacing: 1px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 1rem;
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  padding: 0.3rem 0;
+}
+
+.footer-link:hover {
   color: white;
+  text-decoration: underline;
+}
+
+.social-icons {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  margin: 0 0.5rem;
+  transition: var(--transition);
+}
+
+.social-icon:hover {
+  background-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.copyright {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.footer-bottom {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  text-align: center;
+}
+
+.footer-payments {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.payment-icon {
+  margin: 0 0.5rem;
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-help a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-help a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+  footer {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .footer-link {
+    margin: 0 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .social-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .copyright {
+    font-size: 0.8rem;
+  }
 }

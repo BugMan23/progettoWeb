@@ -189,10 +189,7 @@ export class DettaglioProdottoComponent implements OnInit {
     return index <= valutazione;
   }
 
-  // In product-detail.component.ts o altri componenti che mostrano immagini
-  handleImageError(event: any): void {
-    // Sostituisci con un'immagine di fallback
-    event.target.src = '/assets/images/placeholder.jpg';
-    // Se non hai un'immagine placeholder, creane una nella cartella assets
+  getPrezzoScontato(prezzo: number): number {
+    return Number((prezzo * 0.8).toFixed(2)); // Sconto del 20%
   }
 }

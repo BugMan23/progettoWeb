@@ -1,104 +1,148 @@
-<!-- Homepage Template Corretto -->
-<div class="container mt-4 mb-5">
-  <!-- Sezione Nuova Collezione con prodotti -->
-  <div class="row mb-4">
-    <div class="col-8">
-      <h2 class="section-title">Nuova Collezione</h2>
-      <p class="section-subtitle">Scopri le ultime novità</p>
-    </div>
-    <div class="col-4 text-end">
-      <a href="/catalogo/nuovaCollezione" class="btn btn-link">Vedi tutti</a>
-    </div>
-  </div>
-
-  <!-- Griglia prodotti nuova collezione -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
-    <div class="col" *ngFor="let prodotto of nuoviArrivi">
-      <div class="card product-card h-100">
-        <img [src]="'assets/images/logoprodotti.png'" class="card-img-top" [alt]="prodotto.nome"><div class="card-body">
-          <h5 class="card-title">{{prodotto.nome}}</h5>
-          <p class="card-text brand-name">{{prodotto.marca}}</p>
-          <p class="card-text price">€{{prodotto.prezzo}}</p>
-          <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary d-block">Visualizza</a>
-        </div>
+<div class="container-fluid p-0">
+  <!-- Hero Section -->
+  <div class="container mt-4">
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Abbigliamento Sportivo di Alta Qualità</h1>
+        <p class="hero-subtitle">Scopri la nostra collezione di articoli sportivi per massimizzare le tue performance e il tuo comfort</p>
+        <a [routerLink]="['/catalogo']" class="hero-cta">Esplora il catalogo</a>
       </div>
     </div>
   </div>
 
-  <!-- Sezione Prodotti Scontati -->
-  <div class="row mb-4">
-    <div class="col-8">
-      <h2 class="section-title">Prodotti Scontati</h2>
-      <p class="section-subtitle">Approfitta delle offerte</p>
-    </div>
-    <div class="col-4 text-end">
-      <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="btn btn-outline-primary">Vedi tutte</a>
-    </div>
-  </div>
-
-  <!-- Griglia prodotti scontati -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
-    <div class="col" *ngFor="let prodotto of prodottiScontati">
-      <div class="card product-card h-100">
-        <div class="badge bg-danger position-absolute top-0 end-0 m-2">SCONTO</div>
-        <img [src]="'assets/images/logoprodotti.png'" [alt]="prodotto.nome" class="img-fluid"><div class="card-body">
-          <h5 class="card-title">{{prodotto.nome}}</h5>
-          <p class="card-text brand-name">{{prodotto.marca}}</p>
-          <div class="d-flex align-items-center gap-2">
-            <p class="card-text price">€{{getPrezzoScontato(prodotto.prezzo)}}</p>
-            <p class="card-text original-price text-decoration-line-through text-muted">€{{prodotto.prezzo}}</p>
+  <div class="container mt-5">
+    <!-- Nuova Collezione -->
+    <div class="row">
+      <div class="col-12">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Nuova Collezione</h2>
+            <p class="section-subtitle">Scopri le ultime novità</p>
           </div>
-          <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary d-block">Visualizza</a>
+          <a [routerLink]="['/catalogo']" [queryParams]="{nuovi: true}" class="view-all-link">
+            Vedi tutti <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Esplora le Categorie -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h2 class="section-title">Esplora le Categorie</h2>
-      <p class="section-subtitle">Scopri i nostri migliori prodotti sportivi</p>
+    <!-- Griglia prodotti nuova collezione -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+      <div class="col" *ngFor="let prodotto of nuoviArrivi">
+        <div class="product-card">
+          <div class="product-card-img-container">
+            <img [src]="'assets/images/logoprodotti.png'" class="product-card-img" [alt]="prodotto.nome">
+          </div>
+          <div class="product-card-body">
+            <div class="product-brand">{{prodotto.marca}}</div>
+            <h3 class="product-title">{{prodotto.nome}}</h3>
+            <div class="product-price-container">
+              <span class="product-price" *ngIf="!prodotto.scontato">€{{ prodotto.prezzo.toFixed(2) }}</span>
+              <span *ngIf="prodotto.scontato">
+                <span class="product-price">€{{ getPrezzoScontato(prodotto.prezzo) }}</span>
+                <span class="product-price">€{{ prodotto.prezzo.toFixed(2) }}</span>
+              </span>
+            </div>
+            <a [routerLink]="['/prodotto', prodotto.id]" class="btn product-cta">Visualizza</a>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Griglia categorie con bottoni cliccabili -->
-  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-4 mb-5">
-    <div class="col" *ngFor="let categoria of categorie">
-      <a [routerLink]="['/catalogo']" [queryParams]="{categoria: categoria.id}" class="category-card">
-        <div class="category-icon mb-3">
-          <i class="bi bi-tag-fill"></i>
+    <!-- Prodotti Scontati -->
+    <div class="row">
+      <div class="col-12">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Prodotti Scontati</h2>
+            <p class="section-subtitle">Approfitta delle offerte</p>
+          </div>
+          <a [routerLink]="['/catalogo']" [queryParams]="{scontati: true}" class="view-all-link">
+            Vedi tutti <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
-        <h3 class="category-title">{{categoria.nome}}</h3>
-        <p class="category-description">{{categoria.descrizione}}</p>
-      </a>
+      </div>
     </div>
-  </div>
 
-  <!-- Sezione Info Spedizione e Resi -->
-  <div class="shipping-returns mt-5 py-4 bg-light rounded">
-    <div class="row g-4">
-      <div class="col-md-4 text-center">
-        <div class="info-box">
-          <i class="bi bi-truck fs-1 mb-3 text-primary"></i>
-          <h4>Spedizione Gratuita</h4>
-          <p>Per ordini superiori a €50</p>
-        </div>
-      </div>
-      <div class="col-md-4 text-center">
-        <div class="info-box">
-          <i class="bi bi-arrow-return-left fs-1 mb-3 text-primary"></i>
-          <h4>Resi Gratuiti</h4>
-          <p>Entro 30 giorni dall'acquisto</p>
-        </div>
-      </div>
-      <div class="col-md-4 text-center">
-        <div class="info-box">
-          <i class="bi bi-shield-check fs-1 mb-3 text-primary"></i>
-          <h4>Pagamenti Sicuri</h4>
-          <p>Transazioni protette e sicure</p>
+    <!-- Griglia prodotti scontati -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5">
+      <div class="col" *ngFor="let prodotto of prodottiScontati">
+        <div class="product-card">
+          <div class="product-card-img-container">
+            <span class="discount-badge">-20%</span>
+            <img [src]="'assets/images/logoprodotti.png'" class="product-card-img" [alt]="prodotto.nome">
+          </div>
+          <div class="product-card-body">
+            <div class="product-brand">{{prodotto.marca}}</div>
+            <h3 class="product-title">{{prodotto.nome}}</h3>
+            <div class="product-price-container">
+              <span class="product-price">€{{getPrezzoScontato(prodotto.prezzo).toFixed(2)}}</span>
+              <span class="product-original-price">€{{prodotto.prezzo.toFixed(2)}}</span>
+            </div>
+            <a [routerLink]="['/prodotto', prodotto.id]" class="btn product-cta">Visualizza</a>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Esplora le Categorie -->
+    <div class="row">
+      <div class="col-12">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Esplora le Categorie</h2>
+            <p class="section-subtitle">Trova l'equipaggiamento perfetto per il tuo sport</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Griglia categorie -->
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-4 mb-5 categories-grid">
+      <div class="col" *ngFor="let categoria of categorie">
+        <a [routerLink]="['/catalogo']" [queryParams]="{categoria: categoria.id}" class="category-card">
+          <div class="category-bg"></div>
+          <div class="category-icon">
+            <i class="bi bi-trophy"></i>
+          </div>
+          <h3 class="category-title">{{categoria.nome}}</h3>
+          <p class="category-description">{{categoria.descrizione}}</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sezione Info Spedizione e Resi -->
+    <div class="shipping-returns mb-5">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-box-icon">
+              <i class="bi bi-truck"></i>
+            </div>
+            <h4 class="info-box-title">Spedizione Gratuita</h4>
+            <p class="info-box-text">Per ordini superiori a €50</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-box-icon">
+              <i class="bi bi-arrow-return-left"></i>
+            </div>
+            <h4 class="info-box-title">Resi Gratuiti</h4>
+            <p class="info-box-text">Entro 30 giorni dall'acquisto</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-box">
+            <div class="info-box-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <h4 class="info-box-title">Pagamenti Sicuri</h4>
+            <p class="info-box-text">Transazioni protette e sicure</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

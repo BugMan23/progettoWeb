@@ -12,7 +12,7 @@ import { interval, Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './homepage.component.html',
-  styleUrls: ['./homepage.component.scss']
+  styleUrls: ['./homepage.component.css']
 })
 export class HomepageComponent implements OnInit, OnDestroy {
   // Prodotti e categorie dal database

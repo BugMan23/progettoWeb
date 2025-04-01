@@ -1,139 +1,135 @@
-<div class="container-fluid mt-4">
-  <!-- Titolo dinamico della pagina -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="display-5 text-center">{{ titoloPagina }}</h1>
-      <hr>
-    </div>
+<div class="container mt-4 mb-5">
+  <div class="catalog-header">
+    <h1 class="catalog-title">{{ titoloPagina }}</h1>
+    <p class="catalog-description">Esplora la nostra vasta gamma di abbigliamento e accessori sportivi di alta qualità</p>
   </div>
 
-  <div class="row">
+  <div class="row g-4">
     <!-- Sidebar Filtri -->
-    <div class="col-md-3">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-dark text-white">
-          <h5 class="mb-0">Filtri</h5>
-        </div>
-        <div class="card-body">
-          <!-- Ricerca -->
-          <div class="mb-3">
-            <label for="search" class="form-label">Cerca</label>
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control"
-                id="search"
-                [(ngModel)]="ricerca"
-                (input)="onSearch()"
-                placeholder="Nome prodotto...">
-              <button class="btn btn-outline-secondary" type="button">
-                <i class="bi bi-search"></i>
-              </button>
-            </div>
+    <div class="col-lg-3">
+      <div class="filters-sidebar">
+        <div class="filters-card">
+          <div class="filters-header">
+            <i class="bi bi-funnel-fill me-2"></i>Filtri
           </div>
-
-          <!-- Categorie -->
-          <div class="mb-3">
-            <label class="form-label">Categoria</label>
-            <select class="form-select" [(ngModel)]="filtroCategoria" (change)="applyFilters()">
-              <option [ngValue]="null">Tutte le categorie</option>
-              <option *ngFor="let categoria of categorie" [ngValue]="categoria.id">
-                {{ categoria.nome }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Checkbox Scontati -->
-          <div class="mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="scontatiCheck"
-                     [(ngModel)]="filtroScontati" (change)="applyFilters()">
-              <label class="form-check-label" for="scontatiCheck">
-                Solo prodotti scontati
-              </label>
-            </div>
-          </div>
-
-          <!-- Prezzo -->
-          <div class="mb-3">
-            <label class="form-label">Prezzo (€)</label>
-            <div class="row g-2">
-              <div class="col-6">
-                <input type="number" class="form-control" placeholder="Min" [(ngModel)]="filtroMinPrezzo">
+          <div class="filters-body">
+            <!-- Ricerca -->
+            <div class="filter-section search-filter">
+              <label for="search" class="filter-label">Cerca</label>
+              <div class="search-input-wrapper">
+                <input
+                  type="text"
+                  class="form-control search-input"
+                  id="search"
+                  [(ngModel)]="ricerca"
+                  (input)="onSearch()"
+                  placeholder="Nome prodotto...">
+                <i class="bi bi-search search-icon"></i>
               </div>
-              <div class="col-6">
+            </div>
+
+            <!-- Categorie -->
+            <div class="filter-section">
+              <label class="filter-label">Categoria</label>
+              <select class="form-select" [(ngModel)]="filtroCategoria" (change)="applyFilters()">
+                <option [ngValue]="null">Tutte le categorie</option>
+                <option *ngFor="let categoria of categorie" [ngValue]="categoria.id">
+                  {{ categoria.nome }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Checkbox Scontati -->
+            <div class="filter-section">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="scontatiCheck"
+                       [(ngModel)]="filtroScontati" (change)="applyFilters()">
+                <label class="form-check-label" for="scontatiCheck">
+                  Solo prodotti scontati
+                </label>
+              </div>
+            </div>
+
+            <!-- Prezzo -->
+            <div class="filter-section">
+              <label class="filter-label">Prezzo (€)</label>
+              <div class="price-inputs">
+                <input type="number" class="form-control" placeholder="Min" [(ngModel)]="filtroMinPrezzo">
                 <input type="number" class="form-control" placeholder="Max" [(ngModel)]="filtroMaxPrezzo">
               </div>
+              <button class="btn apply-price-btn mt-2" (click)="applyFilters()">
+                Applica filtro prezzo
+              </button>
             </div>
-            <button class="btn btn-sm btn-primary w-100 mt-2" (click)="applyFilters()">
-              Applica prezzo
-            </button>
-          </div>
 
-          <!-- Marche -->
-          <div class="mb-3">
-            <label class="form-label">Marche</label>
-            <div class="form-check" *ngFor="let marca of marche">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                [id]="'marca-' + marca"
-                [checked]="filtroMarche.includes(marca)"
-                (change)="toggleMarca(marca)">
-              <label class="form-check-label" [for]="'marca-' + marca">
-                {{ marca }}
-              </label>
-            </div>
-          </div>
-
-          <!-- Colori -->
-          <div class="mb-3">
-            <label class="form-label">Colori</label>
-            <div class="d-flex flex-wrap gap-2">
-              <div
-                *ngFor="let colore of colori"
-                class="color-box"
-                [style.background-color]="colore"
-                [class.active]="filtroColori.includes(colore)"
-                (click)="toggleColore(colore)">
+            <!-- Marche -->
+            <div class="filter-section">
+              <label class="filter-label">Marche</label>
+              <div class="brand-filters">
+                <div class="form-check" *ngFor="let marca of marche">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'marca-' + marca"
+                    [checked]="filtroMarche.includes(marca)"
+                    (change)="toggleMarca(marca)">
+                  <label class="form-check-label" [for]="'marca-' + marca">
+                    {{ marca }}
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Reset -->
-          <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">
-            Reset filtri
-          </button>
+            <!-- Colori -->
+            <div class="filter-section">
+              <label class="filter-label">Colori</label>
+              <div class="color-filter">
+                <div
+                  *ngFor="let colore of colori"
+                  class="color-box"
+                  [style.background-color]="colore"
+                  [class.active]="filtroColori.includes(colore)"
+                  (click)="toggleColore(colore)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset -->
+            <button class="btn reset-filters-btn mt-3" (click)="resetFilters()">
+              <i class="bi bi-arrow-counterclockwise me-2"></i>Reset filtri
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Prodotti -->
-    <div class="col-md-9">
+    <div class="col-lg-9">
       <!-- Loader -->
       <div *ngIf="loading" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
+        <p class="mt-3">Caricamento prodotti...</p>
       </div>
 
       <!-- Errore -->
       <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
       </div>
 
       <!-- Risultati -->
       <div *ngIf="!loading && !error">
         <!-- Header risultati -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4>{{ filteredProdotti.length }} prodotti trovati</h4>
-          <div class="d-flex align-items-center">
-            <label class="me-2">Ordina per:</label>
-            <select class="form-select form-select-sm" style="width: auto;">
-              <option>Rilevanza</option>
-              <option>Prezzo: dal più basso</option>
-              <option>Prezzo: dal più alto</option>
-              <option>Nome: A-Z</option>
+        <div class="results-header">
+          <h4 class="results-count">{{ filteredProdotti.length }} prodotti trovati</h4>
+          <div class="sort-selector">
+            <label class="sort-label">Ordina per:</label>
+            <select class="form-select sort-select">
+              <option value="relevance">Rilevanza</option>
+              <option value="price-asc">Prezzo: dal più basso</option>
+              <option value="price-desc">Prezzo: dal più alto</option>
+              <option value="name-asc">Nome: A-Z</option>
             </select>
           </div>
         </div>
@@ -141,44 +137,35 @@
         <!-- Griglia prodotti -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           <div class="col" *ngFor="let prodotto of filteredProdotti">
-            <div class="card h-100 product-card">
-              <!-- Badge sconto -->
-              <div *ngIf="prodotto.scontato" class="badge bg-danger position-absolute top-0 end-0 m-2">
-                SCONTO
-              </div>
-
-              <!-- Immagine -->
+            <div class="product-card">
               <div class="product-img-container">
-                <div class="product-img-container">
-                  <img [src]="'assets/images/logoprodotti.png'" class="card-img-top" [alt]="prodotto.nome">
-                </div></div>
-
-              <!-- Info prodotto -->
-              <div class="card-body d-flex flex-column">
-                <div class="mb-1">
-                  <span class="product-brand">{{ prodotto.marca }}</span>
+                <!-- Badge sconto -->
+                <div *ngIf="prodotto.scontato" class="badge-container">
+                  <span class="product-badge">-20%</span>
                 </div>
-                <h5 class="card-title product-title">{{ prodotto.nome }}</h5>
-                <p class="card-text product-description">{{ prodotto.descrizione }}</p>
-                <div class="mt-auto d-flex justify-content-between align-items-center">
+                <img [src]="'assets/images/logoprodotti.png'" class="img-fluid" [alt]="prodotto.nome">
+              </div>
+              <div class="product-info">
+                <div class="product-brand">{{ prodotto.marca }}</div>
+                <h3 class="product-title">{{ prodotto.nome }}</h3>
+                <p class="product-description">{{ prodotto.descrizione }}</p>
+                <div class="product-price-container">
                   <span class="product-price">€{{ prodotto.prezzo.toFixed(2) }}</span>
-                  <a [routerLink]="['/prodotto', prodotto.id]" class="btn btn-primary">
-                    Dettagli
-                  </a>
                 </div>
+                <a [routerLink]="['/prodotto', prodotto.id]" class="product-action">
+                  Dettagli
+                </a>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Nessun risultato -->
-        <div *ngIf="filteredProdotti.length === 0" class="text-center py-5">
-          <div class="mb-3">
-            <i class="bi bi-search fs-1"></i>
-          </div>
-          <h4>Nessun prodotto trovato</h4>
-          <p>Prova a modificare i filtri di ricerca</p>
-          <button class="btn btn-primary" (click)="resetFilters()">Reset filtri</button>
+        <div *ngIf="filteredProdotti.length === 0" class="no-results">
+          <i class="bi bi-search no-results-icon"></i>
+          <h3 class="no-results-title">Nessun prodotto trovato</h3>
+          <p class="no-results-message">Prova a modificare i filtri di ricerca per trovare ciò che stai cercando.</p>
+          <button class="btn no-results-btn" (click)="resetFilters()">Reset filtri</button>
         </div>
       </div>
     </div>
