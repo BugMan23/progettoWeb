@@ -1,396 +1,350 @@
-<div class="container py-4">
-  <!-- Loader -->
-  <div *ngIf="caricamento" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Caricamento...</span>
-    </div>
-    <p class="mt-3">Caricamento in corso...</p>
-  </div>
-
-  <!-- Errore -->
-  <div *ngIf="errore" class="alert alert-danger">{{ errore }}</div>
-
-  <!-- Messaggio di successo -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
-  </div>
-
-  <!-- Vista dettaglio ordine -->
-  <div *ngIf="!caricamento && !errore && visualizzaDettaglio && ordineSelezionato">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dettaglio Ordine #{{ ordineSelezionato.id }}</h2>
-      <button class="btn btn-outline-primary" (click)="tornaAllaLista()">
-        <i class="bi bi-arrow-left me-2"></i>Torna alla lista
-      </button>
-    </div>
-
-    <div class="row">
-      <!-- Dettagli ordine -->
-      <div class="col-lg-8">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5 class="mb-0">Riepilogo Ordine</h5>
-          </div>
-          <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <p><strong>Numero Ordine:</strong> #{{ ordineSelezionato.id }}</p>
-                <p><strong>Data:</strong> {{ formattaData(ordineSelezionato.data) }}</p>
-              </div>
-              <div class="col-md-6">
-                <p><strong>Stato:</strong> <span class="badge bg-success">{{ getStatoDescrizione(ordineSelezionato.stato) }}</span></p>
-                <p><strong>Totale:</strong> €{{ (ordineSelezionato.totalePagare || 0).toFixed(2) }}</p>
-              </div>
-            </div>
-
-            <!-- Metodo di pagamento -->
-            <div class="mb-4">
-              <h6>Metodo di Pagamento</h6>
-              <div *ngIf="metodoPagamento" class="card p-3">
-                <div class="d-flex align-items-center">
-                  <div>
-                    <p class="mb-1"><strong>{{ metodoPagamento.tipoCarta }}</strong> {{ mascheraNumeroCarta(metodoPagamento.numeroCarta) }}</p>
-                    <p class="mb-0 text-muted">{{ metodoPagamento.titolare }} | Scadenza: {{ metodoPagamento.dataScadenza }}</p>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="!metodoPagamento" class="text-muted">
-                Informazioni di pagamento non disponibili
-              </div>
-            </div>
-
-            <!-- Tabella articoli -->
-            <h6>Articoli Ordinati</h6>
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                <tr>
-                  <th>Prodotto</th>
-                  <th>Prezzo</th>
-                  <th>Quantità</th>
-                  <th class="text-end">Totale</th>
-                  <th>Azioni</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let dettaglio of dettagliOrdine">
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
-                        <div class="fw-bold">{{ prodotto.nome || 'Prodotto senza nome' }}</div>
-                        <div class="text-muted small">{{ prodotto.marca || '-' }} | {{ prodotto.colore || '-' }}</div>
-                      </div>
-                      <div *ngIf="!getProdotto(dettaglio.idProdotto)">
-                        Prodotto ID: {{ dettaglio.idProdotto }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
-                      €{{ (prodotto.prezzo || 0).toFixed(2) }}
-                    </div>
-                    <div *ngIf="!getProdotto(dettaglio.idProdotto)">-</div>
-                  </td>
-                  <td>{{ dettaglio.quantita || 0 }}</td>
-                  <td class="text-end">
-                    €{{ (calcolaSubtotale(dettaglio) || 0).toFixed(2) }}
-                  </td>
-                  <td>
-                    <!-- Pulsante recensione -->
-                    <button
-                      *ngIf="ordineSelezionato?.stato === 'CONSEGNATO' || ordineSelezionato?.stato === 'CONFERMATO' && !hasReviewed[dettaglio.idProdotto]"
-                      class="btn btn-sm btn-outline-success"
-                      (click)="showReviewForm(dettaglio.idProdotto)">
-                      <i class="bi bi-star me-1"></i>Recensisci
-                    </button>
-
-                    <span
-                      *ngIf="isStatoAttivo(STATO_CONSEGNATO) && hasReviewed[dettaglio.idProdotto]"
-                      class="badge bg-success">
-                      <i class="bi bi-check-circle me-1"></i>Recensito
-                    </span>
-                  </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                  <td colspan="3" class="text-end fw-bold">Totale Ordine:</td>
-                  <td class="text-end fw-bold">€{{ (ordineSelezionato.totalePagare || 0).toFixed(2) }}</td>
-                  <td></td>
-                </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Form di recensione inline (compare quando si clicca su Recensisci) -->
-        <div *ngIf="selectedProductId && selectedProduct" class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center" id="reviewFormHeader">
-            <h5 class="mb-0">Scrivi una recensione</h5>
-            <button type="button" class="btn-close" (click)="hideReviewForm()"></button>
-          </div>
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-3">
-              <img [src]="selectedProduct.urlImage || 'assets/images/placeholder.jpg'"
-                   [alt]="selectedProduct.nome"
-                   class="me-3" style="width: 60px; height: 60px; object-fit: cover;">
-              <div>
-                <h6 class="mb-0">{{ selectedProduct.nome }}</h6>
-                <span class="text-muted">{{ selectedProduct.marca }}</span>
-              </div>
-            </div>
-
-            <!-- Form recensione -->
-            <form [formGroup]="reviewForm">
-              <div class="mb-3">
-                <label class="form-label">Valutazione:</label>
-                <div class="star-rating">
-                  <span *ngFor="let star of [1, 2, 3, 4, 5]"
-                        (click)="setRating(star)"
-                        (mouseenter)="hoverRating = star"
-                        (mouseleave)="hoverRating = 0"
-                        class="star-icon">
-                    <i class="bi"
-                       [ngClass]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? 'bi-star-fill' : 'bi-star'"
-                       [style.color]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? '#ffc107' : '#ced4da'"></i>
-                  </span>
-                </div>
-                <div *ngIf="reviewForm.get('valutazione')?.touched && reviewForm.get('valutazione')?.invalid"
-                     class="text-danger small mt-1">
-                  La valutazione è obbligatoria
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="reviewText" class="form-label">La tua recensione:</label>
-                <textarea class="form-control"
-                          id="reviewText"
-                          formControlName="testo"
-                          rows="4"
-                          placeholder="Condividi la tua esperienza con questo prodotto..."></textarea>
-                <div *ngIf="reviewForm.get('testo')?.touched && reviewForm.get('testo')?.errors?.['required']"
-                     class="text-danger small mt-1">
-                  Il testo della recensione è obbligatorio
-                </div>
-                <div *ngIf="reviewForm.get('testo')?.touched && reviewForm.get('testo')?.errors?.['minlength']"
-                     class="text-danger small mt-1">
-                  La recensione deve contenere almeno 10 caratteri
-                </div>
-              </div>
-
-              <div class="d-flex justify-content-end mt-4">
-                <button type="button" class="btn btn-secondary me-2" (click)="hideReviewForm()">
-                  Annulla
-                </button>
-                <button type="button"
-                        class="btn btn-primary"
-                        [disabled]="reviewForm.invalid || submittingReview"
-                        (click)="submitReview()">
-                  <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Pubblica recensione
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebar con stato ordine -->
-      <div class="col-lg-4">
-        <div class="card">
-          <div class="card-header">
-            <h5 class="mb-0">Stato dell'Ordine</h5>
-          </div>
-          <div class="card-body">
-            <div class="mb-4">
-              <!-- Ordine Confermato -->
-              <div class="d-flex justify-content-between mb-3">
-                <div>
-                  <span>Ordine Confermato</span>
-                  <div class="text-muted small">{{ calcolaDateConsegna().confermato }}</div>
-                </div>
-                <div class="status-icon">
-                  <i class="bi" [ngClass]="{
-            'bi-check-circle-fill text-success': isStatoCompleto(STATO_CONFERMATO) || isStatoAttuale(STATO_CONFERMATO),
-            'bi-circle text-secondary': !isStatoAttivo(STATO_CONFERMATO)
-          }"></i>
-                </div>
-              </div>
-
-              <!-- In Preparazione -->
-              <div class="d-flex justify-content-between mb-3">
-                <div>
-                  <span>In Preparazione</span>
-                  <div class="text-muted small" *ngIf="isStatoAttivo(STATO_IN_PREPARAZIONE)">
-                    {{ calcolaDateConsegna().inPreparazione }}
-                  </div>
-                </div>
-                <div class="status-icon">
-                  <i class="bi" [ngClass]="{
-            'bi-check-circle-fill text-success': isStatoCompleto(STATO_IN_PREPARAZIONE),
-            'bi-circle-fill text-primary': isStatoAttuale(STATO_IN_PREPARAZIONE),
-            'bi-circle text-secondary': !isStatoAttivo(STATO_IN_PREPARAZIONE)
-          }"></i>
-                </div>
-              </div>
-
-              <!-- Spedito -->
-              <div class="d-flex justify-content-between mb-3">
-                <div>
-                  <span>Spedito</span>
-                  <div class="text-muted small" *ngIf="isStatoAttivo(STATO_SPEDITO)">
-                    {{ calcolaDateConsegna().spedito }}
-                  </div>
-                </div>
-                <div class="status-icon">
-                  <i class="bi" [ngClass]="{
-            'bi-check-circle-fill text-success': isStatoCompleto(STATO_SPEDITO),
-            'bi-circle-fill text-primary': isStatoAttuale(STATO_SPEDITO),
-            'bi-circle text-secondary': !isStatoAttivo(STATO_SPEDITO)
-          }"></i>
-                </div>
-              </div>
-
-              <!-- Consegnato -->
-              <div class="d-flex justify-content-between">
-                <div>
-                  <span>Consegnato</span>
-                  <div class="text-muted small" *ngIf="!isStatoAttivo(STATO_CONSEGNATO)">
-                    Consegna prevista {{ calcolaDateConsegna().consegnato }}
-                  </div>
-                  <div class="text-muted small" *ngIf="isStatoAttivo(STATO_CONSEGNATO)">
-                    {{ calcolaDateConsegna().consegnato }}
-                  </div>
-                </div>
-                <div class="status-icon">
-                  <i class="bi" [ngClass]="{
-            'bi-check-circle-fill text-success': isStatoAttuale(STATO_CONSEGNATO),
-            'bi-circle text-secondary': !isStatoAttivo(STATO_CONSEGNATO)
-          }"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Barra di avanzamento -->
-            <div class="progress mb-4" style="height: 6px;">
-              <div class="progress-bar bg-success" role="progressbar"
-                   [style.width]="calcolaProgressoOrdine() + '%'"
-                   aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-
-            <div class="alert alert-info mb-4" *ngIf="!isStatoAttivo(STATO_CONSEGNATO)">
-              <small>
-                <i class="bi bi-info-circle me-1"></i>
-                I tempi di consegna possono variare in base alla disponibilità dei prodotti e alla zona di consegna.
-              </small>
-            </div>
-
-            <div class="mt-4">
-              <h6>Hai bisogno di aiuto?</h6>
-              <p class="small text-muted">Per qualsiasi domanda sul tuo ordine, contattaci al numero 800-123-456</p>
-              <button class="btn btn-outline-primary w-100">
-                <i class="bi bi-question-circle me-2"></i>Assistenza
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Lista ordini -->
-  <div *ngIf="!caricamento && !errore && !visualizzaDettaglio">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>I miei Ordini</h2>
-
-      <!-- Dropdown per filtraggio -->
-      <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownFiltraggio" data-bs-toggle="dropdown" aria-expanded="false">
-          Filtra per
+<div class="orders-container">
+  <div class="container">
+    <!-- Vista dettaglio ordine -->
+    <div *ngIf="!caricamento && !errore && visualizzaDettaglio && ordineSelezionato" class="order-detail">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-primary">Dettaglio Ordine #{{ ordineSelezionato.id }}</h2>
+        <button class="btn btn-outline-primary back-to-list" (click)="tornaAllaLista()">
+          <i class="bi bi-arrow-left me-2"></i>Torna alla lista
         </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownFiltraggio">
-          <li>
-            <button class="dropdown-item" [class.active]="filtroAttivo === 'tutti'" (click)="applicaFiltro('tutti')">
-              Tutti gli ordini
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item" [class.active]="filtroAttivo === 'ultimi30giorni'" (click)="applicaFiltro('ultimi30giorni')">
-              Ultimi 30 giorni
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item" [class.active]="filtroAttivo === 'ultimi6mesi'" (click)="applicaFiltro('ultimi6mesi')">
-              Ultimi 6 mesi
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item" [class.active]="filtroAttivo === 'inElaborazione'" (click)="applicaFiltro('inElaborazione')">
-              In elaborazione
-            </button>
-          </li>
-        </ul>
       </div>
-    </div>
 
-    <!-- Filtri laterali per dispositivi più grandi -->
-    <div class="row">
-      <div class="col-md-3 d-none d-md-block">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5 class="mb-0">Filtra per</h5>
+      <div class="row">
+        <!-- Dettagli ordine colonna sinistra -->
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4>Riepilogo Ordine</h4>
+            </div>
+            <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <div class="order-info-group">
+                    <span class="text-muted">Numero Ordine:</span>
+                    <h5>#{{ ordineSelezionato.id }}</h5>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="order-info-group">
+                    <span class="text-muted">Data Ordine:</span>
+                    <h5>{{ formattaData(ordineSelezionato.data) }}</h5>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <div class="order-info-group">
+                    <span class="text-muted">Stato:</span>
+                    <h5>
+                      <span class="badge" [ngClass]="'status-' + ordineSelezionato.stato.toLowerCase().replace(' ', '')">
+                        {{ getStatoDescrizione(ordineSelezionato.stato) }}
+                      </span>
+                    </h5>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="order-info-group">
+                    <span class="text-muted">Pagamento:</span>
+                    <h5 class="mb-0">€{{ (ordineSelezionato.totalePagare || 0).toFixed(2) }}</h5>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Metodo di pagamento -->
+              <div class="payment-method mb-4">
+                <h5 class="mb-3">Metodo di Pagamento</h5>
+                <div *ngIf="metodoPagamento" class="card p-3 bg-light">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-credit-card fs-4 me-3 text-primary"></i>
+                    <div>
+                      <p class="mb-1 fw-bold">{{ metodoPagamento.tipoCarta }} **** {{ mascheraNumeroCarta(metodoPagamento.numeroCarta) }}</p>
+                      <p class="mb-0 text-muted small">{{ metodoPagamento.titolare }} | Scadenza: {{ metodoPagamento.dataScadenza }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!metodoPagamento" class="alert alert-light">
+                  Informazioni di pagamento non disponibili
+                </div>
+              </div>
+
+              <!-- Tabella articoli -->
+              <div class="order-products">
+                <h5 class="mb-3">Articoli Ordinati</h5>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead class="table-light">
+                    <tr>
+                      <th>Prodotto</th>
+                      <th>Prezzo</th>
+                      <th>Quantità</th>
+                      <th class="text-end">Totale</th>
+                      <th>Azioni</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let dettaglio of dettagliOrdine">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
+                            <div class="fw-bold">{{ prodotto.nome || 'Prodotto senza nome' }}</div>
+                            <div class="text-muted small">{{ prodotto.marca || '-' }} | {{ prodotto.colore || '-' }}</div>
+                          </div>
+                          <div *ngIf="!getProdotto(dettaglio.idProdotto)">
+                            Prodotto ID: {{ dettaglio.idProdotto }}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div *ngIf="getProdotto(dettaglio.idProdotto) as prodotto">
+                          €{{ (prodotto.prezzo || 0).toFixed(2) }}
+                        </div>
+                        <div *ngIf="!getProdotto(dettaglio.idProdotto)">-</div>
+                      </td>
+                      <td>{{ dettaglio.quantita || 0 }}</td>
+                      <td class="text-end fw-bold">
+                        €{{ (calcolaSubtotale(dettaglio) || 0).toFixed(2) }}
+                      </td>
+                      <td>
+                        <!-- Pulsante recensione -->
+                        <button
+                          *ngIf="isStatoAttivo(STATO_CONSEGNATO) && !hasReviewed[dettaglio.idProdotto]"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="showReviewForm(dettaglio.idProdotto)">
+                          <i class="bi bi-star me-1"></i>Recensisci
+                        </button>
+
+                        <span
+                          *ngIf="isStatoAttivo(STATO_CONSEGNATO) && hasReviewed[dettaglio.idProdotto]"
+                          class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>Recensito
+                          </span>
+                      </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                      <td colspan="3" class="text-end fw-bold">Totale Ordine:</td>
+                      <td class="text-end fw-bold">€{{ (ordineSelezionato.totalePagare || 0).toFixed(2) }}</td>
+                      <td></td>
+                    </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="list-group list-group-flush">
-            <button type="button" class="list-group-item list-group-item-action" [class.active]="filtroAttivo === 'tutti'" (click)="applicaFiltro('tutti')">
-              Tutti gli ordini
-            </button>
-            <button type="button" class="list-group-item list-group-item-action" [class.active]="filtroAttivo === 'ultimi30giorni'" (click)="applicaFiltro('ultimi30giorni')">
-              Ultimi 30 giorni
-            </button>
-            <button type="button" class="list-group-item list-group-item-action" [class.active]="filtroAttivo === 'ultimi6mesi'" (click)="applicaFiltro('ultimi6mesi')">
-              Ultimi 6 mesi
-            </button>
-            <button type="button" class="list-group-item list-group-item-action" [class.active]="filtroAttivo === 'inElaborazione'" (click)="applicaFiltro('inElaborazione')">
-              In elaborazione
-            </button>
+
+          <!-- Form di recensione inline (compare quando si clicca su Recensisci) -->
+          <div *ngIf="selectedProductId && selectedProduct" class="card mb-4 review-form">
+            <div class="review-form-header">
+              <h5 class="mb-0 text-primary">Scrivi una recensione</h5>
+              <button type="button" class="btn-close" (click)="hideReviewForm()"></button>
+            </div>
+            <div class="card-body">
+              <div class="review-product">
+                <img [src]="selectedProduct.urlImage || 'assets/images/placeholder.jpg'"
+                     [alt]="selectedProduct.nome"
+                     class="review-product-image">
+                <div>
+                  <h6 class="mb-0">{{ selectedProduct.nome }}</h6>
+                  <span class="text-muted">{{ selectedProduct.marca }}</span>
+                </div>
+              </div>
+
+              <!-- Form recensione -->
+              <form [formGroup]="reviewForm">
+                <div class="mb-3">
+                  <label class="form-label">Valutazione:</label>
+                  <div class="star-rating">
+                    <span *ngFor="let star of [1, 2, 3, 4, 5]"
+                          (click)="setRating(star)"
+                          (mouseenter)="hoverRating = star"
+                          (mouseleave)="hoverRating = 0"
+                          class="star-icon">
+                      <i class="bi"
+                         [ngClass]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? 'bi-star-fill' : 'bi-star'"
+                         [style.color]="(hoverRating || reviewForm.get('valutazione')?.value) >= star ? '#FF9C00' : '#ced4da'"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="reviewText" class="form-label">La tua recensione:</label>
+                  <textarea class="form-control"
+                            id="reviewText"
+                            formControlName="testo"
+                            rows="4"
+                            placeholder="Condividi la tua esperienza con questo prodotto..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                  <button type="button" class="btn btn-outline-secondary me-2" (click)="hideReviewForm()">
+                    Annulla
+                  </button>
+                  <button type="button"
+                          class="btn btn-primary"
+                          [disabled]="reviewForm.invalid || submittingReview"
+                          (click)="submitReview()">
+                    <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Pubblica recensione
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar con stato ordine -->
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-header">
+              <h4>Stato dell'Ordine</h4>
+            </div>
+            <div class="card-body">
+              <div class="tracking-steps">
+                <!-- Ordine Confermato -->
+                <div class="tracking-step">
+                  <div class="step-icon"
+                       [ngClass]="{'active': isStatoAttuale(STATO_CONFERMATO), 'completed': isStatoCompleto(STATO_CONFERMATO)}">
+                    <i class="bi" [ngClass]="{'bi-check-lg': isStatoCompleto(STATO_CONFERMATO), 'bi-1-circle': !isStatoCompleto(STATO_CONFERMATO)}"></i>
+                  </div>
+                  <div class="step-line" [ngClass]="{'active': isStatoAttivo(STATO_IN_PREPARAZIONE)}"></div>
+                  <div class="step-content">
+                    <div class="step-title">Ordine Confermato</div>
+                    <div class="step-date">{{ calcolaDateConsegna().confermato }}</div>
+                  </div>
+                </div>
+
+                <!-- In Preparazione -->
+                <div class="tracking-step">
+                  <div class="step-icon"
+                       [ngClass]="{'active': isStatoAttuale(STATO_IN_PREPARAZIONE), 'completed': isStatoCompleto(STATO_IN_PREPARAZIONE)}">
+                    <i class="bi" [ngClass]="{'bi-check-lg': isStatoCompleto(STATO_IN_PREPARAZIONE), 'bi-2-circle': !isStatoCompleto(STATO_IN_PREPARAZIONE)}"></i>
+                  </div>
+                  <div class="step-line" [ngClass]="{'active': isStatoAttivo(STATO_SPEDITO)}"></div>
+                  <div class="step-content">
+                    <div class="step-title">In Preparazione</div>
+                    <div class="step-date" *ngIf="isStatoAttivo(STATO_IN_PREPARAZIONE)">
+                      {{ calcolaDateConsegna().inPreparazione }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Spedito -->
+                <div class="tracking-step">
+                  <div class="step-icon"
+                       [ngClass]="{'active': isStatoAttuale(STATO_SPEDITO), 'completed': isStatoCompleto(STATO_SPEDITO)}">
+                    <i class="bi" [ngClass]="{'bi-check-lg': isStatoCompleto(STATO_SPEDITO), 'bi-3-circle': !isStatoCompleto(STATO_SPEDITO)}"></i>
+                  </div>
+                  <div class="step-line" [ngClass]="{'active': isStatoAttivo(STATO_CONSEGNATO)}"></div>
+                  <div class="step-content">
+                    <div class="step-title">Spedito</div>
+                    <div class="step-date" *ngIf="isStatoAttivo(STATO_SPEDITO)">
+                      {{ calcolaDateConsegna().spedito }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Consegnato -->
+                <div class="tracking-step">
+                  <div class="step-icon"
+                       [ngClass]="{'active': isStatoAttivo(STATO_CONSEGNATO)}">
+                    <i class="bi" [ngClass]="{'bi-check-lg': isStatoAttivo(STATO_CONSEGNATO), 'bi-4-circle': !isStatoAttivo(STATO_CONSEGNATO)}"></i>
+                  </div>
+                  <div class="step-content">
+                    <div class="step-title">Consegnato</div>
+                    <div class="step-date" *ngIf="!isStatoAttivo(STATO_CONSEGNATO)">
+                      Consegna prevista {{ calcolaDateConsegna().consegnato }}
+                    </div>
+                    <div class="step-date" *ngIf="isStatoAttivo(STATO_CONSEGNATO)">
+                      {{ calcolaDateConsegna().consegnato }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Barra di avanzamento -->
+              <div class="progress mb-4" style="height: 6px;">
+                <div class="progress-bar bg-primary" role="progressbar"
+                     [style.width]="calcolaProgressoOrdine() + '%'"
+                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+
+              <div class="alert alert-info mb-4" *ngIf="!isStatoAttivo(STATO_CONSEGNATO)">
+                <i class="bi bi-info-circle me-2"></i>
+                I tempi di consegna possono variare in base alla disponibilità dei prodotti e alla zona di consegna.
+              </div>
+
+              <div class="mt-4">
+                <h6 class="text-primary">Hai bisogno di aiuto?</h6>
+                <p class="small text-muted">Per qualsiasi domanda sul tuo ordine, contattaci al numero 800-123-456</p>
+                <button class="btn btn-outline-primary w-100">
+                  <i class="bi bi-question-circle me-2"></i>Assistenza
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="col-md-9">
+    <!-- Lista ordini -->
+    <div *ngIf="!caricamento && !errore && !visualizzaDettaglio">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">I miei Ordini</h2>
+
+      </div>
+
+      <div class="order-list">
         <!-- Messaggio quando non ci sono ordini -->
         <div *ngIf="ordini.length === 0" class="text-center py-5">
-          <i class="bi bi-bag-x" style="font-size: 3rem; color: #ccc;"></i>
+          <i class="bi bi-box text-muted" style="font-size: 3rem;"></i>
           <h4 class="mt-3">Nessun ordine trovato</h4>
-          <p class="text-muted">Non hai ordini che corrispondono al filtro selezionato.</p>
-          <button type="button" class="btn btn-primary mt-2" (click)="applicaFiltro('tutti')">Mostra tutti gli ordini</button>
         </div>
 
         <!-- Lista ordini -->
-        <div *ngIf="ordini.length > 0" class="card mb-4">
-          <div class="card-header bg-white py-3">
-            <h5 class="mb-0">Risultati ({{ ordini.length }})</h5>
-          </div>
-          <div class="list-group list-group-flush">
-            <a *ngFor="let ordine of ordini"
-               [routerLink]="['/ordini', ordine.id]"
-               class="list-group-item list-group-item-action">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="mb-1">Ordine #{{ ordine.id }}</h6>
-                  <div class="text-muted small">{{ formattaData(ordine.data) }}</div>
-                </div>
-                <div class="text-end">
-                  <div class="badge bg-success mb-1">{{ getStatoDescrizione(ordine.stato) }}</div>
-                  <div class="fw-bold">€{{ (ordine.totalePagare || 0).toFixed(2) }}</div>
-                </div>
+        <div *ngFor="let ordine of ordini" class="card order-card">
+          <div class="card-body">
+            <div class="order-header">
+              <div class="order-number">Ordine #{{ ordine.id }}</div>
+              <div class="order-date">{{ formattaData(ordine.data) }}</div>
+              <div>
+                <span class="badge order-status-badge"
+                      [ngClass]="'status-' + ordine.stato.toLowerCase().replace(' ', '')">
+                  {{ getStatoDescrizione(ordine.stato) }}
+                </span>
               </div>
-            </a>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-bold">€{{ (ordine.totalePagare || 0).toFixed(2) }}</div>
+              </div>
+              <a [routerLink]="['/ordini', ordine.id]" class="btn btn-outline-primary">
+                <i class="bi bi-eye me-2"></i>Visualizza dettagli
+              </a>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="caricamento" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Caricamento...</span>
+      </div>
+      <p class="mt-3">Caricamento in corso...</p>
+    </div>
+
+    <!-- Errore -->
+    <div *ngIf="errore" class="alert alert-danger mt-4">{{ errore }}</div>
+
+    <!-- Messaggio di successo -->
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = null" aria-label="Close"></button>
     </div>
   </div>
 </div>

@@ -112,6 +112,6 @@
 
   <!-- Popup di login -->
   <div *ngIf="showPopup" class="login-popup-overlay">
-    <app-login (loginSuccess)="onLoginSuccess()" (close)="closeLoginPopup()"></app-login>
+    <app-login *ngIf="showPopup" (loginSuccess)="onLoginSuccess()" (close)="closeLoginPopup()"></app-login>
   </div>
 </header>

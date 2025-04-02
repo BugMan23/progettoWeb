@@ -1,215 +1,358 @@
-/* Stili per la lista e i dettagli ordini */
-
-/* Badge stati ordine */
-.badge {
-  padding: 0.5em 0.8em;
-  font-weight: 500;
+/* Stili per la componente ordini */
+.orders-container {
+  padding: 30px 0;
+  background-color: var(--light-gray);
+  min-height: 75vh;
 }
 
-/* Card con ombra e bordi arrotondati */
-.card {
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease;
+/* Lista ordini */
+.order-list .card {
+  margin-bottom: 20px;
+  transition: var(--transition);
 }
 
-.card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+.order-list .card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--box-shadow-hover);
 }
 
-.card-header {
-  background-color: white;
-  border-bottom: 1px solid rgba(0,0,0,.125);
-  padding: 1rem 1.25rem;
-}
-
-.card-header h4, .card-header h5 {
-  margin-bottom: 0;
-  font-weight: 600;
-}
-
-/* Tabelle */
-.table {
-  margin-bottom: 0;
-}
-
-.table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  vertical-align: middle;
-}
-
-.table td {
-  vertical-align: middle;
-}
-
-/* Hover per le righe della tabella */
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.03);
-}
-
-/* Breadcrumb */
-.breadcrumb {
-  background-color: transparent;
-  padding: 0;
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb-item a {
-  color: #6c757d;
-  text-decoration: none;
-}
-
-.breadcrumb-item a:hover {
-  color: #0d6efd;
-  text-decoration: underline;
-}
-
-.breadcrumb-item.active {
-  color: #495057;
-  font-weight: 500;
-}
-
-/* Responsiveness per mobile */
-@media (max-width: 767.98px) {
-  .order-details {
-    margin-bottom: 2rem;
-  }
-
-  .table th, .table td {
-    padding: 0.5rem;
-  }
-}
-
-.status-icon {
-  min-width: 24px;
+.order-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--medium-gray);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.order-number {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 1.2rem;
+}
+
+.order-date {
+  font-size: 0.9rem;
+  color: var(--dark-gray);
+}
+
+.order-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.status-confermato {
+  background-color: var(--primary);
+  color: white;
+}
+
+.badge.status-spedito {
+  background-color: var(--info);
+  color: white;
+}
+
+.badge.status-consegnato {
+  background-color: var(--success);
+  color: white;
+}
+
+.badge.status-inpreparazione {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* Dettaglio ordine */
+.order-detail .card {
+  margin-bottom: 20px;
+}
+
+.order-detail .card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+.order-detail .card-header h4 {
+  margin: 0;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.order-summary {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: var(--border-radius);
+  margin-bottom: 20px;
+}
+
+.order-summary h5 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--medium-gray);
+  padding-bottom: 10px;
+}
+
+.order-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.order-summary-row.total {
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-top: 1px solid var(--medium-gray);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+/* Lista prodotti ordine */
+.order-products {
+  margin-top: 20px;
+}
+
+.product-item {
+  padding: 15px;
+  border-bottom: 1px solid var(--medium-gray);
+  display: flex;
   align-items: center;
 }
 
-.text-success {
-  color: #28a745 !important;
+.product-item:last-child {
+  border-bottom: none;
 }
 
-.text-secondary {
-  color: #6c757d !important;
+.product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 15px;
 }
 
-/* Stili per gli ordini */
+.product-details {
+  flex: 1;
+}
 
-/* Stile per il cerchio di stato */
-.status-circle {
+.product-name {
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 5px;
+}
+
+.product-meta {
+  font-size: 0.85rem;
+  color: var(--dark-gray);
+}
+
+.product-price {
+  font-weight: 600;
+  text-align: right;
+}
+
+.quantity-label {
+  font-size: 0.85rem;
+  color: var(--dark-gray);
+  margin-bottom: 3px;
+}
+
+/* Tracking dell'ordine */
+.order-tracking {
+  margin-top: 30px;
+  position: relative;
+}
+
+.tracking-title {
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 25px;
+}
+
+.tracking-steps {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.tracking-step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.step-icon {
   width: 40px;
   height: 40px;
+  min-width: 40px;
   border-radius: 50%;
-  background-color: #f8f9fa;
-  border: 2px solid #dee2e6;
+  background-color: var(--light-gray);
+  border: 2px solid var(--medium-gray);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 15px;
+  color: var(--dark-gray);
+  transition: var(--transition);
+  position: relative;
+  z-index: 2;
+}
+
+.step-icon.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
   color: white;
-  font-size: 18px;
-  flex-shrink: 0;
-  transition: all 0.3s ease-in-out;
 }
 
-/* Stile per lo stato attivo */
-.status-circle.active {
-  background-color: #28a745;
-  border-color: #28a745;
+.step-icon.completed {
+  background-color: var(--success);
+  border-color: var(--success);
+  color: white;
 }
 
-/* Linea verticale che collega i cerchi di stato */
-.status-line {
+.step-content {
+  flex: 1;
+}
+
+.step-title {
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 5px;
+}
+
+.step-date {
+  font-size: 0.85rem;
+  color: var(--dark-gray);
+}
+
+.step-line {
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  bottom: -30px;
   width: 2px;
-  height: 50px;
-  background-color: #dee2e6;
-  margin-left: 19px; /* Centro della linea allineato con il centro del cerchio */
-  margin-bottom: -2px; /* Sovrapponi leggermente la fine della linea con il prossimo cerchio */
-  transition: all 0.3s ease-in-out;
+  background-color: var(--medium-gray);
+  z-index: 1;
 }
 
-/* Linea attiva quando lo stato è raggiunto */
-.status-line.active {
-  background-color: #28a745;
+.tracking-step:last-child .step-line {
+  display: none;
 }
 
-/* Stile per la card dell'ordine */
-.card {
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  overflow: hidden;
-  transition: box-shadow 0.3s ease;
+.step-line.active {
+  background-color: var(--primary);
 }
 
-.card:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+/* Form di recensione */
+.review-form {
+  padding: 20px;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  margin-top: 20px;
 }
 
-.card-header {
+.review-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--medium-gray);
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.review-product {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.review-product-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 15px;
+}
+
+.star-rating {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.star-icon {
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+/* Filtri e ricerca */
+.filter-controls {
+  margin-bottom: 20px;
+}
+
+.filter-dropdown .dropdown-toggle {
   background-color: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-  font-weight: 500;
+  border: 1px solid var(--medium-gray);
+  color: var(--black);
+  padding: 8px 15px;
 }
 
-/* Stili responsive */
-@media (max-width: 768px) {
-  .status-circle {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
-  }
-
-  .status-line {
-    margin-left: 17px;
-    height: 40px;
-  }
+.filter-dropdown .dropdown-toggle:focus,
+.filter-dropdown .dropdown-toggle:active {
+  background-color: white;
+  color: var(--black);
+  box-shadow: none;
 }
 
-/* Stile per animazione */
-.status-circle, .status-line {
-  transition: background-color 0.5s, border-color 0.5s;
+.filter-dropdown .dropdown-menu {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  overflow: hidden;
 }
 
-/* Aggiunta animazione per i check icon */
-.status-circle i {
-  opacity: 0;
-  animation: fadeIn 0.5s forwards;
+.filter-dropdown .dropdown-item {
+  padding: 10px 15px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+.filter-dropdown .dropdown-item:hover {
+  background-color: rgba(53, 34, 68, 0.05);
 }
 
-/* Stili per la lista ordini */
-.badge {
-  padding: 0.5em 0.8em;
-  font-weight: 500;
-}
-
-.order-status-timeline {
-  padding: 0.5rem 1rem;
-}
-
-/* Stile per l'effetto hover sulle righe della tabella */
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* Stile per i bottoni */
-.btn-outline-primary {
-  border-color: #007bff;
-  color: #007bff;
-}
-
-.btn-outline-primary:hover {
-  background-color: #007bff;
+.filter-dropdown .dropdown-item.active {
+  background-color: var(--primary);
   color: white;
 }
 
-/* Assicura che il contenuto del componente abbia uno spazio minimo */
-.container {
-  min-height: 60vh;
+/* Responsive */
+@media (max-width: 767.98px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-date {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .product-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-image {
+    margin-bottom: 10px;
+  }
+
+  .product-price {
+    text-align: left;
+    margin-top: 10px;
+  }
+
+  .back-to-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }

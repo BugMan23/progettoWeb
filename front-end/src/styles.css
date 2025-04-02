@@ -181,3 +181,117 @@ body {
     font-size: 0.8rem;
   }
 }
+:root {
+  --primary: #352244;
+  --primary-light: #634080;
+  --primary-dark: #1e1427;
+  --accent: #FF9C00;
+  --accent-hover: #e68a00;
+  --background: #f8f9fa;
+  --text: #333333;
+  --text-light: #6c757d;
+  --border: #dee2e6;
+}
+
+
+:root {
+  /* Colori principali */
+  --primary: #352244;
+  --primary-light: #634080;
+  --primary-dark: #1e1427;
+  --accent: #FF9C00;
+  --accent-hover: #e68a00;
+
+  /* Colori neutrali */
+  --white: #ffffff;
+  --light-gray: #f8f9fa;
+  --medium-gray: #dee2e6;
+  --dark-gray: #6c757d;
+  --black: #333333;
+
+  /* Colori di stato */
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #17a2b8;
+
+  /* Dimensioni e stili comuni */
+  --border-radius: 8px;
+  --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --box-shadow-hover: 0 5px 15px rgba(0, 0, 0, 0.15);
+  --transition: all 0.3s ease;
+}
+
+/* Stili globali per consistenza */
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn-accent:hover,
+.btn-accent:focus,
+.btn-accent:active {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: white;
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: none;
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--box-shadow-hover);
+}
+
+.list-group-item.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.badge.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.badge.bg-accent {
+  background-color: var(--accent) !important;
+}
+
+/* Override dei colori di bootstrap */
+.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.border-primary {
+  border-color: var(--primary) !important;
+}

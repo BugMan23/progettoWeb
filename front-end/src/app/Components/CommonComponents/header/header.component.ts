@@ -38,6 +38,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showPopup: boolean = false;
   userRole: string | null = null;
 
+
   searchTerm: string = '';
   private readonly MAX_RECENT_SEARCHES = 5;
 

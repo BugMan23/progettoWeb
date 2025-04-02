@@ -22,7 +22,6 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Prima le regole specifiche
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/prodotti/**").permitAll()
                         .requestMatchers("/api/categorie/**").permitAll()
@@ -36,7 +35,6 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/ordini/**").permitAll()
                         .requestMatchers("/api/reviews/**").permitAll()
                         .requestMatchers("/api/utenti/profile/**").permitAll()
-                        // Poi la regola generale
                         .anyRequest().authenticated()
                 );
 

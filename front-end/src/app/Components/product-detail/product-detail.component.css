@@ -561,3 +561,33 @@
     font-size: 2rem;
   }
 }
+
+
+@media (max-width: 768px) {
+  .product-image-container {
+    height: auto;
+    max-height: 300px;
+  }
+
+  .product-info {
+    padding: 20px 15px;
+  }
+
+  .product-title {
+    font-size: 1.5rem;
+  }
+
+  .size-buttons {
+    flex-wrap: wrap;
+  }
+
+  .size-buttons .btn {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .reviews-container {
+    padding: 15px;
+  }
+}
