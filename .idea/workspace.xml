@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="sistemata aggiunta prodotto+disponibilità">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/app/Components/checkout/checkout.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/app/Components/checkout/checkout.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/front-end/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/src/index.html" afterDir="false" />
-    </list>
+    <list default="true" id="7c6aec48-cd8b-4fe9-8670-e16004b7e2d4" name="Changes" comment="aggiunta API paypal nel checkout" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -108,6 +104,7 @@
       <workItem from="1743540854086" duration="46000" />
       <workItem from="1743604049747" duration="36000" />
       <workItem from="1743604097298" duration="14000" />
+      <workItem from="1743615080362" duration="694000" />
     </task>
     <task id="LOCAL-00001" summary="aggiunti componenti">
       <option name="closed" value="true" />
@@ -173,7 +170,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743540890212</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="aggiunta API paypal nel checkout">
+      <option name="closed" value="true" />
+      <created>1743615142987</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1743615142987</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +202,7 @@
     <MESSAGE value="aggiunto componenti per il profilo e admin" />
     <MESSAGE value="aggiunta sezione admin con funzionalità" />
     <MESSAGE value="sistemata aggiunta prodotto+disponibilità" />
-    <option name="LAST_COMMIT_MESSAGE" value="sistemata aggiunta prodotto+disponibilità" />
+    <MESSAGE value="aggiunta API paypal nel checkout" />
+    <option name="LAST_COMMIT_MESSAGE" value="aggiunta API paypal nel checkout" />
   </component>
 </project>

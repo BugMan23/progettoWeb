@@ -9,7 +9,6 @@ public interface UtenteDAO {
     List<Utente> findAll();
     boolean save(Utente utente);
     Utente validateUser(String email, String password);
-    void updateRuolo(Utente utente);
     void elimina(int id);
     Utente findByEmail(String email);
 }

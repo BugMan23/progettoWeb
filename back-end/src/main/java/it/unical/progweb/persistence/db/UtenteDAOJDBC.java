@@ -154,29 +154,58 @@ public class UtenteDAOJDBC implements UtenteDAO {
 
     @Override
     public void elimina(int id) {
-        String query = "DELETE FROM utente WHERE id = ?";
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            // 1. Elimina recensioni
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM recensione WHERE idutente = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 2. Elimina carrello
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM carrello WHERE idutente = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 3. Elimina dettagli ordini (devono venire prima degli ordini)
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM dettagliordini WHERE idordine IN (SELECT id FROM ordine WHERE idutente = ?)")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 4. Elimina ordini
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM ordine WHERE idutente = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 5. Elimina indirizzi
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM indirizzo WHERE idutente = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 6. Elimina metodi di pagamento (ora è sicuro)
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM metododipagamento WHERE idutente = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            // 7. Elimina l’utente
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM utente WHERE id = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante l'eliminazione dell'utente", e);
         }
     }
 
 
-    @Override
-    public void updateRuolo(Utente utente) {
-        String query = "UPDATE utente SET ruolo = ? WHERE id = ?";
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setBoolean(1, utente.getRuolo());
-            ps.setInt(2, utente.getId());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore durante l'aggiornamento del ruolo utente", e);
-        }
-    }
 }

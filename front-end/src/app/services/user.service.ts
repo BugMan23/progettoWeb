@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {User} from '../models/user';
 
@@ -52,15 +52,22 @@ export class UserService {
   }*/
 
   getCustomers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.baseUrl}/customers`);
+    const token = localStorage.getItem('token');
+    return this.http.get<User[]>('http://localhost:8080/api/utenti/customers', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   }
+
 
   deactivateUser(id: number | undefined): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/admin/${id}`);
-  }
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
 
-  promuoviAAdmin(userId: number | undefined): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${userId}/promuovi`, null);
+    return this.http.delete(`http://localhost:8080/api/utenti/admin/${id}`, { headers });
   }
 
 

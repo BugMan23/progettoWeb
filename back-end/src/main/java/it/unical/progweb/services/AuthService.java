@@ -16,12 +16,9 @@ public class AuthService {
     private final UtenteProxy utenteProxy;
     private final Key secretKey;
 
-    public AuthService(UtenteProxy utenteProxy) {
+    public AuthService(UtenteProxy utenteProxy, Key secretKey) {
         this.utenteProxy = utenteProxy;
-        // Genera la chiave al momento della creazione del servizio
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        int keySizeBits = secretKey.getEncoded().length * 8;
-        System.out.println("✅ AuthService creato con successo! Key size = " + keySizeBits + " bits");
+        this.secretKey = secretKey; // ✅ stessa chiave usata dal filtro
     }
 
     public String login(String email, String password) {

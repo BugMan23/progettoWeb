@@ -120,15 +120,6 @@ public class UserService {
         utenteDAO.elimina(id);
     }
 
-    public void promuoviAAdmin(int id) {
-        Utente utente = findById(id);
-        if (utente == null) {
-            throw new NotFoundException("Utente non trovato");
-        }
-        utente.setRuolo(true);
-        utenteDAO.updateRuolo(utente);
-    }
-
 
 
 }

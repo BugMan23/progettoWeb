@@ -17,19 +17,19 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private router: Router, private authService: AuthService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Se l'utente è autenticato, aggiungiamo l'ID utente come header
-    if (this.authService.getUserId()) {
+    const token = localStorage.getItem('token'); // Recupera il token JWT dal localStorage
+
+    if (token) {
       request = request.clone({
         setHeaders: {
+          Authorization: `Bearer ${token}`,
           'X-User-Id': this.authService.getUserId() || ''
         }
       });
     }
 
-    // Proseguiamo con la richiesta e gestiamo eventuali errori
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Se riceviamo un errore 401 (Unauthorized), facciamo il logout
         if (error.status === 401) {
           this.authService.logout();
         }

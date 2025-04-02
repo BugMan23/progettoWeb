@@ -97,29 +97,22 @@ public class UtenteController {
         }
     }
 
-    @PatchMapping("/{id}/promuovi")
-    public ResponseEntity<?> promuoviUtente(@PathVariable int id) {
-        try {
-            userService.promuoviAAdmin(id);
-            return ResponseEntity.ok("Utente promosso ad amministratore con successo.");
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la promozione.");
-        }
-    }
-
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> eliminaUtente(@PathVariable int id) {
         try {
+            System.out.println("🗑️ Tentativo di eliminazione utente con ID: " + id);
             userService.eliminaUtente(id);
-            return ResponseEntity.ok("Utente eliminato con successo.");
+            return ResponseEntity.ok(Map.of("message", "Utente eliminato con successo."));
         } catch (NotFoundException e) {
+            System.out.println("❌ Utente non trovato: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato.");
         } catch (Exception e) {
+            System.out.println("🔥 Errore generico: " + e.getMessage());
+            e.printStackTrace(); // Log completo
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'eliminazione dell'utente.");
         }
     }
+
 
 }

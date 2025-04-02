@@ -268,9 +268,6 @@
               <p class="mb-1">Ruolo: {{ u.ruolo ? 'Admin' : 'Utente' }}</p>
             </div>
             <div class="btn-group">
-              <button class="btn btn-outline-success" (click)="promuoviAAdmin(u.id)" [disabled]="u.ruolo">
-                <i class="bi bi-arrow-up-circle"></i> Promuovi
-              </button>
               <button class="btn btn-outline-danger" (click)="bannaUtente(u.id)">
                 <i class="bi bi-person-x"></i> Banna
               </button>

@@ -16,6 +16,8 @@ import { Ordine } from '../../models/ordine';
 import { DettagliOrdini } from '../../models/dettagli-ordini';
 import { Prodotto } from '../../models/prodotto';
 import { Categoria } from '../../models/categoria';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+
 
 @Component({
   selector: 'app-admin',
@@ -73,7 +75,8 @@ export class AdminComponent implements OnInit {
     private metodoPagamentoService: MetodoPagamentoService,
     private prodottoService: ProdottoService,
     private recensioneService: RecensioneService,
-    private categoriaService: CategoriaService
+    private categoriaService: CategoriaService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -263,22 +266,19 @@ export class AdminComponent implements OnInit {
 
   loadUsers(): void {
     this.loadingAdmin = true;
+    const token = localStorage.getItem('token');
+    console.log("🔑 TOKEN INVIATO:", token);  // <--- QUI
+
     this.userService.getCustomers().subscribe({
       next: (data) => { this.users = data; },
-      error: (err) => { console.error(err); this.error = 'Errore caricamento utenti'; },
+      error: (err) => {
+        console.error("❌ Errore caricamento utenti:", err);
+        this.error = 'Errore caricamento utenti';
+      },
       complete: () => { this.loadingAdmin = false; }
     });
   }
 
-  promuoviAAdmin(id: number | undefined): void {
-    this.userService.promuoviAAdmin(id).subscribe({
-      next: () => {
-        const utente = this.users.find(u => u.id === id);
-        if (utente) utente.ruolo = true;
-      },
-      error: (err) => { console.error('Errore promozione:', err); }
-    });
-  }
 
   bannaUtente(id: number | undefined): void {
     if (!confirm('Sei sicuro di voler bannare questo utente?')) return;
