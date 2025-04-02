@@ -11,4 +11,7 @@ public interface DisponibilitaDAO {
     List<Disponibilita> findByProdottoId(int prodottoId);
 
     void decrementaQuantita(int prodotto, int quantita, String taglia);
+
+    void addDisponibilita(Disponibilita disponibilita);
+
 }

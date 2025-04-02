@@ -42,6 +42,11 @@ public class DisponibilitaService {
         }
     }
 
+    public void aggiungiDisponibilita(Disponibilita d) {
+        disponibilitaDAO.addDisponibilita(d);
+    }
+
+
     private void validateDisponibilita(List<Disponibilita> disponibilita, int quantita, String taglia) {
         boolean disponibile = disponibilita.stream()
                 .anyMatch(d -> d.getTaglia().equals(taglia) && d.getQuantita() >= quantita);

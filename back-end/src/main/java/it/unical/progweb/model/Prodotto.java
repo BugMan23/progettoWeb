@@ -1,9 +1,12 @@
 package it.unical.progweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.text.DecimalFormat;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Prodotto {
-    public int id;
+    private int id;
     public String nome;
     public String marca;
     public String colore;
@@ -12,6 +15,8 @@ public class Prodotto {
     public Boolean scontato;
     public String urlImage;
     public int idCategoria;
+
+    public Prodotto(){}
 
     public Prodotto(int id, String nome, String marca, String colore, int prezzo, String descrizione, Boolean scontato, String urlImage, int idCategoria) {
         this.id = id;
@@ -24,6 +29,11 @@ public class Prodotto {
         this.urlImage = urlImage;
         this.idCategoria = idCategoria;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public int getId() {
         return id;

@@ -42,6 +42,19 @@ public class DisponibilitaController {
         return ResponseEntity.ok("Quantità decrementata");
     }
 
+    @PostMapping("/admin")
+    public ResponseEntity<?> addDisponibilita(@RequestBody List<Disponibilita> disponibilita) {
+        try {
+            for (Disponibilita d : disponibilita) {
+                disponibilitaService.aggiungiDisponibilita(d);
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Errore nell'inserimento delle disponibilità");
+        }
+    }
+
+
     // Classe di supporto per le richieste
     public static class DisponibilitaRequest {
         private int prodottoId;

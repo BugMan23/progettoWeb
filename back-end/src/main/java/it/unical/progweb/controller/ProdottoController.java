@@ -1,6 +1,9 @@
 package it.unical.progweb.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unical.progweb.eccezioni.NotFoundException;
+import it.unical.progweb.model.Disponibilita;
 import it.unical.progweb.model.Prodotto;
 import it.unical.progweb.model.Recensione;
 import it.unical.progweb.service.ProdottoService;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -78,15 +82,33 @@ public class ProdottoController {
     }
 
     // Endpoint per admin
-    @PostMapping("/admin")
-    public ResponseEntity<?> addProduct(@RequestBody Prodotto prodotto) {
+    @PostMapping("/admin/completo")
+    public ResponseEntity<?> addProduct(@RequestBody Map<String, Object> payload) {
         try {
-            prodottoService.addProduct(prodotto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(prodotto);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            ObjectMapper mapper = new ObjectMapper();
+
+            // Estrae e mappa il prodotto
+            Prodotto prodotto = mapper.convertValue(payload.get("prodotto"), Prodotto.class);
+
+            // Estrae e mappa le disponibilità (con taglia e quantità)
+            List<Disponibilita> disponibilitaList = mapper.convertValue(
+                    payload.get("disponibilita"), new TypeReference<List<Disponibilita>>() {}
+            );
+
+            // Chiama il servizio
+            prodottoService.addProduct(prodotto, disponibilitaList);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Prodotto e disponibilità inseriti correttamente"));
+
+        } catch (Exception e) {
+            e.printStackTrace(); // per debug
+            return ResponseEntity.internalServerError()
+                    .body("Errore durante la creazione del prodotto con disponibilità");
         }
     }
+
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Prodotto prodotto) {

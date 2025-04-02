@@ -1,10 +1,14 @@
 package it.unical.progweb.model;
 
+import it.unical.progweb.persistence.dao.DisponibilitaDAO;
+
 public class Disponibilita {
     public int id;
     public int quantita;
     public String taglia;
     public int idProdotto;
+
+    public Disponibilita(){}
 
     public Disponibilita(int id, int quantita, String taglia, int idProdotto) {
         this.id = id;
