@@ -226,6 +226,25 @@
                   </div>
                 </div>
               </div>
+              <!-- Metodo PayPal: visibile sempre -->
+              <div class="payment-method-card"
+                   [class.selected]="selectedMetodoPagamentoId === -1"
+                   (click)="selectPayPal()">
+                <input type="radio" class="payment-radio"
+                       name="metodoPagamento"
+                       id="paypal-option"
+                       [checked]="selectedMetodoPagamentoId === -1"
+                       (change)="selectPayPal()">
+                <div class="payment-card-details">
+                  <div class="payment-card-title">
+                    <img src="assets/images/paypal-logo.png" alt="PayPal" style="height: 24px; margin-right: 8px;">
+                    PayPal
+                  </div>
+                  <div class="payment-card-info">
+                    <small>Paga con il tuo account PayPal</small>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="mt-3">
@@ -286,21 +305,34 @@
         <!-- Navigation buttons -->
         <div class="checkout-card-footer">
           <div class="nav-buttons">
-            <button type="button" class="btn-back" (click)="prevStep()" *ngIf="currentStep > 1">
-              <i class="bi bi-arrow-left"></i>Indietro
-            </button>
-            <a class="btn-back" (click)="backToCart()" *ngIf="currentStep === 1">
-              <i class="bi bi-arrow-left"></i>Torna al carrello
-            </a>
-            <button type="button" class="btn-next" (click)="nextStep()" *ngIf="currentStep < maxStep">
-              Continua<i class="bi bi-arrow-right"></i>
-            </button>
-            <button type="button" class="btn-confirm" (click)="completeOrder()" *ngIf="currentStep === maxStep"
-                    [disabled]="processingOrder">
-              <span *ngIf="processingOrder" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Conferma ordine
-            </button>
+            <!-- PayPal visibile sopra se selezionato -->
+            <div *ngIf="currentStep === maxStep && selectedMetodoPagamentoId === -1" class="paypal-box p-3 rounded bg-light mb-3">
+              <h5 class="text-center mb-3">Pagamento con PayPal</h5>
+              <div id="paypal-button-container" class="d-flex justify-content-center"></div>
+            </div>
+
+            <!-- Pulsanti navigazione -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button type="button" class="btn-back" (click)="prevStep()" *ngIf="currentStep > 1">
+                <i class="bi bi-arrow-left me-2"></i>Indietro
+              </button>
+              <a class="btn-back" (click)="backToCart()" *ngIf="currentStep === 1">
+                <i class="bi bi-arrow-left me-2"></i>Torna al carrello
+              </a>
+              <button type="button" class="btn-next" (click)="nextStep()" *ngIf="currentStep < maxStep">
+                Continua<i class="bi bi-arrow-right ms-2"></i>
+              </button>
+
+              <!-- Conferma ordine solo se metodo ≠ PayPal -->
+              <button type="button" class="btn-confirm"
+                      *ngIf="currentStep === maxStep && selectedMetodoPagamentoId !== -1"
+                      (click)="completeOrder()" [disabled]="processingOrder">
+                <span *ngIf="processingOrder" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Conferma ordine
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

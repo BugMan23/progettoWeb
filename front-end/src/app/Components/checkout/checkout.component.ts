@@ -23,6 +23,8 @@ export class CheckoutComponent implements OnInit {
   // Utente
   userId: number | null = null;
 
+  private paypalButtonRendered = false;
+
   // Passaggi checkout
   currentStep = 1;
   maxStep = 3;
@@ -105,6 +107,10 @@ export class CheckoutComponent implements OnInit {
 
     // Carica i dati dal carrello
     this.loadCheckoutData();
+
+    if (this.selectedMetodoPagamentoId === -1) {
+      this.initializePayPalButton();
+    }
   }
 
   loadCheckoutData(): void {
@@ -467,4 +473,47 @@ export class CheckoutComponent implements OnInit {
       this.router.navigate(['/profilo/ordini']);
     }
   }
+
+  selectPayPal(): void {
+    this.selectedMetodoPagamentoId = -1;
+    this.paypalButtonRendered = false; // forza un nuovo render se serve
+    this.initializePayPalButton();
+  }
+
+
+  initializePayPalButton(): void {
+    if (this.paypalButtonRendered) return;
+
+    if ((window as any).paypal && this.currentStep === this.maxStep && this.selectedMetodoPagamentoId === -1) {
+      setTimeout(() => {
+        (window as any).paypal.Buttons({
+          createOrder: (data: any, actions: any) => {
+            return actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: this.totale.toFixed(2)
+                }
+              }]
+            });
+          },
+          onApprove: (data: any, actions: any) => {
+            return actions.order.capture().then((details: any) => {
+              console.log('Transazione completata da:', details.payer.name.given_name);
+              this.completeOrder();
+            });
+          },
+          onError: (err: any) => {
+            console.error('Errore PayPal:', err);
+            this.error = 'Errore durante il pagamento con PayPal.';
+            setTimeout(() => this.error = null, 3000);
+          }
+        }).render('#paypal-button-container');
+
+        this.paypalButtonRendered = true; // blocca ulteriori render
+      }, 0);
+    }
+  }
+
+
+
 }
