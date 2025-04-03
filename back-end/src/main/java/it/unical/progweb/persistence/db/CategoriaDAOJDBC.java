@@ -54,19 +54,6 @@ public class CategoriaDAOJDBC implements CategoriaDAO {
     }
 
     @Override
-    public void deleteCategoria(int id) {
-        String query = "DELETE FROM categoria WHERE id = ?";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public Categoria findById(int id) {
         String query = "SELECT * FROM categoria WHERE id = ?";
 

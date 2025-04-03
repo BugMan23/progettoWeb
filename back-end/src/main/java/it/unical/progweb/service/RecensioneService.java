@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RecensioneService {
@@ -27,7 +26,6 @@ public class RecensioneService {
         this.dettagliOrdineDAO = dettagliOrdineDAO;
     }
 
-    // Aggiunge una recensione dopo verifica
     public void addReview(Recensione recensione) {
         validateReview(recensione);
         checkUserPurchasedProduct(recensione.getIdUtente(), recensione.getIdProdotto());

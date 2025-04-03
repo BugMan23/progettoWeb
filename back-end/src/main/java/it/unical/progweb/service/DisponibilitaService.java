@@ -18,18 +18,15 @@ public class DisponibilitaService {
         this.disponibilitaDAO = disponibilitaDAO;
     }
 
-    // recupera lista disponibilità per un prodotto
     public List<Disponibilita> getDisponibilitaProdotto(int prodottoId) {
         return disponibilitaDAO.findByProdottoId(prodottoId);
     }
 
-    // aggiorna quantità per taglia specifica
     public void updateDisponibilita(int prodottoId, int quantita, String taglia) {
         validateQuantita(quantita);
         disponibilitaDAO.updateDisponibilita(prodottoId, quantita, taglia);
     }
 
-    // Riduce disponibilità dopo acquisto, con validazione
     public void decrementaQuantita(int prodottoId, int quantita, String taglia) {
         List<Disponibilita> disponibilita = getDisponibilitaProdotto(prodottoId);
         validateDisponibilita(disponibilita, quantita, taglia);

@@ -61,7 +61,6 @@ public class DisponibilitaController {
         private int quantita;
         private String taglia;
 
-        // Getter e setter
         public int getProdottoId() { return prodottoId; }
         public void setProdottoId(int prodottoId) { this.prodottoId = prodottoId; }
         public int getQuantita() { return quantita; }

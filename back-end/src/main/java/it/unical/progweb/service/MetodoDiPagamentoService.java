@@ -23,15 +23,12 @@ public class MetodoDiPagamentoService {
             System.out.println("Service: Salvataggio metodo di pagamento per utente ID: " + userId);
             System.out.println("Service: Dati metodo di pagamento: " + metodoPagamento);
 
-            // Verifica che l'ID utente sia impostato correttamente
             if (metodoPagamento.getIdUtente() <= 0) {
                 metodoPagamento.setIdUtente(userId);
             }
 
-            // Validazione dati
             validaMetodoPagamento(metodoPagamento);
 
-            // Pulizia numero carta
             String numeroCarta = metodoPagamento.getNumeroCarta().replaceAll("\\s+", "");
             metodoPagamento.setNumeroCarta(numeroCarta);
 

@@ -24,21 +24,16 @@ public class CarrelloService {
     }
 
     public void addAlCarrello(int userId, int productId, int quantity, String taglia) {
-        // Validazione input
         if (userId <= 0 || productId <= 0 || quantity <= 0) {
             throw new IllegalArgumentException("Parametri non validi");
         }
-
-        // Garantisci che la taglia abbia sempre un valore
         if (taglia == null || taglia.trim().isEmpty()) {
             taglia = "M";
         }
 
-        // Verifica disponibilità
         List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
         boolean disponibile = false;
 
-        // Se non ci sono record di disponibilità, consideriamo il prodotto non disponibile
         if (disponibilita.isEmpty()) {
             throw new NotFoundException("Prodotto non disponibile");
         }
@@ -101,7 +96,6 @@ public class CarrelloService {
     }
 
     public void updateCartItem(int userId, int productId, int quantity, String taglia) {
-        // Verifica disponibilità
         List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
         boolean disponibile = false;
         for (Disponibilita d : disponibilita) {
@@ -119,7 +113,6 @@ public class CarrelloService {
     }
 
     public void updateCartItemTaglia(int userId, int productId, String taglia) {
-        // Verifica disponibilità
         List<Disponibilita> disponibilita = disponibilitaDAO.findByProdottoId(productId);
         boolean tagliaDisponibile = disponibilita.stream()
                 .anyMatch(d -> d.getTaglia().equals(taglia) && d.getQuantita() > 0);

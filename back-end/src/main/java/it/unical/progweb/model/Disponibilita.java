@@ -1,6 +1,5 @@
 package it.unical.progweb.model;
 
-import it.unical.progweb.persistence.dao.DisponibilitaDAO;
 
 public class Disponibilita {
     public int id;

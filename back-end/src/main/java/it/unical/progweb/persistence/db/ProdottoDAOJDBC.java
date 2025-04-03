@@ -74,7 +74,7 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                 System.err.println("Errore eliminando da disponibilita: " + e.getMessage());
             }
 
-            // 1. Elimina recensioni collegate
+            // 2. Elimina recensioni collegate
             try (PreparedStatement ps = connection.prepareStatement("DELETE FROM recensione WHERE idprodotto = ?")) {
                 System.out.println("Eliminazione da recensione...");
                 ps.setInt(1, id);
@@ -83,7 +83,7 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                 System.err.println("Errore eliminando da recensione: " + e.getMessage());
             }
 
-            // 2. Elimina dettagli ordini collegati
+            // 3. Elimina dettagli ordini collegati
             try (PreparedStatement ps = connection.prepareStatement("DELETE FROM dettagliordini WHERE idprodotto = ?")) {
                 System.out.println("Eliminazione da dettagli_ordini...");
                 ps.setInt(1, id);
@@ -92,7 +92,7 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                 System.err.println("Errore eliminando da dettagli_ordini: " + e.getMessage());
             }
 
-            // 3. Elimina dal carrello
+            // 4. Elimina dal carrello
             try (PreparedStatement ps = connection.prepareStatement("DELETE FROM carrello WHERE idprodotto = ?")) {
                 System.out.println("Eliminazione da carrello...");
                 ps.setInt(1, id);
@@ -101,7 +101,7 @@ public class ProdottoDAOJDBC implements ProdottoDAO {
                 System.err.println("Errore eliminando da carrello: " + e.getMessage());
             }
 
-            // 4. Infine, elimina il prodotto
+            // 5. Infine, elimina il prodotto
             try (PreparedStatement ps = connection.prepareStatement("DELETE FROM prodotto WHERE id = ?")) {
                 System.out.println("Eliminazione da prodotto...");
                 ps.setInt(1, id);

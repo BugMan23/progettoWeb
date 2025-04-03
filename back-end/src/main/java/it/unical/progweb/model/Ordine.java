@@ -17,7 +17,6 @@ public class Ordine {
         this.idMetodoPagamento = idMetodoPagamento;
     }
 
-    // Costruttore senza la data (per quando si crea un nuovo ordine, la data la imposta il DB)
     public Ordine(int id, int idUtente, String stato, int totalePagare, int idMetodoPagamento) {
         this.id = id;
         this.idUtente = idUtente;

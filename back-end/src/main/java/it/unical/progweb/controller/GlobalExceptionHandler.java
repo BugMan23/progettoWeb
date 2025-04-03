@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    // Rimuovi uno dei due gestori generici e mantieni solo questo
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericError(Exception e) {
         log.error("Errore non gestito", e);

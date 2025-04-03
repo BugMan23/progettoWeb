@@ -5,7 +5,6 @@ import it.unical.progweb.model.Prodotto;
 import java.util.List;
 
 public interface ProdottoDAO {
-    // admin
     void addProdotto(Prodotto prodotto);
     void deleteProdotto(int id);
     void updateProdotto(Prodotto prodotto);

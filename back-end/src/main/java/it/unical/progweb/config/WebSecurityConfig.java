@@ -1,7 +1,6 @@
 package it.unical.progweb.config;
 
 
-import io.jsonwebtoken.security.Keys;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -55,10 +54,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/utenti/customers").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/utenti/admin/**").hasRole("ADMIN")
 
-                        // Tutto il resto richiede autenticazione
                         .anyRequest().authenticated()
                 )
-                // Aggiungi il filtro JWT prima dell'autenticazione standard
                 .addFilterBefore(new JwtAuthFilter(secretKey), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -70,7 +67,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // ✅ PATCH aggiunto
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization"));

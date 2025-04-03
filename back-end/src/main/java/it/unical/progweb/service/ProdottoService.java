@@ -61,11 +61,10 @@ public class ProdottoService {
     public void addProduct(Prodotto prodotto, List<Disponibilita> disponibilitaList) {
         prodottoDAO.addProdotto(prodotto);
 
-        // Dopo l'inserimento, recupera l'ID del prodotto appena creato
-        Prodotto prodottoInserito = prodottoDAO.findLastInserted(); // Oppure usa findByNomeEMarca se serve
+        Prodotto prodottoInserito = prodottoDAO.findLastInserted();
 
         for (Disponibilita d : disponibilitaList) {
-            d.setIdProdotto(prodottoInserito.getId()); // collega correttamente
+            d.setIdProdotto(prodottoInserito.getId());
             disponibilitaDAO.addDisponibilita(d);
         }
     }

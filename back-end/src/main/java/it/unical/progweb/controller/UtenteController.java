@@ -83,7 +83,6 @@ public class UtenteController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato");
             }
 
-            // Crea un oggetto di risposta senza dati sensibili
             Map<String, Object> response = new HashMap<>();
             response.put("id", utente.getId());
             response.put("nome", utente.getNome());
@@ -109,7 +108,7 @@ public class UtenteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato.");
         } catch (Exception e) {
             System.out.println("🔥 Errore generico: " + e.getMessage());
-            e.printStackTrace(); // Log completo
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'eliminazione dell'utente.");
         }
     }

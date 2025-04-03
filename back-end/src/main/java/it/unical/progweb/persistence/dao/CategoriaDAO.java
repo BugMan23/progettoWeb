@@ -8,7 +8,5 @@ import java.util.List;
 public interface CategoriaDAO {
     void addCategory(Categoria categoria);
     List<Categoria> findAll();
-    void deleteCategoria(int id);
-
     Categoria findById(int id);
 }

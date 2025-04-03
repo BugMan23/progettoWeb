@@ -18,10 +18,6 @@ public class DisponibilitaDAOJDBC implements DisponibilitaDAO {
         this.dataSource = dataSource;
     }
 
-    /* LO UTILIZZO PER : restituisce la disponibilità di un prodotto può essere utile
-    in vari contesti, ad esempio quando un cliente sta visualizzando i dettagli di un
-    prodotto e desidera vedere le taglie e le quantità disponibili, o quando sta per aggiungere
-    un prodotto al carrello e deve sapere se l'articolo è disponibile nella taglia e quantità desiderata.*/
     @Override
     public List<Disponibilita> findByProdottoId(int prodottoId) {
         List<Disponibilita> disponibilita = new ArrayList<>();

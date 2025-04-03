@@ -40,7 +40,7 @@
               <span class="product-price" *ngIf="!prodotto.scontato">€{{ prodotto.prezzo.toFixed(2) }}</span>
               <span *ngIf="prodotto.scontato">
                 <span class="product-price">€{{ getPrezzoScontato(prodotto.prezzo) }}</span>
-                <span class="product-price">€{{ prodotto.prezzo.toFixed(2) }}</span>
+                <span class="product-original-price">€{{ prodotto.prezzo.toFixed(2) }}</span>
               </span>
             </div>
             <a [routerLink]="['/prodotto', prodotto.id]" class="btn product-cta">Visualizza</a>

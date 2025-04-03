@@ -31,10 +31,6 @@ public class CategoriaService {
         return categoriaDAO.findAll();
     }
 
-    /*public void deleteCategory(int id) {
-        validateCategoryHasNoProducts(categoria);
-        categoriaDAO.deleteCategoria(id);
-    }*/
 
     private void validateCategory(Categoria categoria) {
         if (categoria.getNome() == null || categoria.getNome().trim().isEmpty()) {
@@ -42,12 +38,6 @@ public class CategoriaService {
         }
     }
 
-    private void validateCategoryHasNoProducts(String categoria) {
-        List<Prodotto> products = prodottoDAO.findProdottiByCategoria(categoria);
-        if (!products.isEmpty()) {
-            throw new IllegalStateException("Impossibile eliminare categoria con prodotti associati");
-        }
-    }
 
     public Categoria getCategoriaById(int id) {
         Categoria categoria = categoriaDAO.findById(id);

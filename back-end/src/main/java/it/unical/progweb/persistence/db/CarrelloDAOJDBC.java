@@ -21,7 +21,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
 
     @Override
     public void addAlCarrello(int userId, int prodottoId, int quantita) {
-        // Controlla se il prodotto è già nel carrello
         String checkQuery = "SELECT quantita FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = false";
         String updateRemovedQuery = "UPDATE carrello SET quantita = ?, rimosso = false WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = true";
         String insertQuery = "INSERT INTO carrello (idutente, idprodotto, quantita, taglia, isordinato, rimosso) VALUES (?, ?, ?, ?, false, false)";
@@ -34,7 +33,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
 
             try (ResultSet rs = checkPs.executeQuery()) {
                 if (rs.next()) {
-                    // Prodotto già nel carrello, aggiorna quantità
                     int currentQuantity = rs.getInt("quantita");
                     int newQuantity = currentQuantity + quantita;
 
@@ -45,7 +43,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                         updatePs.executeUpdate();
                     }
                 } else {
-                    // Controlla se esiste come rimosso
                     String checkRemovedQuery = "SELECT id, quantita FROM carrello WHERE idutente = ? AND idprodotto = ? AND isordinato = false AND rimosso = true";
                     try (PreparedStatement checkRemovedPs = connection.prepareStatement(checkRemovedQuery)) {
                         checkRemovedPs.setInt(1, userId);
@@ -53,7 +50,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
 
                         try (ResultSet removedRs = checkRemovedPs.executeQuery()) {
                             if (removedRs.next()) {
-                                // Prodotto era nel carrello ma rimosso, lo ripristiniamo
                                 try (PreparedStatement updateRemovedPs = connection.prepareStatement(updateRemovedQuery)) {
                                     updateRemovedPs.setInt(1, quantita);
                                     updateRemovedPs.setInt(2, userId);
@@ -61,7 +57,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
                                     updateRemovedPs.executeUpdate();
                                 }
                             } else {
-                                // Prodotto mai stato nel carrello, inserisci nuovo
                                 try (PreparedStatement insertPs = connection.prepareStatement(insertQuery)) {
                                     insertPs.setInt(1, userId);
                                     insertPs.setInt(2, prodottoId);
@@ -195,8 +190,6 @@ public class CarrelloDAOJDBC implements CarrelloDAO {
 
     @Override
     public void initializeEmptyCart(int userId) {
-        // Non c'è bisogno di inserire record nel database, ma possiamo verificare
-        // che non esista già un carrello per questo utente
         String query = "SELECT COUNT(*) FROM carrello WHERE idutente = ? AND isordinato = false";
 
         try (Connection connection = dataSource.getConnection();

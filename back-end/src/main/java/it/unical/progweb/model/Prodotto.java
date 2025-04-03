@@ -2,7 +2,6 @@ package it.unical.progweb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.text.DecimalFormat;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Prodotto {

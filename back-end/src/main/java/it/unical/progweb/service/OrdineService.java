@@ -11,7 +11,6 @@ import it.unical.progweb.utility.OrdineStatusCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -34,7 +33,6 @@ public class OrdineService {
      * Crea un nuovo ordine e restituisce l'ID dell'ordine creato
      */
     public int createOrder(int userId, int idMetodoPagamento, List<DettagliOrdini> articoliCarrello) {
-        // Validazione degli articoli nel carrello
         validazioneArticoliNelCarrello(articoliCarrello);
 
         // Calcolo del totale da pagare
@@ -44,12 +42,11 @@ public class OrdineService {
         LocalDateTime now = LocalDateTime.now();
         String currentDate = now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-        // Creazione dell'oggetto ordine
         Ordine ordine = new Ordine(
                 0, // ID sarà generato dal database
                 userId,
-                currentDate, // Data formattata
-                OrdineStatusCalculator.STATO_CONFERMATO, // Stato iniziale
+                currentDate,
+                OrdineStatusCalculator.STATO_CONFERMATO,
                 totaleDaPagare,
                 idMetodoPagamento
         );
@@ -57,10 +54,8 @@ public class OrdineService {
         // Salva l'ordine nel database e ottieni l'ID generato
         int ordineId = ordineDAO.creaOrdine(ordine);
 
-        // Log l'ID dell'ordine creato
         System.out.println("Ordine creato con ID: " + ordineId);
 
-        // Imposta l'ID nell'oggetto ordine
         ordine.setId(ordineId);
 
         // Salva gli articoli dell'ordine
@@ -76,10 +71,8 @@ public class OrdineService {
      * Ottiene gli ordini di un utente
      */
     public List<Ordine> getUserOrders(int userId) {
-        // Recupera gli ordini dell'utente dal database
         List<Ordine> ordini = ordineDAO.findByUserId(userId);
 
-        // Log per debug
         System.out.println("Trovati " + ordini.size() + " ordini per l'utente " + userId);
 
         // Aggiorna lo stato di ogni ordine in base alla data
@@ -90,7 +83,6 @@ public class OrdineService {
             String statoAggiornato = OrdineStatusCalculator.calcolaStatoOrdine(ordine);
             ordine.setStato(statoAggiornato);
 
-            // Log per debug
             System.out.println("Ordine #" + ordine.getId() +
                     " - Data: " + ordine.getData() +
                     " - Stato: " + statoOriginale + " → " + statoAggiornato);
@@ -108,12 +100,10 @@ public class OrdineService {
             throw new NotFoundException("Ordine non trovato con ID: " + orderId);
         }
 
-        // Calcola lo stato aggiornato dell'ordine
         String statoOriginale = ordine.getStato();
         String statoAggiornato = OrdineStatusCalculator.calcolaStatoOrdine(ordine);
         ordine.setStato(statoAggiornato);
 
-        // Log per debug
         System.out.println("Ordine #" + ordine.getId() +
                 " - Data: " + ordine.getData() +
                 " - Stato: " + statoOriginale + " → " + statoAggiornato);
@@ -129,7 +119,6 @@ public class OrdineService {
             throw new IllegalArgumentException("Il carrello è vuoto");
         }
 
-        // Validazione opzionale: verifica che ogni articolo abbia una quantità positiva
         for (DettagliOrdini item : items) {
             if (item.getQuantita() <= 0) {
                 throw new IllegalArgumentException("La quantità deve essere maggiore di zero");
@@ -169,10 +158,8 @@ public class OrdineService {
      * Verifica se un utente ha acquistato un prodotto
      */
     public boolean haUserPurchasedProduct(int userId, int productId) {
-        // Ottieni tutti gli ordini dell'utente
         List<Ordine> ordini = ordineDAO.findByUserId(userId);
 
-        // Per ogni ordine, verifica i dettagli per il prodotto
         for (Ordine ordine : ordini) {
             List<DettagliOrdini> dettagliOrdini = dettagliOrdineDAO.findByOrderId(ordine.getId());
             for (DettagliOrdini dettaglio : dettagliOrdini) {

@@ -1,8 +1,6 @@
 package it.unical.progweb.services;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import it.unical.progweb.model.Utente;
 import it.unical.progweb.persistence.proxy.UtenteProxy;
 import org.springframework.stereotype.Service;
@@ -43,8 +41,4 @@ public class AuthService {
                 .signWith(secretKey)
                 .compact();
     }
-    public Utente loginAndGetUser(String email, String password) {
-        return utenteProxy.validateUser(email, password);
-    }
-
 }

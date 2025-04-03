@@ -17,7 +17,6 @@ public class OrdineRequest {
         this.articoliCarrello = articoliCarrello;
     }
 
-    // Getter
     public int getUserId() {
         return userId;
     }
@@ -30,7 +29,6 @@ public class OrdineRequest {
         return articoliCarrello;
     }
 
-    // Setter
     public void setUserId(int userId) {
         this.userId = userId;
     }

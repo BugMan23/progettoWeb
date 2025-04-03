@@ -6,11 +6,9 @@ public class CarrelloRequest {
     private int quantity;
     private String taglia;
 
-    // Costruttore vuoto per il deserializzatore JSON
     public CarrelloRequest() {
     }
 
-    // Costruttore con tutti i parametri
     public CarrelloRequest(int userId, int productId, int quantity, String taglia) {
         this.userId = userId;
         this.productId = productId;
@@ -18,7 +16,6 @@ public class CarrelloRequest {
         this.taglia = taglia;
     }
 
-    // Getter e setter
     public int getUserId() {
         return userId;
     }

@@ -1,6 +1,5 @@
 package it.unical.progweb.model;
 
-import javax.lang.model.element.NestingKind;
 
 public class Categoria {
     public int id;

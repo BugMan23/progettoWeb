@@ -23,8 +23,6 @@ public class ProdottoController {
 
     @Autowired
     private ProdottoService prodottoService;
-    @Autowired
-    private RecensioneService recensioneService;
 
     // Endpoint per tutti i prodotti
     @GetMapping
@@ -33,7 +31,7 @@ public class ProdottoController {
             List<Prodotto> prodotti = prodottoService.getAllProducts();
             return ResponseEntity.ok(prodotti);
         } catch (Exception e) {
-            e.printStackTrace(); // Per debug
+            e.printStackTrace();
             throw new RuntimeException("Errore nel recupero dei prodotti");
         }
     }
@@ -87,22 +85,19 @@ public class ProdottoController {
         try {
             ObjectMapper mapper = new ObjectMapper();
 
-            // Estrae e mappa il prodotto
             Prodotto prodotto = mapper.convertValue(payload.get("prodotto"), Prodotto.class);
 
-            // Estrae e mappa le disponibilità (con taglia e quantità)
             List<Disponibilita> disponibilitaList = mapper.convertValue(
                     payload.get("disponibilita"), new TypeReference<List<Disponibilita>>() {}
             );
 
-            // Chiama il servizio
             prodottoService.addProduct(prodotto, disponibilitaList);
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(Map.of("message", "Prodotto e disponibilità inseriti correttamente"));
 
         } catch (Exception e) {
-            e.printStackTrace(); // per debug
+            e.printStackTrace();
             return ResponseEntity.internalServerError()
                     .body("Errore durante la creazione del prodotto con disponibilità");
         }
@@ -126,7 +121,7 @@ public class ProdottoController {
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         try {
             prodottoService.deleteProduct(id);
-            return ResponseEntity.noContent().build(); // HTTP 204 - nessun corpo
+            return ResponseEntity.noContent().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
@@ -145,7 +140,6 @@ public class ProdottoController {
             this.recensioni = recensioni;
         }
 
-        // Aggiungi getter per una corretta serializzazione
         public Prodotto getProdotto() {
             return prodotto;
         }

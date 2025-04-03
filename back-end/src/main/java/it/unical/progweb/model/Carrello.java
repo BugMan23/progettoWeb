@@ -3,10 +3,10 @@ public class Carrello {
     public int id;
     public int idUtente;
     public int idProdotto;
-    public int quantita;  // Cambiato da String a int
+    public int quantita;
     public String taglia;
     public Boolean isOrdinato;
-    public Boolean rimosso;  // Aggiunto l'attributo rimosso
+    public Boolean rimosso;
 
     public Carrello(int id, int idUtente, int idProdotto, int quantita, String taglia, Boolean isOrdinato, Boolean rimosso) {
         this.id = id;
@@ -18,7 +18,6 @@ public class Carrello {
         this.rimosso = rimosso;
     }
 
-    // Getter e setter aggiornati
     public int getId() {
         return id;
     }

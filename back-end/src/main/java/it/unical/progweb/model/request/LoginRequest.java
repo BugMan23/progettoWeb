@@ -4,16 +4,14 @@ public class LoginRequest {
     private String email;
     private String password;
 
-    // Default constructor
+
     public LoginRequest() {}
 
-    // Parameterized constructor
     public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    // Getters
     public String getEmail() {
         return email;
     }
@@ -22,7 +20,6 @@ public class LoginRequest {
         return password;
     }
 
-    // Setters
     public void setEmail(String email) {
         this.email = email;
     }

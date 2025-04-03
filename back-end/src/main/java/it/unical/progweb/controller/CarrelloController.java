@@ -20,16 +20,13 @@ public class CarrelloController {
     @Autowired
     private CarrelloService carrelloService;
 
-    // Modifica in back-end/src/main/java/it/unical/progweb/controller/CarrelloController.java
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@RequestBody CarrelloRequest cartRequest) {
         try {
-            // Aggiungi controlli di validazione
             if (cartRequest.getUserId() <= 0 || cartRequest.getProductId() <= 0 || cartRequest.getQuantity() <= 0) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Parametri non validi"));
             }
 
-            // Garantisci che la taglia abbia sempre un valore predefinito
             String taglia = cartRequest.getTaglia();
             if (taglia == null || taglia.trim().isEmpty()) {
                 taglia = "M";
@@ -83,7 +80,6 @@ public class CarrelloController {
         try {
             System.out.println("Richiesta di contrassegnare il carrello come ordinato per utente: " + userId);
             carrelloService.clearCart(userId);
-            // Restituisce una risposta esplicita con un messaggio più appropriato
             return ResponseEntity.ok("Carrello confermato come ordinato");
         } catch (Exception e) {
             System.err.println("Errore nell'aggiornamento dello stato del carrello: " + e.getMessage());

@@ -88,32 +88,6 @@ public class UtenteDAOJDBC implements UtenteDAO {
     }
 
     @Override
-    public Utente validateUser(String email, String password){
-        String query = "SELECT * FROM utente WHERE email = ?";
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement(query)){
-            ps.setString(1, email);
-            try(ResultSet rs = ps.executeQuery()) {
-                if(rs.next()){
-                    if(BCrypt.checkpw(password, rs.getString("password"))){
-                        return new Utente(
-                                rs.getInt("id"),
-                                rs.getString("nome"),
-                                rs.getString("cognome"),
-                                rs.getString("email"),
-                                rs.getString("password"),
-                                rs.getBoolean("isadmin")
-                        );
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
-    @Override
     public Utente findByEmail(String email) {
         String query = "SELECT * FROM utente WHERE email = ?";
         try (Connection connection = dataSource.getConnection();

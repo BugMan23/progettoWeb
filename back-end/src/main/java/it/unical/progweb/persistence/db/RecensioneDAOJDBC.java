@@ -100,7 +100,6 @@ public class RecensioneDAOJDBC implements RecensioneDAO {
         return recensioni;
     }
 
-    // In RecensioneDAOJDBC.java
     @Override
     public List<Recensione> findByUserAndProduct(int userId, int productId) {
         List<Recensione> recensioni = new ArrayList<>();

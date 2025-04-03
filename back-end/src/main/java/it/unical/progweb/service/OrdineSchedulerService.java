@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -20,7 +19,6 @@ public class OrdineSchedulerService {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // Esegui automaticamente ogni notte alle 1:00
     @Scheduled(cron = "0 0 1 * * ?")
     public void aggiornaStatoOrdini() {
         List<Ordine> ordini = ordineDAO.findAll();
@@ -44,7 +42,6 @@ public class OrdineSchedulerService {
                     ordineDAO.updateStatus(ordine.getId(), nuovoStato);
                 }
             } catch (Exception e) {
-                // Log dell'errore ma continua con gli altri ordini
                 System.err.println("Errore nell'aggiornamento dello stato per l'ordine " + ordine.getId() + ": " + e.getMessage());
             }
         }
